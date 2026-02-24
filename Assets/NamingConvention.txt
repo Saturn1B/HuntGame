@@ -1,0 +1,19 @@
+#Functions : PascalCase 				-> 	void MyFunction
+
+#Parameters / Variables : camelCase 	-> 	int myVariable
+
+#Enum : PascalCase + UPPER_CASE 		-> 	public enum MyEnum
+											{
+												FIRST_ENUM,
+												SECOND_ENUM
+											}
+
+#Enum variables : snake_case			->	public MyEnum _myEnumVariable
+
+#Event / unity events : snake_case		->	Action _myEvent
+
+#Class : PascalCase						->	class MyClass
+
+#Interface : I + PascalCase + able		->	interface ISelectable
+
+#ScriptableObject : PascalCase + Data 	->	class MyScriptableData : ScriptableObject
