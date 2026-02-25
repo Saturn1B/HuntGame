@@ -26,6 +26,15 @@ namespace DungeonSteakhouse.Net.Steam
         private Lobby? _currentLobby;
         private bool _isCreatingLobby;
 
+        // Shared session identifier (stable across all players in the Steam lobby)
+        private string _sessionId;
+
+        public bool TryGetSessionId(out string sessionId)
+        {
+            sessionId = _sessionId;
+            return !string.IsNullOrWhiteSpace(sessionId);
+        }
+
         private void Awake()
         {
             ResolveConfigIfMissing();
@@ -89,13 +98,13 @@ namespace DungeonSteakhouse.Net.Steam
             }
 
             _currentLobby = lobby.Value;
+            _sessionId = _currentLobby.Value.Id.ToString();
 
             _currentLobby.Value.SetJoinable(true);
             _currentLobby.Value.SetFriendsOnly();
             _currentLobby.Value.SetData("name", $"{SteamClient.Name}'s Lobby");
             _currentLobby.Value.SetData("buildVersion", GetBuildVersion());
 
-            // Connection payload for approval (host also has a local connection)
             ApplyConnectionPayload();
 
             var ok = networkManager.StartHost();
@@ -104,6 +113,7 @@ namespace DungeonSteakhouse.Net.Steam
                 Debug.LogError("[SteamLobbyNetcode] NetworkManager.StartHost() failed.");
                 _currentLobby.Value.Leave();
                 _currentLobby = null;
+                _sessionId = null;
             }
 
             _isCreatingLobby = false;
@@ -147,6 +157,7 @@ namespace DungeonSteakhouse.Net.Steam
         private void OnLobbyEntered(Lobby lobby)
         {
             _currentLobby = lobby;
+            _sessionId = lobby.Id.ToString();
 
             // Host also enters its own lobby
             if (_isCreatingLobby || (networkManager != null && networkManager.IsHost))
@@ -160,13 +171,13 @@ namespace DungeonSteakhouse.Net.Steam
                 Debug.LogError($"[SteamLobbyNetcode] Build version mismatch. Lobby={lobbyVersion} Local={localVersion}");
                 lobby.Leave();
                 _currentLobby = null;
+                _sessionId = null;
                 return;
             }
 
             var hostSteamId = lobby.Owner.Id;
             transport.targetSteamId = hostSteamId;
 
-            // Connection payload for approval
             ApplyConnectionPayload();
 
             var ok = networkManager.StartClient();
@@ -175,6 +186,7 @@ namespace DungeonSteakhouse.Net.Steam
                 Debug.LogError("[SteamLobbyNetcode] NetworkManager.StartClient() failed.");
                 lobby.Leave();
                 _currentLobby = null;
+                _sessionId = null;
             }
         }
 
@@ -185,6 +197,8 @@ namespace DungeonSteakhouse.Net.Steam
                 _currentLobby.Value.Leave();
                 _currentLobby = null;
             }
+
+            _sessionId = null;
         }
 
         private void ApplyConnectionPayload()

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
@@ -12,6 +13,8 @@ namespace DungeonSteakhouse.Net.Flow
 
     public sealed class NetSceneFlow : MonoBehaviour
     {
+        public event Action<NetRunPhase> PhaseChanged;
+
         [Header("Config")]
         [SerializeField] private NetGameConfig config;
 
@@ -69,7 +72,8 @@ namespace DungeonSteakhouse.Net.Flow
                 return false;
             }
 
-            _phase = NetRunPhase.InRun;
+            // Host updates immediately; clients will update on LoadComplete event.
+            SetPhase(NetRunPhase.InRun);
             return true;
         }
 
@@ -87,7 +91,7 @@ namespace DungeonSteakhouse.Net.Flow
             if (!_dungeonScene.IsValid() || !_dungeonScene.isLoaded)
             {
                 Debug.LogWarning("[NetSceneFlow] Dungeon scene invalid/not loaded. Forcing phase back to Hub.");
-                _phase = NetRunPhase.Hub;
+                SetPhase(NetRunPhase.Hub);
                 return false;
             }
 
@@ -98,8 +102,18 @@ namespace DungeonSteakhouse.Net.Flow
                 return false;
             }
 
-            _phase = NetRunPhase.Hub;
+            // Host updates immediately; clients will update on UnloadComplete event.
+            SetPhase(NetRunPhase.Hub);
             return true;
+        }
+
+        private void SetPhase(NetRunPhase phase)
+        {
+            if (_phase == phase)
+                return;
+
+            _phase = phase;
+            PhaseChanged?.Invoke(_phase);
         }
 
         private void OnServerStarted()
@@ -117,15 +131,12 @@ namespace DungeonSteakhouse.Net.Flow
 
             var sceneManager = networkManager.SceneManager;
 
-            // Bootstrap + additive approach: server loads/unloads additive scenes.
             sceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
 
-            // Active scene sync is OPTIONAL (you asked for it disabled).
+            // You requested: don't force active scene changes by default.
             sceneManager.ActiveSceneSynchronizationEnabled = (config != null && config.syncActiveScene);
 
-            // Strict validation: only allow additive loads for known scenes.
             sceneManager.VerifySceneBeforeLoading = VerifySceneBeforeLoading;
-
             sceneManager.OnSceneEvent += OnSceneEvent;
 
             _sceneManagerConfigured = true;
@@ -145,15 +156,37 @@ namespace DungeonSteakhouse.Net.Flow
 
         private void OnSceneEvent(SceneEvent sceneEvent)
         {
-            var isServerLocalEvent = sceneEvent.ClientId == NetworkManager.ServerClientId;
+            if (networkManager == null || config == null)
+                return;
+
+            // Determine if this event is "local" to this process (important on host: it receives events for all clients).
+            bool isLocalEvent;
+            if (networkManager.IsServer)
+                isLocalEvent = sceneEvent.ClientId == NetworkManager.ServerClientId;
+            else
+                isLocalEvent = sceneEvent.ClientId == networkManager.LocalClientId;
+
+            // Update local phase when THIS client finishes loading/unloading the dungeon scene.
+            if (isLocalEvent)
+            {
+                if (sceneEvent.SceneEventType == SceneEventType.LoadComplete && sceneEvent.SceneName == config.dungeonSceneName)
+                    SetPhase(NetRunPhase.InRun);
+
+                if (sceneEvent.SceneEventType == SceneEventType.UnloadComplete && sceneEvent.SceneName == config.dungeonSceneName)
+                    SetPhase(NetRunPhase.Hub);
+
+                if (sceneEvent.SceneEventType == SceneEventType.LoadComplete && sceneEvent.SceneName == config.tavernSceneName)
+                    SetPhase(NetRunPhase.Hub);
+            }
+
+            // Keep server-side scene references (only server local event)
+            if (!networkManager.IsServer || sceneEvent.ClientId != NetworkManager.ServerClientId)
+                return;
 
             switch (sceneEvent.SceneEventType)
             {
                 case SceneEventType.LoadComplete:
                     {
-                        if (!isServerLocalEvent)
-                            return;
-
                         if (sceneEvent.SceneName == config.tavernSceneName)
                             _tavernScene = sceneEvent.Scene;
 
@@ -165,9 +198,6 @@ namespace DungeonSteakhouse.Net.Flow
 
                 case SceneEventType.UnloadComplete:
                     {
-                        if (!isServerLocalEvent)
-                            return;
-
                         if (sceneEvent.SceneName == config.dungeonSceneName)
                             _dungeonScene = default;
 
@@ -176,13 +206,7 @@ namespace DungeonSteakhouse.Net.Flow
 
                 case SceneEventType.LoadEventCompleted:
                     {
-                        // Server receives this when all clients finished loading.
-                        if (!isServerLocalEvent)
-                            return;
-
-                        // You requested: do NOT force active scene changes by default.
-                        // If later you decide you want it, toggle config.syncActiveScene.
-                        if (config != null && config.syncActiveScene)
+                        if (config.syncActiveScene)
                         {
                             if (sceneEvent.SceneName == config.dungeonSceneName && _dungeonScene.IsValid() && _dungeonScene.isLoaded)
                                 SceneManager.SetActiveScene(_dungeonScene);

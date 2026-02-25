@@ -1744,6 +1744,7 @@ GameObject:
   - component: {fileID: 1359309297}
   - component: {fileID: 1359309293}
   - component: {fileID: 1359309300}
+  - component: {fileID: 1359309301}
   m_Layer: 0
   m_Name: Steam
   m_TagString: Untagged
@@ -1872,6 +1873,21 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 9241eb81ec7c9f14fbef4c1e38343584, type: 2}
   networkManager: {fileID: 1058636692}
   sceneFlow: {fileID: 1359309293}
+--- !u!114 &1359309301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359309292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d419a4b8c3998a4f86c01700fecfc27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetSteamVoiceService
+  config: {fileID: 11400000, guid: 348794fa55baa4c409000a4ddc485bca, type: 2}
+  networkManager: {fileID: 1058636692}
+  playerRegistry: {fileID: 1359309297}
 --- !u!1 &1412321182
 GameObject:
   m_ObjectHideFlags: 0
