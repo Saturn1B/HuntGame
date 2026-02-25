@@ -4,6 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using DungeonSteakhouse.Net.Players;
+using DungeonSteakhouse.Net.Flow;
 
 namespace DungeonSteakhouse.Net.UI
 {
@@ -11,13 +12,14 @@ namespace DungeonSteakhouse.Net.UI
     {
         [Header("References")]
         [SerializeField] private NetGameRoot netGameRoot;
+        [SerializeField] private NetSceneFlow sceneFlow;
 
         [Header("UI (TMP)")]
         [SerializeField] private TMP_Text rosterText;
         [SerializeField] private Button readyButton;
         [SerializeField] private TMP_Text readyButtonLabel;
 
-        [SerializeField] private Button startButton; // Host only (placeholder)
+        [SerializeField] private Button startButton; // Host only
         [SerializeField] private TMP_Text startButtonLabel;
 
         private void Awake()
@@ -62,8 +64,6 @@ namespace DungeonSteakhouse.Net.UI
                 return;
 
             var sb = new StringBuilder(256);
-
-            // NOTE: ServerClientId is static in NGO (usually 0).
             var serverId = NetworkManager.ServerClientId;
 
             foreach (var p in netGameRoot.PlayerRegistry.Players)
@@ -91,7 +91,7 @@ namespace DungeonSteakhouse.Net.UI
                 startButton.interactable = isLocalHost && netGameRoot.PlayerRegistry.AreAllReady;
 
             if (startButtonLabel != null)
-                startButtonLabel.text = "Start (Host)";
+                startButtonLabel.text = "Start Run (Host)";
         }
 
         private void OnReadyClicked()
@@ -105,8 +105,16 @@ namespace DungeonSteakhouse.Net.UI
 
         private void OnStartClicked()
         {
-            // Placeholder: next step will hook this into additive scene loading (Tavern -> Dungeon).
-            Debug.Log("[NetLobbyRosterTMP] Start requested (placeholder).");
+            if (sceneFlow == null)
+            {
+                Debug.LogError("[NetLobbyRosterTMP] Missing NetSceneFlow reference.");
+                return;
+            }
+
+            if (!sceneFlow.TryStartRun())
+            {
+                Debug.LogWarning("[NetLobbyRosterTMP] StartRun failed (check console for details).");
+            }
         }
 
         private static NetPlayer GetLocalPlayer()

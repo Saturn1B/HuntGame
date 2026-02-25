@@ -6,6 +6,7 @@ using Steamworks;
 using Steamworks.Data;
 using Netcode.Transports.Facepunch;
 using DungeonSteakhouse.Net;
+using DungeonSteakhouse.Net.Connection;
 
 namespace DungeonSteakhouse.Net.Steam
 {
@@ -89,14 +90,14 @@ namespace DungeonSteakhouse.Net.Steam
 
             _currentLobby = lobby.Value;
 
-            // Basic lobby setup
             _currentLobby.Value.SetJoinable(true);
             _currentLobby.Value.SetFriendsOnly();
-
             _currentLobby.Value.SetData("name", $"{SteamClient.Name}'s Lobby");
             _currentLobby.Value.SetData("buildVersion", GetBuildVersion());
 
-            // Start host
+            // Connection payload for approval (host also has a local connection)
+            ApplyConnectionPayload();
+
             var ok = networkManager.StartHost();
             if (!ok)
             {
@@ -110,7 +111,6 @@ namespace DungeonSteakhouse.Net.Steam
 
         private void OnGameLobbyJoinRequested(Lobby lobby, SteamId friend)
         {
-            // Triggered by Steam overlay invitation / Join Game
             _ = JoinLobbyAsync(lobby.Id);
         }
 
@@ -137,7 +137,6 @@ namespace DungeonSteakhouse.Net.Steam
             try
             {
                 await SteamMatchmaking.JoinLobbyAsync(lobbyId);
-                // OnLobbyEntered will fire next
             }
             catch (Exception ex)
             {
@@ -149,11 +148,10 @@ namespace DungeonSteakhouse.Net.Steam
         {
             _currentLobby = lobby;
 
-            // Host will also "enter" its own lobby. In that case we do nothing here.
+            // Host also enters its own lobby
             if (_isCreatingLobby || (networkManager != null && networkManager.IsHost))
                 return;
 
-            // Version gate (centralized)
             var lobbyVersion = lobby.GetData("buildVersion");
             var localVersion = GetBuildVersion();
 
@@ -165,9 +163,11 @@ namespace DungeonSteakhouse.Net.Steam
                 return;
             }
 
-            // Connect to lobby owner (host)
             var hostSteamId = lobby.Owner.Id;
             transport.targetSteamId = hostSteamId;
+
+            // Connection payload for approval
+            ApplyConnectionPayload();
 
             var ok = networkManager.StartClient();
             if (!ok)
@@ -185,6 +185,21 @@ namespace DungeonSteakhouse.Net.Steam
                 _currentLobby.Value.Leave();
                 _currentLobby = null;
             }
+        }
+
+        private void ApplyConnectionPayload()
+        {
+            if (networkManager == null || networkManager.NetworkConfig == null)
+                return;
+
+            var payload = new NetConnectionPayload
+            {
+                buildVersion = GetBuildVersion(),
+                platformUserId = (ulong)SteamClient.SteamId,
+                displayName = SteamClient.Name
+            };
+
+            networkManager.NetworkConfig.ConnectionData = NetConnectionPayloadCodec.Encode(payload);
         }
 
         private int GetMaxPlayers()
@@ -208,7 +223,6 @@ namespace DungeonSteakhouse.Net.Steam
             if (config != null)
                 return;
 
-            // Try to grab the config from the NetGameRoot if present
             var root = NetGameRoot.Instance != null ? NetGameRoot.Instance : FindFirstObjectByType<NetGameRoot>();
             if (root != null && root.Config != null)
                 config = root.Config;
