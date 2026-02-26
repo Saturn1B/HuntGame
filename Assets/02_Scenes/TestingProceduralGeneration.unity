@@ -401,8 +401,6 @@ MonoBehaviour:
   roomLayer:
     serializedVersion: 2
     m_Bits: 128
-  bridgeSmoothness: 5
-  splineResolution: 10
 --- !u!4 &536361917
 Transform:
   m_ObjectHideFlags: 0
