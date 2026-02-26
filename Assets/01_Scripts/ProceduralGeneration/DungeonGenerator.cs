@@ -12,6 +12,9 @@ namespace ProceduralGeneration
 		[SerializeField] private int deepness;
 		[SerializeField] private LayerMask roomLayer;
 
+		[SerializeField] private float bridgeSmoothness;
+		[SerializeField] private int splineResolution;
+
 		private List<Socket> openSocket = new List<Socket>();
 		private List<Room> spawnedRoom = new List<Room>();
 
@@ -219,6 +222,22 @@ namespace ProceduralGeneration
 			//Duplicate array because we can't itterate over an array we are modifying
 			List<Socket> remainingSockets = new List<Socket>(openSocket);
 
+			for (int i = 0; i < remainingSockets.Count; i++)
+			{
+				if (!remainingSockets[i].isAvailable) continue;
+
+				for (int j = i + 1; j < remainingSockets.Count; j++)
+				{
+					if (!remainingSockets[j].isAvailable) continue;
+
+					if (remainingSockets[i].socketType != remainingSockets[j].socketType) continue;
+
+					if (TryBridge(remainingSockets[i], remainingSockets[j])) break;
+				}
+			}
+
+			/*
+
 			//Check all remaining opened socket
 			foreach (var s in remainingSockets)
 			{
@@ -234,6 +253,39 @@ namespace ProceduralGeneration
 
 			//Clear the List
 			openSocket.Clear();
+
+			*/
+		}
+
+		private bool TryBridge(Socket a, Socket b)
+		{
+			Vector3 p0 = a.transform.position;
+			Vector3 p3 = b.transform.position;
+
+			Vector3 p1 = p0 + a.transform.forward * bridgeSmoothness;
+			Vector3 p2 = p3 + b.transform.forward * bridgeSmoothness;
+
+			Vector3 previousPoint = p0;
+			bool intersects = false;
+
+			for (int i = 0; i < splineResolution; i++)
+			{
+				float t = i / (float)splineResolution;
+				Vector3 currentPoint = BezierCurve.GetPoint(p0, p1, p2, p3, t);
+
+				bool pointBlocked = Physics.CheckSphere(currentPoint, 1f, roomLayer);
+
+				Color debugColor = pointBlocked ? Color.red : Color.green;
+				Debug.DrawLine(previousPoint, currentPoint, debugColor, 10f);
+			}
+
+			if (intersects)
+			{
+				Debug.Log($"Bridge between {a.room.name} and {b.room.name} failed: Intersection detected.");
+				return false;
+			}
+
+			return true;
 		}
 
 		private bool TryPlaceEndRoom(Socket targetSocket)
