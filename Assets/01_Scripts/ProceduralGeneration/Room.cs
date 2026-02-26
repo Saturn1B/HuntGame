@@ -15,7 +15,7 @@ namespace ProceduralGeneration
 		private void OnDrawGizmos()
 		{
 			Gizmos.color = Color.purple;
-			Gizmos.DrawCube(boundCollider.bounds.center, boundCollider.bounds.size);
+			Gizmos.DrawWireCube(boundCollider.bounds.center, boundCollider.bounds.size);
 		}
 	}
 }

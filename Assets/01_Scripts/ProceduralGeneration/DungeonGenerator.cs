@@ -99,7 +99,7 @@ namespace ProceduralGeneration
 				AlignRooms(targetSocket, incomingSocket, room.transform);
 
 				//Check for room averlaping
-				if (IsOverlapping(room)) continue;
+				if (IsOverlapping(room, targetSocket)) continue;
 
 				//If socket found return it
 				return incomingSocket;
@@ -118,12 +118,20 @@ namespace ProceduralGeneration
 			roomTransform.position += positionOffset;
 		}
 
-		private bool IsOverlapping(Room room)
+		private bool IsOverlapping(Room room, Socket targetSocket)
 		{
 			Bounds b = room.boundCollider.bounds;
 			Collider[] colliders = Physics.OverlapBox(b.center, b.extents * .9f, room.transform.rotation, roomLayer);
 			foreach (var c in colliders)
-				if (c.transform.root != room.transform.root) return true;
+			{
+				if (c.transform.GetComponentInParent<Room>().gameObject != room.transform.GetComponentInParent<Room>().gameObject &&
+					c.transform.GetComponentInParent<Room>() != targetSocket.room)
+				{
+					Debug.Log(c.transform.GetComponentInParent<Room>().gameObject.name);
+					return true;
+				}
+
+			}
 			return false;
 		}
 	}
