@@ -15,6 +15,9 @@ namespace DungeonSteakhouse.Net.Voice
         [Header("Streaming Buffer")]
         [SerializeField] private float bufferSeconds = 0.35f;
 
+        [Header("Talking Indicator (optional)")]
+        [SerializeField] private VoiceTalkIndicator talkIndicator;
+
         private AudioClip _clip;
 
         private float[] _ring;
@@ -37,9 +40,11 @@ namespace DungeonSteakhouse.Net.Voice
                 go.transform.SetParent(transform);
                 go.transform.localPosition = Vector3.zero;
                 go.transform.localRotation = Quaternion.identity;
-
                 audioSource = go.AddComponent<AudioSource>();
             }
+
+            if (talkIndicator == null)
+                talkIndicator = GetComponentInChildren<VoiceTalkIndicator>(true);
 
             audioSource.playOnAwake = false;
             audioSource.loop = true;
@@ -87,13 +92,17 @@ namespace DungeonSteakhouse.Net.Voice
             if (_ring == null)
                 return;
 
+            // Receiving voice data implies "talking" (simple indicator)
+            if (talkIndicator != null)
+                talkIndicator.PingTalking();
+
             lock (_lock)
             {
                 for (int i = 0; i < sampleCount; i++)
                 {
                     if (_ringCount == _ring.Length)
                     {
-                        // Drop oldest sample if buffer is full (prevents latency growth)
+                        // Drop oldest samples if buffer is full (prevents latency growth)
                         _ringRead = (_ringRead + 1) % _ring.Length;
                         _ringCount--;
                     }
