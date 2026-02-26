@@ -16,7 +16,12 @@ namespace ProceduralGeneration
 		public SocketType socketType;
 		public bool isAvailable = true;
 		public Room room;
-		[SerializeField] private Collider boundCollider;
+		public Collider boundCollider;
+
+		public void CloseSocket()
+		{
+			isAvailable = false;
+		}
 
 		// EDITOR FUNCTION
 

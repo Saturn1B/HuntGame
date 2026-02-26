@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProceduralGeneration.RoomData
   roomName: Room_01
   roomPrefab: {fileID: 6204785601787793078, guid: 581b1218841b4114dbd2d526a0225b63, type: 3}
-  roomWeight: 0
+  roomWeight: 1
   socketTypes: 00000000

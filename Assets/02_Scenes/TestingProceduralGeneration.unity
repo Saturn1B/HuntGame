@@ -397,7 +397,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 35b7942026731d748be1d2d80e98bff9, type: 2}
   - {fileID: 11400000, guid: 311f55729b8800147ad9ad9a1e1ddd91, type: 2}
   entrancePrefab: {fileID: 7716995156583959494, guid: e22f7d0a042386741b02a0dff195d8d9, type: 3}
-  deepness: 20
+  deepness: 50
   roomLayer:
     serializedVersion: 2
     m_Bits: 128
