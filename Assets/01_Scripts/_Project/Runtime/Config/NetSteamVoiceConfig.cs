@@ -26,6 +26,26 @@ namespace DungeonSteakhouse.Net.Voice
         [Range(0.2f, 3f)]
         public float bufferSeconds = 1.0f;
 
+        [Header("Audio Robustness")]
+        [Tooltip("Minimum buffered seconds required before starting playback (reduces crackles on jitter).")]
+        [Range(0f, 0.5f)]
+        public float prefillSeconds = 0.08f;
+
+        [Tooltip("If we haven't received audio for this long, we consider the talker inactive (avoid counting idle underruns).")]
+        [Range(0.05f, 2f)]
+        public float talkerActiveSeconds = 0.35f;
+
+        [Tooltip("Fade-in time (seconds) when voice playback starts (reduces pops).")]
+        [Range(0f, 0.1f)]
+        public float fadeInSeconds = 0.02f;
+
+        [Tooltip("Fade-out time (seconds) when voice playback stops or underruns (reduces pops).")]
+        [Range(0f, 0.2f)]
+        public float fadeOutSeconds = 0.05f;
+
+        [Tooltip("If true, an underrun will stop playback and require prefill again (more stable, slightly more drop).")]
+        public bool rebufferOnUnderrun = true;
+
         [Header("Spatialization")]
         [Tooltip("In Hub: voice is 2D (everyone equally).")]
         [Range(0f, 1f)]
