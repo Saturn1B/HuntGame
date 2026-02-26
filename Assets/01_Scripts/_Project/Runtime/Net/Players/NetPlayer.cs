@@ -73,7 +73,7 @@ namespace DungeonSteakhouse.Net.Players
             }
         }
 
-        [ServerRpc(RequireOwnership = true)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void SubmitIdentityServerRpc(ulong platformUserId, string displayName)
         {
             // Basic sanitization
@@ -87,7 +87,7 @@ namespace DungeonSteakhouse.Net.Players
             _displayName.Value = displayName;
         }
 
-        [ServerRpc(RequireOwnership = true)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         private void SetReadyServerRpc(bool ready)
         {
             _isReady.Value = ready;

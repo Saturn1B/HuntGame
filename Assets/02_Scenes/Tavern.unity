@@ -1592,7 +1592,7 @@ GameObject:
   - component: {fileID: 1058636692}
   - component: {fileID: 1058636693}
   m_Layer: 0
-  m_Name: NetworkManager
+  m_Name: --- NetworkManager ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1807,59 +1807,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1059802735}
   m_CullTransparentMesh: 1
---- !u!1 &1140257042
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1140257044}
-  - component: {fileID: 1140257043}
-  m_Layer: 0
-  m_Name: DebugSystems
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1140257043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1140257042}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f67a96b4519dc948b41d70ae8e35502, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Voice.NetSteamVoiceDiagnostics
-  enableLogs: 1
-  logIntervalSeconds: 1
-  voiceService: {fileID: 1359309301}
-  networkManager: {fileID: 1058636692}
-  playerRegistry: {fileID: 1359309297}
-  logPerTalker: 1
-  talkActivitySeconds: 0.35
-  logTalkStartStop: 1
-  logPerSpeakerBuffer: 1
---- !u!4 &1140257044
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1140257042}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 897.2382, y: 503.21384, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1221765583
 GameObject:
   m_ObjectHideFlags: 0
@@ -1955,9 +1902,8 @@ GameObject:
   - component: {fileID: 1359309297}
   - component: {fileID: 1359309293}
   - component: {fileID: 1359309300}
-  - component: {fileID: 1359309301}
   m_Layer: 0
-  m_Name: Steam
+  m_Name: --- Steam ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2084,22 +2030,6 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 9241eb81ec7c9f14fbef4c1e38343584, type: 2}
   networkManager: {fileID: 1058636692}
   sceneFlow: {fileID: 1359309293}
---- !u!114 &1359309301
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1359309292}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d419a4b8c3998a4f86c01700fecfc27, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetSteamVoiceService
-  config: {fileID: 11400000, guid: 348794fa55baa4c409000a4ddc485bca, type: 2}
-  networkManager: {fileID: 1058636692}
-  playerRegistry: {fileID: 1359309297}
-  logTransportOnce: 1
 --- !u!1 &1412321182
 GameObject:
   m_ObjectHideFlags: 0
@@ -2481,6 +2411,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1725139198}
   m_CullTransparentMesh: 1
+--- !u!1 &1738581562
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1738581564}
+  - component: {fileID: 1738581563}
+  m_Layer: 0
+  m_Name: --- VoiceRoot ---
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1738581563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738581562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c087248988380754aa88f651be6ca407, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetSteamProximityVoiceChat
+  alwaysTransmit: 1
+  delivery: 1
+  decodeDistanceMax: 25
+  logOnce: 1
+  logErrors: 0
+--- !u!4 &1738581564
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738581562}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 837.7751, y: 501.474, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2007355524
 GameObject:
   m_ObjectHideFlags: 0
@@ -2624,9 +2603,9 @@ SceneRoots:
   m_Roots:
   - {fileID: 675669938}
   - {fileID: 461077722}
-  - {fileID: 1359309299}
   - {fileID: 1058636694}
+  - {fileID: 1359309299}
+  - {fileID: 1738581564}
   - {fileID: 513295981}
   - {fileID: 1221765586}
-  - {fileID: 1140257044}
   - {fileID: 837331315}
