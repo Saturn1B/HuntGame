@@ -21,6 +21,15 @@ namespace DungeonSteakhouse.Net.Voice
         [SerializeField] private NetworkManager networkManager;
         [SerializeField] private NetPlayerRegistry playerRegistry;
 
+        [Header("Debug")]
+        [SerializeField] private bool logTransportOnce = true;
+
+        private bool _handlerRegistered;
+        private bool _loggedHandler;
+        private bool _loggedTxInfo;
+        private bool _loggedRxInfo;
+        private bool _loggedRelayInfo;
+
         private readonly MemoryStream _captureStream = new(8192);
         private byte[] _sendChunkScratch;
         private float _sendTimer;
@@ -32,10 +41,9 @@ namespace DungeonSteakhouse.Net.Voice
         private readonly MemoryStream _decompressInput = new(8192);
         private readonly MemoryStream _decompressOutput = new(16384);
 
-        // Lazy initialized when Steam is valid
         private int _steamSampleRate;
 
-        // Diagnostics counters (instance-wide)
+        // Diagnostics counters
         private ulong _txPacketsTotal;
         private ulong _txChunksTotal;
         private ulong _txCompressedBytesTotal;
@@ -60,6 +68,9 @@ namespace DungeonSteakhouse.Net.Voice
             public readonly bool IsClient;
             public readonly bool IsServer;
             public readonly bool IsHost;
+
+            public readonly ulong LocalClientId;
+            public readonly int ConnectedClientsCount;
 
             public readonly int ActiveAssemblies;
 
@@ -88,6 +99,8 @@ namespace DungeonSteakhouse.Net.Voice
                 bool isClient,
                 bool isServer,
                 bool isHost,
+                ulong localClientId,
+                int connectedClientsCount,
                 int activeAssemblies,
                 ulong txPacketsTotal,
                 ulong txChunksTotal,
@@ -108,20 +121,30 @@ namespace DungeonSteakhouse.Net.Voice
                 IsClient = isClient;
                 IsServer = isServer;
                 IsHost = isHost;
+
+                LocalClientId = localClientId;
+                ConnectedClientsCount = connectedClientsCount;
+
                 ActiveAssemblies = activeAssemblies;
+
                 TxPacketsTotal = txPacketsTotal;
                 TxChunksTotal = txChunksTotal;
                 TxCompressedBytesTotal = txCompressedBytesTotal;
+
                 RxChunksTotal = rxChunksTotal;
                 RxCompressedBytesTotal = rxCompressedBytesTotal;
+
                 RelayChunksTotal = relayChunksTotal;
                 RelayCompressedBytesTotal = relayCompressedBytesTotal;
+
                 RxPacketsAssembledTotal = rxPacketsAssembledTotal;
                 RxPacketsDroppedTotal = rxPacketsDroppedTotal;
                 RxChunksDroppedTotal = rxChunksDroppedTotal;
+
                 DecodeOkPacketsTotal = decodeOkPacketsTotal;
                 DecodeFailPacketsTotal = decodeFailPacketsTotal;
                 DecodePcmBytesTotal = decodePcmBytesTotal;
+
                 SteamSampleRate = steamSampleRate;
             }
         }
@@ -159,11 +182,16 @@ namespace DungeonSteakhouse.Net.Voice
             bool isServer = networkManager != null && networkManager.IsServer;
             bool isHost = networkManager != null && networkManager.IsHost;
 
+            ulong localId = networkManager != null ? networkManager.LocalClientId : 0;
+            int connected = (networkManager != null && networkManager.ConnectedClientsIds != null) ? networkManager.ConnectedClientsIds.Count : 0;
+
             snapshot = new DiagnosticsSnapshot(
                 isSteamValid,
                 isClient,
                 isServer,
                 isHost,
+                localId,
+                connected,
                 _assemblies.Count,
                 _txPacketsTotal,
                 _txChunksTotal,
@@ -216,20 +244,20 @@ namespace DungeonSteakhouse.Net.Voice
 
         private void OnEnable()
         {
-            if (networkManager != null && networkManager.CustomMessagingManager != null)
-                networkManager.CustomMessagingManager.RegisterNamedMessageHandler(MessageName, OnVoiceMessage);
+            TryRegisterHandler();
         }
 
         private void OnDisable()
         {
-            if (networkManager != null && networkManager.CustomMessagingManager != null)
-                networkManager.CustomMessagingManager.UnregisterNamedMessageHandler(MessageName);
-
+            TryUnregisterHandler();
             SafeSetVoiceRecord(false);
         }
 
         private void Update()
         {
+            // Make the handler registration robust (works even if NetworkManager initializes later).
+            TryRegisterHandler();
+
             if (config == null || !config.enableVoice)
                 return;
 
@@ -264,6 +292,46 @@ namespace DungeonSteakhouse.Net.Voice
 
             var buf = _captureStream.GetBuffer();
             SendCompressedVoice(buf, bytes);
+        }
+
+        private void TryRegisterHandler()
+        {
+            if (_handlerRegistered)
+                return;
+
+            if (networkManager == null)
+                networkManager = NetworkManager.Singleton;
+
+            if (networkManager == null)
+                return;
+
+            var cmm = networkManager.CustomMessagingManager;
+            if (cmm == null)
+                return;
+
+            cmm.RegisterNamedMessageHandler(MessageName, OnVoiceMessage);
+            _handlerRegistered = true;
+
+            if (logTransportOnce && !_loggedHandler)
+            {
+                _loggedHandler = true;
+                Debug.Log($"[NetSteamVoiceService] Registered handler '{MessageName}' on NetworkManager '{networkManager.gameObject.name}'. LocalClientId={networkManager.LocalClientId}");
+            }
+        }
+
+        private void TryUnregisterHandler()
+        {
+            if (!_handlerRegistered)
+                return;
+
+            if (networkManager == null || networkManager.CustomMessagingManager == null)
+                return;
+
+            networkManager.CustomMessagingManager.UnregisterNamedMessageHandler(MessageName);
+            _handlerRegistered = false;
+
+            if (logTransportOnce)
+                Debug.Log($"[NetSteamVoiceService] Unregistered handler '{MessageName}'.");
         }
 
         private void EnsureSendScratchSize(int requiredSize)
@@ -347,6 +415,13 @@ namespace DungeonSteakhouse.Net.Voice
             _txChunksTotal += (ulong)chunkCount;
             _txCompressedBytesTotal += (ulong)length;
 
+            if (logTransportOnce && !_loggedTxInfo)
+            {
+                _loggedTxInfo = true;
+                int connected = networkManager.ConnectedClientsIds != null ? networkManager.ConnectedClientsIds.Count : 0;
+                Debug.Log($"[NetSteamVoiceService] TX started. IsServer={networkManager.IsServer} IsClient={networkManager.IsClient} LocalClientId={senderId} ConnectedClients={connected}");
+            }
+
             for (int chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
             {
                 int offset = chunkIndex * maxChunk;
@@ -361,14 +436,12 @@ namespace DungeonSteakhouse.Net.Voice
                 writer.WriteValueSafe((ushort)chunkCount);
                 writer.WriteValueSafe((ushort)chunkLen);
 
-                // Optimization: avoid per-chunk allocations by copying into a reusable scratch buffer.
                 EnsureSendScratchSize(chunkLen);
                 Buffer.BlockCopy(data, offset, _sendChunkScratch, 0, chunkLen);
                 writer.WriteBytesSafe(_sendChunkScratch, 0, chunkLen);
 
                 if (networkManager.IsServer)
                 {
-                    // Host/server relays to everyone except the sender.
                     foreach (var client in networkManager.ConnectedClientsIds)
                     {
                         if (client == senderId)
@@ -380,7 +453,6 @@ namespace DungeonSteakhouse.Net.Voice
                 }
                 else
                 {
-                    // Client -> server
                     networkManager.CustomMessagingManager.SendNamedMessage(
                         MessageName, NetworkManager.ServerClientId, writer, NetworkDelivery.Unreliable);
                 }
@@ -401,23 +473,30 @@ namespace DungeonSteakhouse.Net.Voice
             _rxChunksTotal++;
             _rxCompressedBytesTotal += chunkLen;
 
+            if (logTransportOnce && !_loggedRxInfo)
+            {
+                _loggedRxInfo = true;
+                Debug.Log($"[NetSteamVoiceService] RX started. sender={senderClientId} talker={talkerClientId} chunk={chunkIndex + 1}/{chunkCount} len={chunkLen}");
+            }
+
             var chunk = new byte[chunkLen];
             ReadBytesCompat(reader, chunk, chunkLen);
 
             if (networkManager == null)
                 return;
 
-            // IMPORTANT FIX:
-            // - When running as Host, IsServer is true even when receiving server->client messages.
-            // - We only "relay" when the message truly came FROM A CLIENT (sender != ServerClientId).
-            // - Messages coming from the server (sender == ServerClientId) must be DECODED on clients (including host).
             bool isFromServer = senderClientId == NetworkManager.ServerClientId;
 
             if (networkManager.IsServer && !isFromServer)
             {
-                // Server received voice from a client: validate and relay to everyone except the talker.
                 if (talkerClientId != senderClientId)
                     return;
+
+                if (logTransportOnce && !_loggedRelayInfo)
+                {
+                    _loggedRelayInfo = true;
+                    Debug.Log($"[NetSteamVoiceService] RELAY started. talker={talkerClientId} ConnectedClients={networkManager.ConnectedClientsIds.Count}");
+                }
 
                 using var writer = new FastBufferWriter(32 + chunkLen, Allocator.Temp);
                 writer.WriteValueSafe(talkerClientId);
@@ -442,7 +521,6 @@ namespace DungeonSteakhouse.Net.Voice
                 return;
             }
 
-            // Client-side (or host receiving server-relayed messages): assemble chunks then decode & play
             var key = new AssemblyKey(talkerClientId, packetId);
             if (!_assemblies.TryGetValue(key, out var assembly))
             {
@@ -459,7 +537,6 @@ namespace DungeonSteakhouse.Net.Voice
             _assemblies.Remove(key);
             _rxPacketsAssembledTotal++;
 
-            // Optimization: avoid Combine() allocation by writing chunks directly into a reusable stream.
             _decompressInput.SetLength(0);
             _decompressInput.Position = 0;
 
@@ -473,7 +550,6 @@ namespace DungeonSteakhouse.Net.Voice
 
         private static void ReadBytesCompat(FastBufferReader reader, byte[] dst, int count)
         {
-            // Version-proof safe read (no unsafe required).
             for (int i = 0; i < count; i++)
             {
                 reader.ReadValueSafe(out byte b);
@@ -487,7 +563,7 @@ namespace DungeonSteakhouse.Net.Voice
                 return;
 
             if (talkerClientId == networkManager.LocalClientId)
-                return; // Do not play self
+                return;
 
             if (!TryGetSpeaker(talkerClientId, out var speaker))
                 return;
@@ -571,7 +647,6 @@ namespace DungeonSteakhouse.Net.Voice
                 if (now - kvp.Value.LastTime > timeout)
                 {
                     toRemove.Add(kvp.Key);
-
                     _rxPacketsDroppedTotal++;
                     _rxChunksDroppedTotal += (ulong)Mathf.Max(0, kvp.Value.ExpectedChunks - kvp.Value.ReceivedChunks);
                 }
