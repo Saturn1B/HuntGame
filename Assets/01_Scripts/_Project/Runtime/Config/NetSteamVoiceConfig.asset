@@ -16,7 +16,12 @@ MonoBehaviour:
   sendIntervalSeconds: 0.05
   maxChunkBytes: 1024
   chunkAssemblyTimeoutSeconds: 0.75
-  bufferSeconds: 1
+  bufferSeconds: 0.4
+  prefillSeconds: 0.08
+  talkerActiveSeconds: 0.4
+  fadeInSeconds: 0.02
+  fadeOutSeconds: 0.05
+  rebufferOnUnderrun: 1
   hubSpatialBlend: 0
   runSpatialBlend: 1
   runMaxDistance: 25
