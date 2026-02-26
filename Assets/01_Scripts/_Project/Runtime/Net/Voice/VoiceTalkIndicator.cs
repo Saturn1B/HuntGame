@@ -3,16 +3,14 @@ using UnityEngine;
 namespace DungeonSteakhouse.Net.Voice
 {
     /// <summary>
-    /// Very simple "talking mouth" indicator driven by voice activity pings.
-    /// - Call PingTalking() whenever you receive voice audio for this player.
-    /// - While "talking", it can either:
-    ///   A) Keep mouth open
-    ///   B) Flap (swap open/closed) at a fixed rate
+    /// Simple mouth state indicator:
+    /// - Mouth is OPEN while voice pings are received frequently.
+    /// - Mouth becomes CLOSED after holdSeconds without a ping.
     /// </summary>
     public sealed class VoiceTalkIndicator : MonoBehaviour
     {
         [Header("Renderer")]
-        [Tooltip("SpriteRenderer used for mouth swapping. If null, will search in children.")]
+        [Tooltip("SpriteRenderer used for mouth swapping. If null, it will search in children.")]
         [SerializeField] private SpriteRenderer mouthRenderer;
 
         [Header("Sprites")]
@@ -23,88 +21,49 @@ namespace DungeonSteakhouse.Net.Voice
         [SerializeField] private Sprite mouthOpen;
 
         [Header("Timing")]
-        [Tooltip("How long we keep the 'talking' state alive after a ping (seconds).")]
+        [Tooltip("How long we keep the mouth open after the last voice ping (seconds).")]
         [Range(0.05f, 1f)]
         [SerializeField] private float holdSeconds = 0.20f;
 
-        [Tooltip("If true, mouth will alternate open/closed while talking (cartoon style).")]
-        [SerializeField] private bool flapWhileTalking = true;
-
-        [Tooltip("Flap speed (frames per second). Used only if flapWhileTalking is enabled.")]
-        [Range(2f, 30f)]
-        [SerializeField] private float flapFps = 12f;
-
         private float _lastPingTime;
-        private bool _isTalking;
-        private float _flapTimer;
-        private bool _flapOpen;
+        private bool _isOpen;
 
         private void Awake()
         {
             if (mouthRenderer == null)
                 mouthRenderer = GetComponentInChildren<SpriteRenderer>(true);
 
-            ApplyClosed();
+            SetClosed();
         }
 
         private void Update()
         {
-            float now = Time.unscaledTime;
+            bool shouldBeOpen = (Time.unscaledTime - _lastPingTime) <= holdSeconds;
 
-            bool shouldTalk = (now - _lastPingTime) <= holdSeconds;
-
-            if (shouldTalk != _isTalking)
-            {
-                _isTalking = shouldTalk;
-                _flapTimer = 0f;
-                _flapOpen = true;
-
-                if (_isTalking)
-                    ApplyOpen();
-                else
-                    ApplyClosed();
-            }
-
-            if (!_isTalking)
+            if (shouldBeOpen == _isOpen)
                 return;
 
-            if (!flapWhileTalking)
-            {
-                ApplyOpen();
-                return;
-            }
+            _isOpen = shouldBeOpen;
 
-            _flapTimer += Time.unscaledDeltaTime;
-            float interval = 1f / Mathf.Max(1f, flapFps);
-
-            if (_flapTimer >= interval)
-            {
-                _flapTimer -= interval;
-                _flapOpen = !_flapOpen;
-
-                if (_flapOpen) ApplyOpen();
-                else ApplyClosed();
-            }
+            if (_isOpen) SetOpen();
+            else SetClosed();
         }
 
         /// <summary>
-        /// Call this whenever you receive voice data for this player.
+        /// Call this whenever voice data is received for this player.
         /// </summary>
         public void PingTalking()
         {
             _lastPingTime = Time.unscaledTime;
 
-            // If we were idle, immediately switch to talking state
-            if (!_isTalking)
+            if (!_isOpen)
             {
-                _isTalking = true;
-                _flapTimer = 0f;
-                _flapOpen = true;
-                ApplyOpen();
+                _isOpen = true;
+                SetOpen();
             }
         }
 
-        private void ApplyOpen()
+        private void SetOpen()
         {
             if (mouthRenderer == null || mouthOpen == null)
                 return;
@@ -112,7 +71,7 @@ namespace DungeonSteakhouse.Net.Voice
             mouthRenderer.sprite = mouthOpen;
         }
 
-        private void ApplyClosed()
+        private void SetClosed()
         {
             if (mouthRenderer == null || mouthClosed == null)
                 return;
