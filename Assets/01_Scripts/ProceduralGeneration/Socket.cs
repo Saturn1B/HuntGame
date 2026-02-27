@@ -17,6 +17,7 @@ namespace ProceduralGeneration
 		public bool isAvailable = true;
 		public Room room;
 		public Collider boundCollider;
+		public Collider socket;
 
 		public void CloseSocket()
 		{
@@ -27,9 +28,10 @@ namespace ProceduralGeneration
 
 		private void OnDrawGizmos()
 		{
-			Gizmos.color = isAvailable ? Color.green : Color.red;
+			Gizmos.color = Color.cyan;
 			Gizmos.DrawRay(transform.position, transform.forward * 1f);
-			Gizmos.DrawWireSphere(transform.position, .1f);
+			Gizmos.color = isAvailable ? Color.green : Color.red;
+			Gizmos.DrawWireCube(socket.bounds.center, socket.bounds.size);
 			Gizmos.DrawWireCube(boundCollider.bounds.center, boundCollider.bounds.size);
 		}
 	}

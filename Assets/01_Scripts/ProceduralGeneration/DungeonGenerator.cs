@@ -41,7 +41,7 @@ namespace ProceduralGeneration
 				if (!currentSocket.isAvailable) continue;
 
 				//If socket available, try placing a room from it
-				if(TryPlaceRoom(currentSocket)) openSocket.RemoveAt(socketIndex);
+				if (TryPlaceRoom(currentSocket)) openSocket.RemoveAt(socketIndex);
 			}
 
 			//Close all still opened door after the dungeon is generated
@@ -88,6 +88,26 @@ namespace ProceduralGeneration
 				spawnedRoom.Add(ghostRoom);
 				openSocket.AddRange(ghostRoom.sockets);
 				ghost.transform.SetParent(this.transform);
+
+				foreach (Socket newSocket in ghostRoom.sockets)
+				{
+					if (!newSocket.isAvailable) continue;
+
+					foreach (Socket existingSocket in openSocket)
+					{
+						if (!existingSocket.isAvailable || existingSocket == newSocket) continue;
+
+						if (existingSocket.socketType != newSocket.socketType) continue;
+
+						if (Vector3.Distance(newSocket.socket.transform.position, existingSocket.socket.transform.position) < .1f)
+						{
+							newSocket.isAvailable = false;
+							existingSocket.isAvailable = false;
+							Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
+							Debug.Log($"Natural loop created between {ghostRoom.name} and {existingSocket.room.name}");
+						}
+					}
+				}
 			}
 
 			//return the state of our search, did we found a room to place or not
@@ -136,7 +156,7 @@ namespace ProceduralGeneration
 				currentSum += room.roomWeight;
 
 				//If random value is within current accumulated weight range, return this room
-				if(randomValue < currentSum)
+				if (randomValue < currentSum)
 				{
 					return room;
 				}
@@ -159,7 +179,7 @@ namespace ProceduralGeneration
 			Vector3 targetSocketPos = anchor.transform.position + (anchor.transform.forward * .5f);
 
 			//Calculate position offset an place the room with that offset
-			Vector3 positionOffset = targetSocketPos - incoming.transform.position;
+			Vector3 positionOffset = anchor.socket.transform.position - incoming.socket.transform.position;
 			roomTransform.position += positionOffset;
 
 			Physics.SyncTransforms();
@@ -167,14 +187,14 @@ namespace ProceduralGeneration
 
 		private bool IsOverlapping(Room room, Socket targetSocket)
 		{
-			float padding = .15f;
+			float padding = .05f;
 			//Get the bounds or our room
 			Bounds b = room.boundCollider.bounds;
 
 			//Get all the object colliding with our room (added a small bit of padding for tolerance)
 			Collider[] colliders = Physics.OverlapBox(b.center, (b.extents - Vector3.one * padding), room.transform.rotation, roomLayer);
 
-			//Check on all the colliding object found
+			//Check on all the room colliding object found
 			foreach (var c in colliders)
 			{
 				Room hitRoom = c.transform.GetComponentInParent<Room>();
