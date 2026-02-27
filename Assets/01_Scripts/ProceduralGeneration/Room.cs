@@ -7,8 +7,8 @@ namespace ProceduralGeneration
 	public class Room : MonoBehaviour
 	{
 		public string roomName;
-		public List<Socket> sockets = new List<Socket>();
-		public Collider boundCollider;
+		public Socket[] sockets;
+		[HideInInspector] public Collider boundCollider;
 
 		// EDITOR FUNCTION
 

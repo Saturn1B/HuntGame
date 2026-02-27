@@ -29,6 +29,14 @@ namespace ProceduralGeneration
 
             EditorGUILayout.Space(5);
 
+            // Fetch Bounds button
+            if (GUILayout.Button("Fetch Room Bounds", GUILayout.Height(30)))
+            {
+                FetchBound(room);
+            }
+
+            EditorGUILayout.Space(5);
+
             // The big one — full registration flow
             GUI.backgroundColor = new Color(0.4f, 0.9f, 0.4f);
             if (GUILayout.Button("Register Room (Prefab + ScriptableObject)", GUILayout.Height(40)))
@@ -47,18 +55,33 @@ namespace ProceduralGeneration
             // Gather every Socket in children (excluding self if Room somehow also has Socket)
             Socket[] found = room.GetComponentsInChildren<Socket>(includeInactive: true);
 
-            room.sockets.Clear();
+            room.sockets = found;
 
             foreach (Socket s in found)
             {
                 Undo.RecordObject(s, "Assign Room Reference");
                 s.room = room;
-                room.sockets.Add(s);
                 EditorUtility.SetDirty(s);
             }
 
             EditorUtility.SetDirty(room);
             Debug.Log($"[RoomEditor] Fetched {found.Length} socket(s) on '{room.name}'.");
+        }
+
+        // ---------------------------------------------------------------
+
+        private void FetchBound(Room room)
+        {
+            Undo.RecordObject(room, "Fetch Bound");
+
+            Collider bounds = room.GetComponent<Collider>();
+
+            Undo.RecordObject(room, "Assign Bound Value");
+
+            room.boundCollider = bounds;
+
+            EditorUtility.SetDirty(room);
+            Debug.Log($"[RoomEditor] Fetched bounds on '{room.name}'.");
         }
 
         // ---------------------------------------------------------------

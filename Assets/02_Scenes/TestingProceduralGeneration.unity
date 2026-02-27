@@ -448,7 +448,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProceduralGeneration.Room
   roomName: Room01
   sockets: []
-  boundCollider: {fileID: 1305429373}
+  boundCollider: {fileID: 0}
 --- !u!65 &1305429373
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -15,6 +15,31 @@ namespace ProceduralGeneration
 		private List<Socket> openSocket = new List<Socket>();
 		private List<Room> spawnedRoom = new List<Room>();
 
+		private Dictionary<RoomData, Room> ghostPool = new Dictionary<RoomData, Room>();
+
+		private void SetupGhostPool()
+		{
+			if (ghostPool.Count > 0) return;
+
+			foreach (var data in roomLibrary)
+			{
+				GameObject ghostObj = Instantiate(data.roomPrefab);
+				ghostObj.name = $"Ghost_{data.name}";
+				ghostObj.SetActive(false);
+
+				Room ghostRoom = ghostObj.GetComponent<Room>();
+
+				ghostPool.Add(data, ghostRoom);
+			}
+		}
+
+		private Room GetGhost(RoomData data)
+		{
+			Room ghost = ghostPool[data];
+			ghost.gameObject.SetActive(true);
+			return ghost;
+		}
+
 		[ContextMenu("GenerateDungeon")]
 		private void Generate()
 		{
@@ -50,22 +75,38 @@ namespace ProceduralGeneration
 
 		private bool TryPlaceRoom(Socket targetSocket)
 		{
+			SetupGhostPool(); //Ensure ghost pool is set
+
+			//Before generating a room, we check to see if we can't bridge two existing socket
+			//Check on all open socket
+			foreach (Socket otherSocket in openSocket.ToList())
+			{
+				//if the socket is not available or it's from the same room as the other sockt we're trying to bridge with, we skip
+				if (!otherSocket.isAvailable || otherSocket.room == targetSocket.room) continue;
+
+				//get the distance between the two socket
+				float dist = Vector3.Distance(targetSocket.transform.position, otherSocket.transform.position);
+
+				//if the two socket are in acceptable range, try bridging between them
+				if (dist > 1f && dist < 20)
+					if (TryBridgeRoom(targetSocket, otherSocket)) return true;
+			}
+
 			//Find all room having corresponding socket
 			List<RoomData> correspondingRooms = roomLibrary.Where(obj => obj.socketTypes.Contains(targetSocket.socketType)).ToList();
 
 			//If room count is bellow a certain number, remove all dead end from coresponding rooms
 			if (spawnedRoom.Count < deepness * .75f)
-				correspondingRooms = correspondingRooms.Where(r => r.roomPrefab.GetComponent<Room>().sockets.Count > 1).ToList();
+				correspondingRooms = correspondingRooms.Where(r => r.roomPrefab.GetComponent<Room>().sockets.Length > 1).ToList();
 
 			//Test all corresponding room until one fits well with orientation
-			bool roomFound = false;
-			while (correspondingRooms.Count > 0 && !roomFound)
+			while (correspondingRooms.Count > 0)
 			{
 				//Get a random corresponding room to test by weight
 				RoomData selectedData = GetWeightedRandomRoom(correspondingRooms);
-				GameObject ghost = Instantiate(selectedData.roomPrefab);
-				Room ghostRoom = ghost.GetComponent<Room>();
 				correspondingRooms.Remove(selectedData);
+
+				Room ghostRoom = GetGhost(selectedData);
 
 				//Find if room can be placed with one socket
 				Socket incomingSocket = CheckRoomValidityWithSocket(targetSocket, ghostRoom);
@@ -73,23 +114,31 @@ namespace ProceduralGeneration
 				//Check if no good socket found on this room -> the room cannot be placed
 				if (incomingSocket == null)
 				{
-					//Destroy the room we were testing then retry the process
-					DestroyImmediate(ghost);
-					Physics.SyncTransforms();
+					//Return ghost room to pool
+					ghostRoom.gameObject.SetActive(false);
 					continue;
 				}
 
 				//If good socket found -> the room can be placed, stop search there
-				roomFound = true;
+				GameObject realRoomObj = Instantiate(selectedData.roomPrefab, transform);
+				Room realRoom = realRoomObj.GetComponent<Room>();
+
+				realRoom.transform.position = ghostRoom.transform.position;
+				realRoom.transform.rotation = ghostRoom.transform.rotation;
+
+				//Return ghost room to pool
+				ghostRoom.gameObject.SetActive(false);
 
 				//Validate the room and socket
 				targetSocket.isAvailable = false;
-				incomingSocket.isAvailable = false;
-				spawnedRoom.Add(ghostRoom);
-				openSocket.AddRange(ghostRoom.sockets);
-				ghost.transform.SetParent(this.transform);
 
-				foreach (Socket newSocket in ghostRoom.sockets)
+				int socketIndex = System.Array.IndexOf(ghostRoom.sockets, incomingSocket);
+				realRoom.sockets[socketIndex].isAvailable = false;
+
+				spawnedRoom.Add(realRoom);
+				openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
+
+				foreach (Socket newSocket in realRoom.sockets)
 				{
 					if (!newSocket.isAvailable) continue;
 
@@ -104,14 +153,88 @@ namespace ProceduralGeneration
 							newSocket.isAvailable = false;
 							existingSocket.isAvailable = false;
 							Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
-							Debug.Log($"Natural loop created between {ghostRoom.name} and {existingSocket.room.name}");
+							Debug.Log($"Natural loop created between {realRoom.name} and {existingSocket.room.name}");
 						}
 					}
 				}
+
+				return true;
 			}
 
 			//return the state of our search, did we found a room to place or not
-			return roomFound;
+			return false;
+		}
+
+		private bool TryBridgeRoom(Socket socketA, Socket socketB)
+		{
+			SetupGhostPool(); //Ensure ghost pool is set
+
+			//Find all room having having at least 2 socket
+			List<RoomData> candidates = roomLibrary.Where(r => r.roomPrefab.GetComponent<Room>().sockets.Length >= 2).ToList();
+
+			//Test all candidates
+			foreach (var data in candidates)
+			{
+				//Spawn the room to test
+				Room ghostRoom = GetGhost(data);
+				var ghostSockets = ghostRoom.sockets;
+
+				for (int i = 0; i < ghostSockets.Length; i++)
+				{
+					//if the first socket of the room is not of the same type as the socket we're trying to connect, we skip
+					if (ghostSockets[i].socketType != socketA.socketType) continue;
+
+					//Align room to target door
+					AlignRooms(socketA, ghostSockets[i], ghostRoom.transform);
+
+					for (int j = 0; j < ghostSockets.Length; j++)
+					{
+						//if ghost room socket is the same as the one we already tested, or is not of the same type as the socket we're trying to connect, we skip
+						if (i == j) continue;
+						if (ghostSockets[j].socketType != socketB.socketType) continue;
+
+						float dist = Vector3.Distance(ghostSockets[j].transform.position, socketB.transform.position);
+						float angle = Quaternion.Angle(ghostSockets[j].transform.rotation, Quaternion.LookRotation(-socketB.transform.forward, socketB.transform.up));
+
+						//Check if the two socket are superposed
+						if(dist < .1f && angle < 1f)
+						{
+							//Check for room overlaping
+							if (!IsOverlapping(ghostRoom, socketA))
+							{
+								//Bridge is valid, validate the room and socket
+
+								GameObject realRoomObj = Instantiate(data.roomPrefab, transform);
+								Room realRoom = realRoomObj.GetComponent<Room>();
+
+								realRoom.transform.position = ghostRoom.transform.position;
+								realRoom.transform.rotation = ghostRoom.transform.rotation;
+
+								//Return ghost room to pool
+								ghostRoom.gameObject.SetActive(false);
+
+								socketA.isAvailable = false;
+								socketB.isAvailable = false;
+								realRoom.sockets[i].isAvailable = false;
+								realRoom.sockets[j].isAvailable = false;
+
+								spawnedRoom.Add(realRoom);
+								openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
+
+								Debug.Log($"<color=cyan>Loop Created!</color> {realRoom.name} connected {socketA.room.name} to {socketB.room.name}");
+								//Bridge found, return true
+								return true;
+							}
+						}
+					}
+				}
+
+				//Room can't bridge, return it to pool
+				ghostRoom.gameObject.SetActive(false);
+			}
+
+			//No bridge found, return false
+			return false;
 		}
 
 		private Socket CheckRoomValidityWithSocket(Socket targetSocket, Room room)
@@ -181,12 +304,12 @@ namespace ProceduralGeneration
 			//Calculate position offset an place the room with that offset
 			Vector3 positionOffset = anchor.socket.transform.position - incoming.socket.transform.position;
 			roomTransform.position += positionOffset;
-
-			Physics.SyncTransforms();
 		}
 
 		private bool IsOverlapping(Room room, Socket targetSocket)
 		{
+			Physics.SyncTransforms();
+
 			float padding = .05f;
 			//Get the bounds or our room
 			Bounds b = room.boundCollider.bounds;
@@ -229,8 +352,6 @@ namespace ProceduralGeneration
 			//Clear all List
 			spawnedRoom.Clear();
 			openSocket.Clear();
-
-			Physics.SyncTransforms();
 		}
 
 		[ContextMenu("FinnishDungeon")]
@@ -258,19 +379,20 @@ namespace ProceduralGeneration
 
 		private bool TryPlaceEndRoom(Socket targetSocket)
 		{
+			SetupGhostPool(); //Ensure ghost pool is set
+
 			//Find all room having corresponding socket that are dead ends
 			List<RoomData> correspondingRooms = roomLibrary.Where(obj => obj.socketTypes.Contains(targetSocket.socketType)
-													&& obj.roomPrefab.GetComponent<Room>().sockets.Count == 1).ToList();
+													&& obj.roomPrefab.GetComponent<Room>().sockets.Length == 1).ToList();
 
 			//Test all corresponding room until one fits well with orientation
-			bool roomFound = false;
-			while (correspondingRooms.Count > 0 && !roomFound)
+			while (correspondingRooms.Count > 0)
 			{
-				//Get a random corresponding room to test
+				//Get a random corresponding room to test by weight
 				RoomData selectedData = GetWeightedRandomRoom(correspondingRooms);
-				GameObject ghost = Instantiate(selectedData.roomPrefab);
-				Room ghostRoom = ghost.GetComponent<Room>();
 				correspondingRooms.Remove(selectedData);
+
+				Room ghostRoom = GetGhost(selectedData);
 
 				//Find if room can be placed with one socket
 				Socket incomingSocket = CheckRoomValidityWithSocket(targetSocket, ghostRoom);
@@ -278,28 +400,38 @@ namespace ProceduralGeneration
 				//Check if no good socket found on this room -> the room cannot be placed
 				if (incomingSocket == null)
 				{
-					//Destroy the room we were testing then retry the process
-					DestroyImmediate(ghost);
-					Physics.SyncTransforms();
+					//Return ghost room to pool
+					ghostRoom.gameObject.SetActive(false);
 					continue;
 				}
 
 				//If good socket found -> the room can be placed, stop search there
-				roomFound = true;
+				GameObject realRoomObj = Instantiate(selectedData.roomPrefab, transform);
+				Room realRoom = realRoomObj.GetComponent<Room>();
+
+				realRoom.transform.position = ghostRoom.transform.position;
+				realRoom.transform.rotation = ghostRoom.transform.rotation;
+
+				//Return ghost room to pool
+				ghostRoom.gameObject.SetActive(false);
 
 				//Validate the room and socket
 				targetSocket.isAvailable = false;
-				incomingSocket.isAvailable = false;
-				spawnedRoom.Add(ghostRoom);
-				ghost.transform.SetParent(this.transform);
+
+				int socketIndex = System.Array.IndexOf(ghostRoom.sockets, incomingSocket);
+				realRoom.sockets[socketIndex].isAvailable = false;
+
+				spawnedRoom.Add(realRoom);
+				openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
+
+				Debug.DrawRay(targetSocket.transform.position, Vector3.up * 10, Color.white, 5);
+				return true;
 			}
 
-			//Debug to show if your is closed with dead end or barricade
-			if (!roomFound) Debug.DrawRay(targetSocket.transform.position, Vector3.up * 10, Color.yellow, 5);
-			else Debug.DrawRay(targetSocket.transform.position, Vector3.up * 10, Color.white, 5);
+			Debug.DrawRay(targetSocket.transform.position, Vector3.up * 10, Color.yellow, 5);
 
 			//return the state of our search, did we found a room to place or not
-			return roomFound;
+			return false;
 		}
 	}
 }
