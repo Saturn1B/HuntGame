@@ -18,9 +18,11 @@ namespace ProceduralGeneration
 		public Room room;
 		public Collider boundCollider;
 		public Collider socket;
+		[SerializeField] private GameObject barricade;
 
 		public void CloseSocket()
 		{
+			barricade.SetActive(true);
 			isAvailable = false;
 		}
 

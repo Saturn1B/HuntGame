@@ -629,6 +629,8 @@ MonoBehaviour:
   isAvailable: 1
   room: {fileID: 0}
   boundCollider: {fileID: 1112467328118080143}
+  socket: {fileID: 0}
+  barricade: {fileID: 0}
 --- !u!1 &8600102324042914885
 GameObject:
   m_ObjectHideFlags: 0
