@@ -43,6 +43,11 @@ public class CharacterMovement : MonoBehaviour, IControlable
         HandleMovement();
     }
 
+    public void ResetVerticalVelocity()
+    {
+        velocity.y = 0f;
+    }
+
     public void SetMovementInput(Vector2 movementInput) { currentMovementInput = movementInput; }
     public void SetLookInput(Vector2 lookInput) { }
     public void SetSprinting(bool sprinting) { isSprinting = sprinting; }
@@ -56,9 +61,14 @@ public class CharacterMovement : MonoBehaviour, IControlable
 	}
     public void Jump()
 	{
-        if (characterController.isGrounded)
-            velocity.y = Mathf.Sqrt(jumpHeight * 2f * gravity);
-	}
+        if (IsGroundedLocal())
+		{
+            float jumpForce = Mathf.Sqrt(jumpHeight * 2f * gravity);
+
+            float jumpDirection = transform.up.y > 0 ? 1f : -1f;
+            velocity.y = jumpForce * jumpDirection;
+        }
+    }
 
     private void HandleMovement()
     {
@@ -83,11 +93,18 @@ public class CharacterMovement : MonoBehaviour, IControlable
 
     private void ApplyGravity()
 	{
-        if (!characterController.isGrounded)
-            velocity.y -= gravity * Time.deltaTime;
+        float gravityMultiplier = transform.up.y > 0 ? -1f : 1f;
+
+        if (!IsGroundedLocal())
+            velocity.y += gravityMultiplier * gravity * Time.deltaTime;
         else if (velocity.y < 0)
-            velocity.y = -2f;
+            velocity.y = gravityMultiplier * 2f;
 	}
+    public bool IsGroundedLocal()
+    {
+        float rayLength = (characterController.height / 2f) + 0.1f;
+        return Physics.Raycast(transform.position, -transform.up, rayLength);
+    }
 
     private float GetCurrentSpeed()
 	{
