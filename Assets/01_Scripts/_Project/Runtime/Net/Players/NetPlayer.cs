@@ -57,6 +57,17 @@ namespace DungeonSteakhouse.Net.Players
             SetReadyServerRpc(!IsReady);
         }
 
+        /// <summary>
+        /// Server-side setter used by session systems (e.g., platform-based ready).
+        /// </summary>
+        public void ServerSetReady(bool ready)
+        {
+            if (!IsServer)
+                return;
+
+            _isReady.Value = ready;
+        }
+
         private void TrySubmitLocalIdentity()
         {
             var root = NetGameRoot.Instance;
@@ -73,7 +84,8 @@ namespace DungeonSteakhouse.Net.Players
             }
         }
 
-        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        // NOTE: removing RequireOwnership avoids the CS0618 warning and keeps the default behavior (Owner-only).
+        [ServerRpc]
         private void SubmitIdentityServerRpc(ulong platformUserId, string displayName)
         {
             // Basic sanitization
@@ -87,7 +99,8 @@ namespace DungeonSteakhouse.Net.Players
             _displayName.Value = displayName;
         }
 
-        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
+        // NOTE: removing RequireOwnership avoids the CS0618 warning and keeps the default behavior (Owner-only).
+        [ServerRpc]
         private void SetReadyServerRpc(bool ready)
         {
             _isReady.Value = ready;

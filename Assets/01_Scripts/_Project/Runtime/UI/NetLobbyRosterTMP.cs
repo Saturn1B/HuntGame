@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DungeonSteakhouse.Net.Players;
 using DungeonSteakhouse.Net.Flow;
+using DungeonSteakhouse.Net.Session;
 
 namespace DungeonSteakhouse.Net.UI
 {
@@ -13,6 +14,11 @@ namespace DungeonSteakhouse.Net.UI
         [Header("References")]
         [SerializeField] private NetGameRoot netGameRoot;
         [SerializeField] private NetSceneFlow sceneFlow;
+        [SerializeField] private NetGameSession gameSession;
+
+        [Header("Debug UI")]
+        [Tooltip("If false, the UI is read-only (no Ready/Start buttons). Useful when using platform-based ready.")]
+        [SerializeField] private bool enableDebugButtons = true;
 
         [Header("UI (TMP)")]
         [SerializeField] private TMP_Text rosterText;
@@ -40,6 +46,10 @@ namespace DungeonSteakhouse.Net.UI
                 netGameRoot.PlayerRegistry.PlayerUpdated += OnRegistryChanged;
             }
 
+            if (gameSession == null)
+                gameSession = NetGameSession.Instance;
+
+            ApplyButtonVisibility();
             Refresh();
         }
 
@@ -51,6 +61,15 @@ namespace DungeonSteakhouse.Net.UI
                 netGameRoot.PlayerRegistry.PlayerRemoved -= OnRegistryChanged;
                 netGameRoot.PlayerRegistry.PlayerUpdated -= OnRegistryChanged;
             }
+        }
+
+        private void ApplyButtonVisibility()
+        {
+            if (readyButton != null)
+                readyButton.gameObject.SetActive(enableDebugButtons);
+
+            if (startButton != null)
+                startButton.gameObject.SetActive(enableDebugButtons);
         }
 
         private void OnRegistryChanged(NetPlayer _)
@@ -87,8 +106,14 @@ namespace DungeonSteakhouse.Net.UI
 
             var isLocalHost = NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost;
 
+            bool canStart = false;
+            if (gameSession != null)
+                canStart = gameSession.CanStartRun();
+            else
+                canStart = netGameRoot.PlayerRegistry.AreAllReady;
+
             if (startButton != null)
-                startButton.interactable = isLocalHost && netGameRoot.PlayerRegistry.AreAllReady;
+                startButton.interactable = enableDebugButtons && isLocalHost && canStart;
 
             if (startButtonLabel != null)
                 startButtonLabel.text = "Start Run (Host)";
@@ -96,6 +121,9 @@ namespace DungeonSteakhouse.Net.UI
 
         private void OnReadyClicked()
         {
+            if (!enableDebugButtons)
+                return;
+
             var localPlayer = GetLocalPlayer();
             if (localPlayer == null)
                 return;
@@ -105,6 +133,18 @@ namespace DungeonSteakhouse.Net.UI
 
         private void OnStartClicked()
         {
+            if (!enableDebugButtons)
+                return;
+
+            if (gameSession == null)
+                gameSession = NetGameSession.Instance;
+
+            if (gameSession != null)
+            {
+                gameSession.RequestStartRun();
+                return;
+            }
+
             if (sceneFlow == null)
             {
                 Debug.LogError("[NetLobbyRosterTMP] Missing NetSceneFlow reference.");
@@ -112,9 +152,7 @@ namespace DungeonSteakhouse.Net.UI
             }
 
             if (!sceneFlow.TryStartRun())
-            {
                 Debug.LogWarning("[NetLobbyRosterTMP] StartRun failed (check console for details).");
-            }
         }
 
         private static NetPlayer GetLocalPlayer()
