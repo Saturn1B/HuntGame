@@ -7,10 +7,13 @@ namespace ProceduralGeneration
 {
 	public class DungeonGenerator : MonoBehaviour
 	{
-		[SerializeField] private RoomData[] roomLibrary;
-		[SerializeField] private GameObject entrancePrefab;
-		[SerializeField] private int deepness;
+		[Header("Generator Parameter")]
+		[SerializeField, Tooltip("All the room that might generate in the dungeon")] private RoomData[] roomLibrary;
+		[SerializeField, Tooltip("The entrance room of the dungeon")] private GameObject entrancePrefab;
+		[SerializeField, Tooltip("Bigger deepness means bigger dungeon and longer generation time")] private int deepness;
 		[SerializeField] private LayerMask roomLayer;
+		[SerializeField, Tooltip("Set to true if you want to actively try looping in the dungeon. Might not work depending on room type. Will slow down generation")]
+		private bool tryLooping;
 
 		private List<Socket> openSocket = new List<Socket>();
 		private List<Room> spawnedRoom = new List<Room>();
@@ -77,19 +80,23 @@ namespace ProceduralGeneration
 		{
 			SetupGhostPool(); //Ensure ghost pool is set
 
-			//Before generating a room, we check to see if we can't bridge two existing socket
-			//Check on all open socket
-			foreach (Socket otherSocket in openSocket.ToList())
+			//Check if we want to actively try looping
+			if (tryLooping)
 			{
-				//if the socket is not available or it's from the same room as the other sockt we're trying to bridge with, we skip
-				if (!otherSocket.isAvailable || otherSocket.room == targetSocket.room) continue;
+				//Before generating a room, we check to see if we can't bridge two existing socket
+				//Check on all open socket
+				foreach (Socket otherSocket in openSocket.ToList())
+				{
+					//if the socket is not available or it's from the same room as the other sockt we're trying to bridge with, we skip
+					if (!otherSocket.isAvailable || otherSocket.room == targetSocket.room) continue;
 
-				//get the distance between the two socket
-				float dist = Vector3.Distance(targetSocket.transform.position, otherSocket.transform.position);
+					//get the distance between the two socket
+					float dist = Vector3.Distance(targetSocket.transform.position, otherSocket.transform.position);
 
-				//if the two socket are in acceptable range, try bridging between them
-				if (dist > 1f && dist < 20)
-					if (TryBridgeRoom(targetSocket, otherSocket)) return true;
+					//if the two socket are in acceptable range, try bridging between them
+					if (dist > 1f && dist < 20)
+						if (TryBridgeRoom(targetSocket, otherSocket)) return true;
+				}
 			}
 
 			//Find all room having corresponding socket
