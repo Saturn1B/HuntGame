@@ -12,8 +12,9 @@ namespace DungeonSteakhouse.Net.Interactions
     /// - Raycasts from the local camera
     /// - Sends an interaction request to the server for the hit NetworkObject
     ///
-    /// Input System ONLY (no legacy UnityEngine.Input calls).
-    /// Includes verbose debug logs to quickly diagnose setup issues.
+    /// SECURITY/FIX:
+    /// - The server will validate distance using the sender's PlayerObject position (authoritative),
+    ///   NOT the client-provided position.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class NetInteractor : NetworkBehaviour
@@ -96,9 +97,7 @@ namespace DungeonSteakhouse.Net.Interactions
             ResolveCamera();
 
             if (drawDebugRay && raycastCamera != null)
-            {
                 Debug.DrawRay(raycastCamera.transform.position, raycastCamera.transform.forward * raycastDistance, Color.white);
-            }
 
             if (Time.unscaledTime < _nextInteractTime)
                 return;
@@ -202,6 +201,7 @@ namespace DungeonSteakhouse.Net.Interactions
             if (logDebug)
                 Debug.Log($"[NetInteractor] Target NetworkObject: name='{netObj.name}' netId={netObj.NetworkObjectId}.");
 
+            // NOTE: we still send a position for debugging/legacy, but the server will NOT trust it.
             RequestInteractServerRpc(netObj.NetworkObjectId, transform.position);
 
             if (logDebug)
@@ -209,7 +209,7 @@ namespace DungeonSteakhouse.Net.Interactions
         }
 
         [ServerRpc]
-        private void RequestInteractServerRpc(ulong targetNetworkObjectId, Vector3 interactorPosition, ServerRpcParams rpcParams = default)
+        private void RequestInteractServerRpc(ulong targetNetworkObjectId, Vector3 clientReportedInteractorPosition, ServerRpcParams rpcParams = default)
         {
             if (!IsServer)
                 return;
@@ -239,8 +239,37 @@ namespace DungeonSteakhouse.Net.Interactions
                 return;
             }
 
-            bool ok = interactable.ServerTryInteract(sender, interactorPosition);
-            Debug.Log($"[NetInteractor] Server: interaction processed. sender={sender} targetNetId={targetNetworkObjectId} ok={ok}");
+            if (!TryGetAuthoritativeInteractorPosition(nm, sender, out var serverInteractorPosition))
+            {
+                Debug.LogWarning($"[NetInteractor] Server: cannot resolve PlayerObject position for sender={sender}. Rejecting.");
+                return;
+            }
+
+            bool ok = interactable.ServerTryInteract(sender, serverInteractorPosition);
+
+            if (ok)
+            {
+                Debug.Log($"[NetInteractor] Server: interaction processed. sender={sender} targetNetId={targetNetworkObjectId} ok=true");
+            }
+            else
+            {
+                Debug.Log($"[NetInteractor] Server: interaction rejected. sender={sender} targetNetId={targetNetworkObjectId} ok=false " +
+                          $"(clientReportedPos={clientReportedInteractorPosition}, serverPos={serverInteractorPosition})");
+            }
+        }
+
+        private static bool TryGetAuthoritativeInteractorPosition(NetworkManager nm, ulong senderClientId, out Vector3 position)
+        {
+            position = default;
+
+            if (nm == null)
+                return false;
+
+            if (!nm.ConnectedClients.TryGetValue(senderClientId, out var client) || client == null || client.PlayerObject == null)
+                return false;
+
+            position = client.PlayerObject.transform.position;
+            return true;
         }
     }
 }

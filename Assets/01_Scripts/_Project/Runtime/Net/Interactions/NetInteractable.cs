@@ -31,11 +31,37 @@ namespace DungeonSteakhouse.Net.Interactions
             if (!allowNonHost && interactorClientId != NetworkManager.ServerClientId)
                 return false;
 
-            float dist = Vector3.Distance(interactorPosition, transform.position);
+            float dist = ComputeMinDistanceToInteractor(interactorPosition);
             if (dist > maxInteractDistance)
                 return false;
 
             return ServerOnInteract(interactorClientId);
+        }
+
+        private float ComputeMinDistanceToInteractor(Vector3 interactorPosition)
+        {
+            // Prefer collider-based distance (more robust than transform.position when pivots are offset)
+            Collider[] colliders = GetComponentsInChildren<Collider>(includeInactive: false);
+            if (colliders != null && colliders.Length > 0)
+            {
+                float min = float.MaxValue;
+
+                for (int i = 0; i < colliders.Length; i++)
+                {
+                    var c = colliders[i];
+                    if (c == null || !c.enabled)
+                        continue;
+
+                    Vector3 closest = c.ClosestPoint(interactorPosition);
+                    float d = Vector3.Distance(interactorPosition, closest);
+                    if (d < min) min = d;
+                }
+
+                if (min < float.MaxValue)
+                    return min;
+            }
+
+            return Vector3.Distance(interactorPosition, transform.position);
         }
 
         /// <summary>

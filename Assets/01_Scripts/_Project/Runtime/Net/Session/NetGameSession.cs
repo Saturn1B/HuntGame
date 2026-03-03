@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
+using DungeonSteakhouse.Net;
+using DungeonSteakhouse.Net.Session;
 
-/// <summary>
-/// Backward-compatible session phase enum used by existing scripts (ElevatorButtonInteractable, etc.).
-/// </summary>
 public enum NetSessionPhase : byte
 {
     Lobby = 0,
@@ -20,19 +19,28 @@ public sealed class NetGameSession : NetworkBehaviour
 {
     public static NetGameSession Instance { get; private set; }
 
-    [Header("Scene Flow (Optional)")]
-    [Tooltip("If true, the session will use Netcode scene management to move between Lobby and Run scenes.")]
-    [SerializeField] private bool useNetworkSceneManagement = true;
+    [Header("Config (recommended)")]
+    [SerializeField] private NetGameConfig config;
 
-    [Tooltip("Lobby scene name (must be in Build Settings).")]
-    [SerializeField] private string lobbySceneName = "Lobby";
-
-    [Tooltip("Run scene name (must be in Build Settings).")]
-    [SerializeField] private string runSceneName = "Run";
+    [Header("Scene Names (fallback if Config is missing)")]
+    [SerializeField] private string lobbySceneName = "Tavern";
+    [SerializeField] private string runSceneName = "Dungeon";
 
     [Header("Authority")]
     [Tooltip("If true, only the host/server can start a run or return to lobby.")]
     [SerializeField] private bool onlyHostCanControlSession = true;
+
+    [Header("Scene Management")]
+    [Tooltip("If true, use NetworkSceneManager to load/unload scenes (Additive).")]
+    [SerializeField] private bool useNetworkSceneManagement = true;
+
+    [Header("Spawning")]
+    [Tooltip("If true, the server will teleport PlayerObjects to NetSpawnPointGroup locations on connect and on phase changes.")]
+    [SerializeField] private bool useSpawnPointGroups = true;
+
+    [Tooltip("How many frames to wait after client connect before trying to teleport (helps when PlayerObject spawns 1 frame later).")]
+    [Range(0, 10)]
+    [SerializeField] private int teleportRetryFrames = 2;
 
     [Header("Debug")]
     [SerializeField] private bool verboseLogs = true;
@@ -44,15 +52,15 @@ public sealed class NetGameSession : NetworkBehaviour
             NetworkVariableWritePermission.Server
         );
 
-    private bool _subscribedToSceneEvents;
-    private bool _isSceneOperationInProgress;
+    private bool _sceneEventsHooked;
+    private bool _sceneOpInProgress;
 
     public NetSessionPhase Phase => _phase.Value;
 
-    /// <summary>
-    /// Optional event for UI/tools.
-    /// </summary>
     public event Action<NetSessionPhase, NetSessionPhase> PhaseChanged;
+
+    private string LobbySceneName => (config != null && !string.IsNullOrWhiteSpace(config.tavernSceneName)) ? config.tavernSceneName : lobbySceneName;
+    private string RunSceneName => (config != null && !string.IsNullOrWhiteSpace(config.dungeonSceneName)) ? config.dungeonSceneName : runSceneName;
 
     private void Awake()
     {
@@ -71,66 +79,61 @@ public sealed class NetGameSession : NetworkBehaviour
         base.OnNetworkSpawn();
 
         _phase.OnValueChanged += OnPhaseChangedInternal;
-
-        // Force an initial local "sync" callback so UI updates immediately on join.
         OnPhaseChangedInternal(_phase.Value, _phase.Value);
 
         if (IsServer)
         {
             SafeSetPhaseServer(NetSessionPhase.Lobby);
-            SubscribeToSceneEventsIfNeeded();
+
+            if (NetworkManager != null)
+            {
+                NetworkManager.OnClientConnectedCallback += OnClientConnectedServer;
+            }
+
+            HookSceneEventsIfNeeded();
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        base.OnNetworkDespawn();
+        if (IsServer && NetworkManager != null)
+        {
+            NetworkManager.OnClientConnectedCallback -= OnClientConnectedServer;
+        }
+
+        UnhookSceneEventsIfNeeded();
 
         _phase.OnValueChanged -= OnPhaseChangedInternal;
 
-        if (IsServer)
-        {
-            UnsubscribeFromSceneEventsIfNeeded();
-        }
+        base.OnNetworkDespawn();
     }
 
     private void OnPhaseChangedInternal(NetSessionPhase previous, NetSessionPhase current)
     {
         if (verboseLogs)
-        {
             Debug.Log($"[NetGameSession] Phase changed: {previous} -> {current}");
-        }
 
         PhaseChanged?.Invoke(previous, current);
     }
 
-    // ---------------------------------------------------------------------
-    // Backward-compatible API expected by your existing scripts
-    // ---------------------------------------------------------------------
+    // -------------------------
+    // Backward-compatible API expected by ElevatorButtonInteractable
+    // -------------------------
 
-    /// <summary>
-    /// Used by existing UI/scripts (e.g. NetLobbyRosterTMP).
-    /// </summary>
     public bool CanStartRun()
     {
         ulong requester = GetLocalClientIdSafe();
         return CanStartRun(requester);
     }
 
-    /// <summary>
-    /// Overload in case a script passes a clientId.
-    /// </summary>
     public bool CanStartRun(ulong requesterClientId)
     {
         if (NetworkManager == null || !NetworkManager.IsListening) return false;
-        if (_isSceneOperationInProgress) return false;
+        if (_sceneOpInProgress) return false;
         if (Phase != NetSessionPhase.Lobby) return false;
 
-        if (onlyHostCanControlSession)
-        {
-            if (requesterClientId != NetworkManager.ServerClientId)
-                return false;
-        }
+        if (onlyHostCanControlSession && requesterClientId != NetworkManager.ServerClientId)
+            return false;
 
         return true;
     }
@@ -144,22 +147,15 @@ public sealed class NetGameSession : NetworkBehaviour
     public bool CanReturnToLobby(ulong requesterClientId)
     {
         if (NetworkManager == null || !NetworkManager.IsListening) return false;
-        if (_isSceneOperationInProgress) return false;
+        if (_sceneOpInProgress) return false;
         if (Phase != NetSessionPhase.InRun) return false;
 
-        if (onlyHostCanControlSession)
-        {
-            if (requesterClientId != NetworkManager.ServerClientId)
-                return false;
-        }
+        if (onlyHostCanControlSession && requesterClientId != NetworkManager.ServerClientId)
+            return false;
 
         return true;
     }
 
-    /// <summary>
-    /// Old name expected by ElevatorButtonInteractable.
-    /// Works both when called on server (exec immediately) or on a client (sends request).
-    /// </summary>
     public bool ServerTryStartRun()
     {
         if (IsServer)
@@ -175,10 +171,6 @@ public sealed class NetGameSession : NetworkBehaviour
         return false;
     }
 
-    /// <summary>
-    /// Old name expected by ElevatorButtonInteractable.
-    /// Works both when called on server (exec immediately) or on a client (sends request).
-    /// </summary>
     public bool ServerTryReturnToLobby()
     {
         if (IsServer)
@@ -193,10 +185,6 @@ public sealed class NetGameSession : NetworkBehaviour
         RequestReturnToLobby();
         return false;
     }
-
-    // ---------------------------------------------------------------------
-    // Newer request-style API (you can use these anywhere)
-    // ---------------------------------------------------------------------
 
     public void RequestStartRun()
     {
@@ -225,12 +213,6 @@ public sealed class NetGameSession : NetworkBehaviour
         RequestReturnToLobby();
     }
 
-    // ---------------------------------------------------------------------
-    // Server RPCs
-    // NOTE: Your Netcode version warns about RequireOwnership being deprecated.
-    // We keep it for compatibility and silence the warning explicitly.
-    // ---------------------------------------------------------------------
-
 #pragma warning disable CS0618
     [ServerRpc(RequireOwnership = false)]
 #pragma warning restore CS0618
@@ -241,9 +223,7 @@ public sealed class NetGameSession : NetworkBehaviour
         if (!CanStartRun(rpcParams.Receive.SenderClientId))
         {
             if (verboseLogs)
-            {
-                Debug.LogWarning($"[NetGameSession] StartRun denied for sender {rpcParams.Receive.SenderClientId} (phase={Phase}, inProgress={_isSceneOperationInProgress}).");
-            }
+                Debug.LogWarning($"[NetGameSession] StartRun denied for sender={rpcParams.Receive.SenderClientId} phase={Phase} inProgress={_sceneOpInProgress}");
             return;
         }
 
@@ -260,18 +240,16 @@ public sealed class NetGameSession : NetworkBehaviour
         if (!CanReturnToLobby(rpcParams.Receive.SenderClientId))
         {
             if (verboseLogs)
-            {
-                Debug.LogWarning($"[NetGameSession] ReturnToLobby denied for sender {rpcParams.Receive.SenderClientId} (phase={Phase}, inProgress={_isSceneOperationInProgress}).");
-            }
+                Debug.LogWarning($"[NetGameSession] ReturnToLobby denied for sender={rpcParams.Receive.SenderClientId} phase={Phase} inProgress={_sceneOpInProgress}");
             return;
         }
 
         ReturnToLobbyServer();
     }
 
-    // ---------------------------------------------------------------------
-    // Server-side flow
-    // ---------------------------------------------------------------------
+    // -------------------------
+    // Server flow (Additive, aligned with NetGameConfig + NetSceneFlow)
+    // -------------------------
 
     private void StartRunServer()
     {
@@ -280,19 +258,43 @@ public sealed class NetGameSession : NetworkBehaviour
         if (!useNetworkSceneManagement)
         {
             SafeSetPhaseServer(NetSessionPhase.InRun);
+            ServerTeleportAllPlayers(NetSpawnContext.Run);
             return;
         }
 
-        if (!CanUseSceneManager(out var sceneManager))
+        if (!TryGetSceneManager(out var sceneManager))
         {
             SafeSetPhaseServer(NetSessionPhase.InRun);
+            ServerTeleportAllPlayers(NetSpawnContext.Run);
             return;
         }
 
-        _isSceneOperationInProgress = true;
+        // If already loaded, just switch phase and teleport
+        var runScene = SceneManager.GetSceneByName(RunSceneName);
+        if (runScene.IsValid() && runScene.isLoaded)
+        {
+            if (verboseLogs)
+                Debug.LogWarning($"[NetGameSession] Run scene '{RunSceneName}' is already loaded. Forcing InRun + teleport.");
 
-        if (verboseLogs) Debug.Log($"[NetGameSession] Loading run scene: '{runSceneName}'");
-        sceneManager.LoadScene(runSceneName, LoadSceneMode.Single);
+            SafeSetPhaseServer(NetSessionPhase.InRun);
+            ServerTeleportAllPlayers(NetSpawnContext.Run);
+            return;
+        }
+
+        _sceneOpInProgress = true;
+
+        if (verboseLogs)
+            Debug.Log($"[NetGameSession] Loading run scene (Additive): '{RunSceneName}'");
+
+        var status = sceneManager.LoadScene(RunSceneName, LoadSceneMode.Additive);
+        if (status != SceneEventProgressStatus.Started)
+        {
+            _sceneOpInProgress = false;
+            Debug.LogWarning($"[NetGameSession] LoadScene '{RunSceneName}' failed with status={status}. Check Build Settings + VerifySceneBeforeLoading.");
+            // Fallback to phase so you don't get stuck
+            SafeSetPhaseServer(NetSessionPhase.InRun);
+            ServerTeleportAllPlayers(NetSpawnContext.Run);
+        }
     }
 
     private void ReturnToLobbyServer()
@@ -302,82 +304,215 @@ public sealed class NetGameSession : NetworkBehaviour
         if (!useNetworkSceneManagement)
         {
             SafeSetPhaseServer(NetSessionPhase.Lobby);
+            ServerTeleportAllPlayers(NetSpawnContext.Lobby);
             return;
         }
 
-        if (!CanUseSceneManager(out var sceneManager))
+        if (!TryGetSceneManager(out var sceneManager))
         {
             SafeSetPhaseServer(NetSessionPhase.Lobby);
+            ServerTeleportAllPlayers(NetSpawnContext.Lobby);
             return;
         }
 
-        _isSceneOperationInProgress = true;
+        var runScene = SceneManager.GetSceneByName(RunSceneName);
+        if (!runScene.IsValid() || !runScene.isLoaded)
+        {
+            if (verboseLogs)
+                Debug.LogWarning($"[NetGameSession] Run scene '{RunSceneName}' is not loaded. Forcing Lobby + teleport.");
 
-        if (verboseLogs) Debug.Log($"[NetGameSession] Loading lobby scene: '{lobbySceneName}'");
-        sceneManager.LoadScene(lobbySceneName, LoadSceneMode.Single);
-    }
+            SafeSetPhaseServer(NetSessionPhase.Lobby);
+            ServerTeleportAllPlayers(NetSpawnContext.Lobby);
+            return;
+        }
 
-    // ---------------------------------------------------------------------
-    // Scene Manager events (server)
-    // ---------------------------------------------------------------------
-
-    private void SubscribeToSceneEventsIfNeeded()
-    {
-        if (!useNetworkSceneManagement) return;
-        if (_subscribedToSceneEvents) return;
-
-        if (!CanUseSceneManager(out var sceneManager)) return;
-
-        sceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
-        _subscribedToSceneEvents = true;
-
-        if (verboseLogs) Debug.Log("[NetGameSession] Subscribed to SceneManager events.");
-    }
-
-    private void UnsubscribeFromSceneEventsIfNeeded()
-    {
-        if (!_subscribedToSceneEvents) return;
-
-        if (NetworkManager == null || NetworkManager.SceneManager == null) return;
-
-        NetworkManager.SceneManager.OnLoadEventCompleted -= OnLoadEventCompleted;
-        _subscribedToSceneEvents = false;
-
-        if (verboseLogs) Debug.Log("[NetGameSession] Unsubscribed from SceneManager events.");
-    }
-
-    private void OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
-    {
-        if (!IsServer) return;
-
-        _isSceneOperationInProgress = false;
+        _sceneOpInProgress = true;
 
         if (verboseLogs)
-        {
-            int ok = clientsCompleted != null ? clientsCompleted.Count : 0;
-            int ko = clientsTimedOut != null ? clientsTimedOut.Count : 0;
-            Debug.Log($"[NetGameSession] Scene load completed: '{sceneName}'. Clients OK={ok}, TimedOut={ko}");
-        }
+            Debug.Log($"[NetGameSession] Unloading run scene: '{RunSceneName}'");
 
-        if (string.Equals(sceneName, runSceneName, StringComparison.Ordinal))
+        var status = sceneManager.UnloadScene(runScene);
+        if (status != SceneEventProgressStatus.Started)
         {
-            SafeSetPhaseServer(NetSessionPhase.InRun);
-        }
-        else if (string.Equals(sceneName, lobbySceneName, StringComparison.Ordinal))
-        {
+            _sceneOpInProgress = false;
+            Debug.LogWarning($"[NetGameSession] UnloadScene '{RunSceneName}' failed with status={status}.");
             SafeSetPhaseServer(NetSessionPhase.Lobby);
-        }
-        else
-        {
-            if (verboseLogs) Debug.LogWarning($"[NetGameSession] Loaded scene '{sceneName}' does not match Lobby/Run scene names.");
+            ServerTeleportAllPlayers(NetSpawnContext.Lobby);
         }
     }
 
-    // ---------------------------------------------------------------------
-    // Helpers
-    // ---------------------------------------------------------------------
+    // -------------------------
+    // Scene events
+    // -------------------------
 
-    private bool CanUseSceneManager(out NetworkSceneManager sceneManager)
+    private void HookSceneEventsIfNeeded()
+    {
+        if (_sceneEventsHooked)
+            return;
+
+        if (!useNetworkSceneManagement)
+            return;
+
+        if (NetworkManager == null || NetworkManager.SceneManager == null)
+            return;
+
+        // Align with your project (Additive flow)
+        NetworkManager.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
+
+        // Respect config's active scene sync preference if present
+        if (config != null)
+            NetworkManager.SceneManager.ActiveSceneSynchronizationEnabled = config.syncActiveScene;
+
+        NetworkManager.SceneManager.OnSceneEvent += OnSceneEvent;
+        _sceneEventsHooked = true;
+
+        if (verboseLogs)
+            Debug.Log("[NetGameSession] Hooked NetworkSceneManager.OnSceneEvent.");
+    }
+
+    private void UnhookSceneEventsIfNeeded()
+    {
+        if (!_sceneEventsHooked)
+            return;
+
+        if (NetworkManager != null && NetworkManager.SceneManager != null)
+            NetworkManager.SceneManager.OnSceneEvent -= OnSceneEvent;
+
+        _sceneEventsHooked = false;
+
+        if (verboseLogs)
+            Debug.Log("[NetGameSession] Unhooked NetworkSceneManager.OnSceneEvent.");
+    }
+
+    private void OnSceneEvent(SceneEvent sceneEvent)
+    {
+        if (!IsServer)
+            return;
+
+        // Only consider server-local events for "operation done" / teleport decisions
+        if (NetworkManager == null || sceneEvent.ClientId != NetworkManager.ServerClientId)
+            return;
+
+        if (sceneEvent.SceneName != RunSceneName)
+            return;
+
+        if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted)
+        {
+            _sceneOpInProgress = false;
+            SafeSetPhaseServer(NetSessionPhase.InRun);
+            ServerTeleportAllPlayers(NetSpawnContext.Run);
+
+            if (verboseLogs)
+                Debug.Log($"[NetGameSession] LoadEventCompleted for '{RunSceneName}' -> InRun + teleport Run.");
+        }
+
+        if (sceneEvent.SceneEventType == SceneEventType.UnloadEventCompleted)
+        {
+            _sceneOpInProgress = false;
+            SafeSetPhaseServer(NetSessionPhase.Lobby);
+            ServerTeleportAllPlayers(NetSpawnContext.Lobby);
+
+            if (verboseLogs)
+                Debug.Log($"[NetGameSession] UnloadEventCompleted for '{RunSceneName}' -> Lobby + teleport Lobby.");
+        }
+    }
+
+    // -------------------------
+    // Spawn handling
+    // -------------------------
+
+    private void OnClientConnectedServer(ulong clientId)
+    {
+        if (!IsServer)
+            return;
+
+        if (!useSpawnPointGroups)
+            return;
+
+        StartCoroutine(ServerDeferredTeleportClient(clientId));
+    }
+
+    private IEnumerator ServerDeferredTeleportClient(ulong clientId)
+    {
+        for (int i = 0; i <= teleportRetryFrames; i++)
+        {
+            if (TryTeleportClientNow(clientId))
+                yield break;
+
+            yield return null;
+        }
+
+        if (verboseLogs)
+            Debug.LogWarning($"[NetGameSession] Failed to teleport clientId={clientId} after {teleportRetryFrames + 1} frame(s). Check PlayerObject spawn + NetSpawnPointGroup setup.");
+    }
+
+    private bool TryTeleportClientNow(ulong clientId)
+    {
+        if (NetworkManager == null)
+            return false;
+
+        if (!NetworkManager.ConnectedClients.TryGetValue(clientId, out var client) || client == null || client.PlayerObject == null)
+            return false;
+
+        var ctx = (Phase == NetSessionPhase.InRun || Phase == NetSessionPhase.LoadingRun) ? NetSpawnContext.Run : NetSpawnContext.Lobby;
+
+        if (!TryGetSpawnPoint(ctx, clientId, out var pos, out var rot))
+            return false;
+
+        client.PlayerObject.transform.SetPositionAndRotation(pos, rot);
+        return true;
+    }
+
+    private void ServerTeleportAllPlayers(NetSpawnContext context)
+    {
+        if (!IsServer || !useSpawnPointGroups || NetworkManager == null)
+            return;
+
+        foreach (var kvp in NetworkManager.ConnectedClients)
+        {
+            ulong clientId = kvp.Key;
+            var c = kvp.Value;
+
+            if (c == null || c.PlayerObject == null)
+                continue;
+
+            if (!TryGetSpawnPoint(context, clientId, out var pos, out var rot))
+                continue;
+
+            c.PlayerObject.transform.SetPositionAndRotation(pos, rot);
+        }
+    }
+
+    private bool TryGetSpawnPoint(NetSpawnContext context, ulong clientId, out Vector3 pos, out Quaternion rot)
+    {
+        pos = default;
+        rot = Quaternion.identity;
+
+        var groups = UnityEngine.Object.FindObjectsByType<NetSpawnPointGroup>(FindObjectsSortMode.None);
+        if (groups == null || groups.Length == 0)
+            return false;
+
+        NetSpawnPointGroup group = null;
+        for (int i = 0; i < groups.Length; i++)
+        {
+            if (groups[i] != null && groups[i].Context == context)
+            {
+                group = groups[i];
+                break;
+            }
+        }
+
+        if (group == null)
+            return false;
+
+        return group.TryGetSpawnPoint(clientId, out pos, out rot);
+    }
+
+    // -------------------------
+    // Helpers
+    // -------------------------
+
+    private bool TryGetSceneManager(out NetworkSceneManager sceneManager)
     {
         sceneManager = null;
 
@@ -401,7 +536,6 @@ public sealed class NetGameSession : NetworkBehaviour
     {
         if (!IsServer) return;
         if (_phase.Value == newPhase) return;
-
         _phase.Value = newPhase;
     }
 
@@ -410,18 +544,5 @@ public sealed class NetGameSession : NetworkBehaviour
         if (NetworkManager == null) return 0;
         if (!NetworkManager.IsConnectedClient) return 0;
         return NetworkManager.LocalClientId;
-    }
-
-    [ContextMenu("DEBUG: Force Phase -> Lobby (Server Only)")]
-    private void DebugForceLobby()
-    {
-        if (!IsServer)
-        {
-            Debug.LogWarning("[NetGameSession] DebugForceLobby ignored (not server).");
-            return;
-        }
-
-        _isSceneOperationInProgress = false;
-        SafeSetPhaseServer(NetSessionPhase.Lobby);
     }
 }

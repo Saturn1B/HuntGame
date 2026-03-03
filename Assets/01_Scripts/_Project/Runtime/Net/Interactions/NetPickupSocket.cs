@@ -3,39 +3,21 @@ using Unity.Netcode;
 
 namespace DungeonSteakhouse.Net.Interactions
 {
-    /// <summary>
-    /// Server-authoritative "hand socket" that can hold a single NetworkObject.
-    /// - Network-parents the item to the player's NetworkObject (reliable in NGO)
-    /// - Continuously snaps the held item to the HoldPoint pose (so it behaves like a child of HoldPoint)
-    /// </summary>
     [DisallowMultipleComponent]
     public sealed class NetPickupSocket : NetworkBehaviour
     {
         [Header("Socket")]
-        [Tooltip("Where the held object should appear (e.g., a child transform near the hand/camera).")]
         [SerializeField] private Transform holdPoint;
-
-        [Tooltip("If HoldPoint is not assigned, try to find a child named 'HoldPoint' at runtime.")]
         [SerializeField] private bool autoFindHoldPoint = true;
 
         [Header("Snap While Held")]
-        [Tooltip("If true, the held item will be snapped to HoldPoint every frame on the server.")]
         [SerializeField] private bool snapToHoldPointEveryFrame = true;
-
-        [Tooltip("Optional local offset applied after snapping (position, in meters).")]
         [SerializeField] private Vector3 heldPositionOffset = Vector3.zero;
-
-        [Tooltip("Optional local offset applied after snapping (rotation, euler degrees).")]
         [SerializeField] private Vector3 heldRotationOffsetEuler = Vector3.zero;
 
         [Header("Held Object Settings")]
-        [Tooltip("Disable all colliders on the held object while held.")]
         [SerializeField] private bool disableCollidersWhileHeld = true;
-
-        [Tooltip("Set Rigidbody to kinematic while held (if present).")]
         [SerializeField] private bool setRigidbodiesKinematicWhileHeld = true;
-
-        [Tooltip("Disable NetworkTransform components while held (prevents transform fights/jitter).")]
         [SerializeField] private bool disableNetworkTransformWhileHeld = true;
 
         [Header("Debug")]
@@ -56,7 +38,7 @@ namespace DungeonSteakhouse.Net.Interactions
 
         private void LateUpdate()
         {
-            // We only drive held item pose on the server (authoritative).
+            // Server authoritative snap (good enough for now)
             if (!IsServer) return;
             if (!snapToHoldPointEveryFrame) return;
             if (_heldObject == null) return;
@@ -64,10 +46,6 @@ namespace DungeonSteakhouse.Net.Interactions
             SnapHeldToHoldPointServer();
         }
 
-        /// <summary>
-        /// Server-only: attach the item to this player's socket.
-        /// Returns true if successful.
-        /// </summary>
         public bool ServerTryPickup(NetworkObject item)
         {
             if (!IsServer) return false;
@@ -82,8 +60,6 @@ namespace DungeonSteakhouse.Net.Interactions
 
             _heldObject = item;
 
-            // Reliable NGO parenting: parent to the player's NetworkObject.
-            // (HoldPoint is typically NOT a NetworkObject; NGO can't network-parent to it.)
             bool parentOk = item.TrySetParent(NetworkObject, worldPositionStays: false);
             if (!parentOk)
             {
@@ -93,8 +69,6 @@ namespace DungeonSteakhouse.Net.Interactions
             }
 
             ApplyHeldState(item, isHeld: true);
-
-            // Snap immediately once (then optionally every frame).
             SnapHeldToHoldPointServer();
 
             if (verboseLogs) Debug.Log($"[NetPickupSocket] Picked up '{item.name}' on '{name}'.");
@@ -102,10 +76,6 @@ namespace DungeonSteakhouse.Net.Interactions
             return true;
         }
 
-        /// <summary>
-        /// Server-only: drop the held item in front of the player.
-        /// Returns true if something was dropped.
-        /// </summary>
         public bool ServerTryDrop(float forwardDistance = 0.6f)
         {
             if (!IsServer) return false;
@@ -114,10 +84,8 @@ namespace DungeonSteakhouse.Net.Interactions
             NetworkObject item = _heldObject;
             _heldObject = null;
 
-            // Unparent (network-wise)
             item.TryRemoveParent();
 
-            // Place it slightly in front
             Vector3 dropPos = transform.position + transform.forward * forwardDistance;
             item.transform.position = dropPos;
 
@@ -133,8 +101,6 @@ namespace DungeonSteakhouse.Net.Interactions
             if (_heldObject == null) return;
             if (holdPoint == null) return;
 
-            // Item is parented to player root => compute holdPoint pose in player's local space,
-            // so it works even if HoldPoint is deep under a rig hierarchy.
             Vector3 localPos = transform.InverseTransformPoint(holdPoint.position);
             Quaternion localRot = Quaternion.Inverse(transform.rotation) * holdPoint.rotation;
 
@@ -168,13 +134,10 @@ namespace DungeonSteakhouse.Net.Interactions
 
             if (disableNetworkTransformWhileHeld)
             {
-                // Disable NGO NetworkTransform if present
                 var nts = item.GetComponentsInChildren<Unity.Netcode.Components.NetworkTransform>(includeInactive: true);
                 for (int i = 0; i < nts.Length; i++)
                     nts[i].enabled = !isHeld;
 
-                // Some projects have a "ClientNetworkTransform" (not always present in NGO assemblies).
-                // We disable it by name to avoid compile-time dependency.
                 Component[] comps = item.GetComponentsInChildren<Component>(includeInactive: true);
                 for (int i = 0; i < comps.Length; i++)
                 {
