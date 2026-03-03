@@ -72,6 +72,14 @@ namespace ProceduralGeneration
 				if (TryPlaceRoom(currentSocket)) openSocket.RemoveAt(socketIndex);
 			}
 
+			//If dungeon is too small, regenerate
+			if(spawnedRoom.Count < (float)deepness / 2)
+			{
+				Debug.LogWarning($"Dungeon too small, generated only {spawnedRoom.Count} rooms. Regenerating !");
+				Generate();
+				return;
+			}
+
 			//Close all still opened door after the dungeon is generated
 			FinnishDungeon();
 		}
