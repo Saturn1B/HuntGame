@@ -3,18 +3,16 @@ using Unity.Netcode;
 using UnityEngine;
 using DungeonSteakhouse.Net.Players;
 using DungeonSteakhouse.Net.Flow;
+// DungeonSteakhouse.Net.Interactions; // NetInteractable lives here in your project (adjust if needed)
 
 namespace DungeonSteakhouse.Net.Session
 {
     /// <summary>
-    /// Platform-based ready system:
-    /// - Players are considered "ready" when they are inside this trigger (server-authoritative).
+    /// Platform-based ready system (server-authoritative):
+    /// - Players are "ready" when inside this trigger.
     /// - When ALL players are on the platform, a short countdown starts.
-    /// - If the condition stays true until the countdown ends, the host starts the run.
-    ///
-    /// Requirements:
-    /// - This GameObject must have a trigger collider.
-    /// - The server/host must have physics running for this scene (typical NGO host).
+    /// - If the condition stays true until countdown ends, AllReadyConfirmed becomes true.
+    /// - NO automatic start run here (button will handle it).
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class NetLobbyReadyPlatform : MonoBehaviour
@@ -22,37 +20,48 @@ namespace DungeonSteakhouse.Net.Session
         [Header("References")]
         [SerializeField] private NetGameRoot netGameRoot;
 
-        [Tooltip("Optional: if assigned, used to start the run. If null, will fallback to NetGameRoot.SceneFlow.")]
-        [SerializeField] private NetGameSession gameSession;
+        [Header("Optional network indicator")]
+        [Tooltip("Optional: a NetInteractable used as a replicated indicator (BoolState).")]
+        [SerializeField] private NetInteractable allReadyIndicator;
 
         [Header("Countdown")]
-        [Tooltip("Countdown duration before starting the run once everyone is on the platform.")]
-        [Range(0.1f, 10f)]
-        [SerializeField] private float countdownSeconds = 1.0f;
-
-        [Tooltip("If true, resets all players to Not Ready after triggering the run start.")]
-        [SerializeField] private bool resetReadyAfterStart = true;
+        [Tooltip("Countdown duration before confirming 'all ready' once everyone is on the platform.")]
+        [Range(0.0f, 10f)]
+        [SerializeField] private float confirmCountdownSeconds = 1.0f;
 
         [Header("Debug")]
         [SerializeField] private bool logDebug = true;
 
         private readonly Dictionary<ulong, int> _overlapCounts = new();
+
         private bool _countdownActive;
         private float _countdownEndTime;
+
+        private bool _allReadyConfirmedServer;
+
+        /// <summary>True on the server when all players stayed on platform until countdown ended.</summary>
+        public bool AllReadyConfirmedServer => _allReadyConfirmedServer;
 
         private void Awake()
         {
             if (netGameRoot == null)
                 netGameRoot = NetGameRoot.Instance;
-
-            if (gameSession == null)
-                gameSession = NetGameSession.Instance;
         }
 
         private void Update()
         {
             if (!IsServerActiveInLobby())
                 return;
+
+            // If already confirmed, keep it true only while everyone stays on platform.
+            if (_allReadyConfirmedServer)
+            {
+                if (!AreAllPlayersOnPlatform())
+                {
+                    SetAllReadyConfirmed(false, "AllReady lost: a player left the platform.");
+                }
+                return;
+            }
 
             if (!_countdownActive)
                 return;
@@ -66,7 +75,7 @@ namespace DungeonSteakhouse.Net.Session
             if (Time.unscaledTime >= _countdownEndTime)
             {
                 _countdownActive = false;
-                TryStartRun();
+                SetAllReadyConfirmed(true, "AllReady confirmed (countdown complete).");
             }
         }
 
@@ -80,8 +89,7 @@ namespace DungeonSteakhouse.Net.Session
 
             ulong clientId = player.OwnerClientId;
 
-            int count = 0;
-            _overlapCounts.TryGetValue(clientId, out count);
+            _overlapCounts.TryGetValue(clientId, out int count);
             count++;
             _overlapCounts[clientId] = count;
 
@@ -94,7 +102,7 @@ namespace DungeonSteakhouse.Net.Session
                     Debug.Log($"[NetLobbyReadyPlatform] Player entered platform: clientId={clientId} name='{player.DisplayName}'");
             }
 
-            TryStartCountdownIfReady();
+            TryStartConfirmCountdownIfReady();
         }
 
         private void OnTriggerExit(Collider other)
@@ -122,6 +130,10 @@ namespace DungeonSteakhouse.Net.Session
 
                 if (_countdownActive)
                     CancelCountdown("Countdown cancelled: a player left the platform.");
+
+                // If we were confirmed, we must drop it when someone leaves.
+                if (_allReadyConfirmedServer)
+                    SetAllReadyConfirmed(false, "AllReady lost: a player left the platform.");
             }
             else
             {
@@ -181,19 +193,29 @@ namespace DungeonSteakhouse.Net.Session
             return true;
         }
 
-        private void TryStartCountdownIfReady()
+        private void TryStartConfirmCountdownIfReady()
         {
+            if (_allReadyConfirmedServer)
+                return;
+
             if (_countdownActive)
                 return;
 
             if (!AreAllPlayersOnPlatform())
                 return;
 
+            // If countdown disabled, confirm immediately.
+            if (confirmCountdownSeconds <= 0.0f)
+            {
+                SetAllReadyConfirmed(true, "AllReady confirmed (no countdown).");
+                return;
+            }
+
             _countdownActive = true;
-            _countdownEndTime = Time.unscaledTime + Mathf.Max(0.1f, countdownSeconds);
+            _countdownEndTime = Time.unscaledTime + Mathf.Max(0.05f, confirmCountdownSeconds);
 
             if (logDebug)
-                Debug.Log($"[NetLobbyReadyPlatform] All players on platform. Starting countdown ({countdownSeconds:0.00}s).");
+                Debug.Log($"[NetLobbyReadyPlatform] All players on platform. Confirm countdown started ({confirmCountdownSeconds:0.00}s).");
         }
 
         private void CancelCountdown(string reason)
@@ -204,53 +226,31 @@ namespace DungeonSteakhouse.Net.Session
                 Debug.Log($"[NetLobbyReadyPlatform] {reason}");
         }
 
-        private void TryStartRun()
+        private void SetAllReadyConfirmed(bool value, string reason)
         {
-            // Prefer session manager if present, otherwise fallback to scene flow.
-            if (gameSession == null)
-                gameSession = NetGameSession.Instance;
-
-            if (gameSession != null)
-            {
-                if (logDebug)
-                    Debug.Log("[NetLobbyReadyPlatform] Countdown complete. Requesting StartRun via NetGameSession.");
-
-                gameSession.RequestStartRun();
-                PostStartCleanup();
+            if (_allReadyConfirmedServer == value)
                 return;
-            }
 
-            var flow = netGameRoot != null ? netGameRoot.SceneFlow : null;
-            if (flow == null)
-            {
-                Debug.LogError("[NetLobbyReadyPlatform] Cannot start run: no NetGameSession and no NetSceneFlow available.");
-                return;
-            }
+            _allReadyConfirmedServer = value;
+
+            // Optional replicated indicator using NetInteractable.BoolState
+            if (allReadyIndicator != null && allReadyIndicator.IsServer)
+                allReadyIndicator.BoolState.Value = value;
 
             if (logDebug)
-                Debug.Log("[NetLobbyReadyPlatform] Countdown complete. Starting run via NetSceneFlow.");
-
-            flow.TryStartRun();
-            PostStartCleanup();
+                Debug.Log($"[NetLobbyReadyPlatform] {reason} -> AllReadyConfirmedServer={value}");
         }
 
-        private void PostStartCleanup()
+        /// <summary>
+        /// Optional: call this from server when starting the run to clear the confirmed state.
+        /// </summary>
+        public void ServerClearConfirmedReady()
         {
-            if (!resetReadyAfterStart)
+            if (!IsServerActiveInLobby())
                 return;
 
-            if (netGameRoot == null || netGameRoot.PlayerRegistry == null)
-                return;
-
-            foreach (var p in netGameRoot.PlayerRegistry.Players)
-            {
-                if (p == null)
-                    continue;
-
-                p.ServerSetReady(false);
-            }
-
-            _overlapCounts.Clear();
+            SetAllReadyConfirmed(false, "AllReady cleared by server.");
+            _countdownActive = false;
         }
     }
 }

@@ -198,7 +198,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5587193314258787295, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2124204083}
   m_SourcePrefab: {fileID: 100100000, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
 --- !u!4 &63865214 stripped
 Transform:
@@ -3616,9 +3619,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Session.NetLobbyReadyPlatform
   netGameRoot: {fileID: 1359309294}
-  gameSession: {fileID: 1358325654}
-  countdownSeconds: 4
-  resetReadyAfterStart: 1
+  allReadyIndicator: {fileID: 0}
+  confirmCountdownSeconds: 1
   logDebug: 1
 --- !u!1 &1522305657
 GameObject:
@@ -4637,6 +4639,31 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2057566958}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &2124204081 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5587193314258787295, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
+  m_PrefabInstance: {fileID: 63865213}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2124204083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2124204081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ebda648667d1684b82947773c9fc0c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxUseDistance: 3
+  serverCooldownSeconds: 0.1
+  interactionPointOverride: {fileID: 0}
+  bindings:
+  - verb: 0
+    actions:
+    - {fileID: 11400000, guid: 917a83cd4f111f740bdfdabc6b843d63, type: 2}
 --- !u!1 &2143411642
 GameObject:
   m_ObjectHideFlags: 0
