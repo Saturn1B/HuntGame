@@ -102,7 +102,7 @@ public class CharacterMovement : MonoBehaviour, IControlable
 	}
     public bool IsGroundedLocal()
     {
-        float rayLength = (characterController.height / 2f) + 0.1f;
+        float rayLength = (characterController.height / 2f) + 0.2f;
         return Physics.Raycast(transform.position, -transform.up, rayLength);
     }
 

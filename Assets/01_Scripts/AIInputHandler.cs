@@ -1,16 +1,21 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(CharacterMovement))]
 public class AIInputHandler : MonoBehaviour
 {
     [Header("AI Settings")]
-    [SerializeField] protected Transform target;
+    [SerializeField] protected Vector3 target;
+    [SerializeField] protected Transform targetTransform;
     [SerializeField] protected float stoppingDistance = 2;
+    [SerializeField] protected float turningSpeed = 4;
 
     protected NavMeshAgent agent;
     protected CharacterMovement movementController;
+
+	protected Action _arrivedAtTarget;
 
 	protected virtual void Awake()
 	{
@@ -31,24 +36,34 @@ public class AIInputHandler : MonoBehaviour
 	protected virtual void Update()
 	{
 		//Return if no target found
-		if (target == null) return;
+		if (target == Vector3.zero && targetTransform == null) return;
 
 		//Move toward target and face toward movement direction
 		MoveTowardsTarget();
 		FaceMovementDirection();
 	}
 
+	bool stoppedMoving;
+
 	protected virtual void MoveTowardsTarget()
 	{
 		//Set the destination to the target
-		agent.SetDestination(target.position);
+		agent.SetDestination(targetTransform == null ? target : targetTransform.position);
 
 		//Check if the remaining distance between AI and target is less than stopping distance, if yes set the movement to 0 and return
 		if(agent.remainingDistance <= stoppingDistance)
 		{
+			//Check if already stopped moving, if not invoke the arrived at target. Security so we only invoke once the action
+			if (!stoppedMoving)
+				_arrivedAtTarget?.Invoke();
+
 			movementController.SetMovementInput(Vector2.zero);
+			stoppedMoving = true;
+
 			return;
 		}
+		//Turn back to is moving
+		stoppedMoving = false;
 
 		//Get next point to move and it's direction
 		Vector3 nextPoint = agent.steeringTarget;
@@ -82,9 +97,9 @@ public class AIInputHandler : MonoBehaviour
 		Quaternion targetRotation = Quaternion.LookRotation(direction, transform.up);
 
 		//Smoothly rotate toward the target rotation
-		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 8f);
+		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turningSpeed);
 	}
 
 	//Set a new target
-	public void SetTarget(Transform newTarget) => target = newTarget;
+	public void SetTarget(Transform newTarget) => targetTransform = newTarget;
 }

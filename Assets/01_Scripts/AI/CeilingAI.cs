@@ -57,7 +57,7 @@ public class CeilingAI : AIInputHandler
 		}
 
 		//Calculate distance between AI and target
-		float distanceToTarget = Vector3.Distance(transform.position, target.position);
+		float distanceToTarget = Vector3.Distance(transform.position, targetTransform == null ? target : targetTransform.position);
 
 		//If is not on the ceiling, and is far from target and has a ceiling above, then transition to ceiling walk
 		if (!isOnCeiling && distanceToTarget > switchToGroundDistance && HasCeilingAbove())
