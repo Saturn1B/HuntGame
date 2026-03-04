@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7137792401673526344}
   - component: {fileID: 5596205792357580059}
-  - component: {fileID: 4294863586984019524}
+  - component: {fileID: 1394907741792648163}
   m_Layer: 6
   m_Name: Door
   m_TagString: Untagged
@@ -46,8 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3240944044
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 475097701
+  InScenePlacedSourceGlobalObjectIdHash: 475097701
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -59,7 +59,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &4294863586984019524
+--- !u!114 &1394907741792648163
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -68,16 +68,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 3930444410312037582}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a36cd4059ae1c634f9ef980cfd93fbe9, type: 3}
+  m_Script: {fileID: 11500000, guid: 4ebda648667d1684b82947773c9fc0c4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DoorUsable
+  m_EditorClassIdentifier: Assembly-CSharp::NetInteractable
   ShowTopMostFoldoutHeaderGroup: 1
-  maxUseDistance: 2.5
-  validateDistanceOnServer: 1
-  hostOnly: 0
-  doorVisual: {fileID: 8329604180109872626}
-  closedLocalEuler: {x: 0, y: 0, z: 0}
-  openLocalEuler: {x: 0, y: 90, z: 0}
+  maxUseDistance: 3
+  serverCooldownSeconds: 0.1
+  interactionPointOverride: {fileID: 8329604180109872626}
+  bindings:
+  - verb: 0
+    actions:
+    - {fileID: 11400000, guid: 0384ec5fef8d7964296014e679306e48, type: 2}
 --- !u!1 &5339383604244249956
 GameObject:
   m_ObjectHideFlags: 0

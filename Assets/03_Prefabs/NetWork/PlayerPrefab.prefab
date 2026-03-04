@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 3555683687321821173}
   - component: {fileID: 6383417095241793467}
   - component: {fileID: 7992281102894813834}
-  - component: {fileID: 2841404238261003725}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -50,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 609470689
+  GlobalObjectIdHash: 784275320
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -219,20 +218,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &2841404238261003725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2789452449048012691}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7241022f288c37049a2f3e20e39a9790, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Voice.NetSteamVoiceSpeaker
-  ownerClientId: 0
-  config: {fileID: 11400000, guid: 348794fa55baa4c409000a4ddc485bca, type: 2}
 --- !u!1 &5308905629633016533
 GameObject:
   m_ObjectHideFlags: 0

@@ -3106,10 +3106,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Session.NetGameSession
   ShowTopMostFoldoutHeaderGroup: 1
-  useNetworkSceneManagement: 1
+  config: {fileID: 0}
   lobbySceneName: Lobby
   runSceneName: Run
   onlyHostCanControlSession: 1
+  useNetworkSceneManagement: 1
+  useSpawnPointGroups: 1
+  teleportRetryFrames: 2
   verboseLogs: 1
 --- !u!4 &1358325655
 Transform:

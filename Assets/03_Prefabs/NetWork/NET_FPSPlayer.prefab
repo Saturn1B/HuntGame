@@ -646,7 +646,7 @@ GameObject:
   - component: {fileID: 91209416009654275}
   - component: {fileID: 5205995077333441403}
   - component: {fileID: 6003677194489283233}
-  - component: {fileID: 27171979902679305}
+  - component: {fileID: 3606316115331540558}
   m_Layer: 0
   m_Name: NET_FPSPlayer
   m_TagString: Player
@@ -995,7 +995,7 @@ MonoBehaviour:
   disableOtherAudioListeners: 1
   enforceForSecondsAfterSceneLoad: 1
   logDebug: 0
---- !u!114 &27171979902679305
+--- !u!114 &3606316115331540558
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1004,18 +1004,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 8342106431650556681}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18ce9762fb06a3249bcc77bfd70b105a, type: 3}
+  m_Script: {fileID: 11500000, guid: eab206b629c289e4e84debaeea119f1e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.InteractionsV2.NetInteractorV2
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractor
   ShowTopMostFoldoutHeaderGroup: 1
-  raycastCamera: {fileID: 1020143624784532481}
-  interactMask:
+  viewCamera: {fileID: 1020143624784532481}
+  rayDistance: 5
+  interactableMask:
     serializedVersion: 2
-    m_Bits: 64
-  raycastDistance: 3
-  triggerMode: 1
-  useActionReference: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  logDebug: 0
+    m_Bits: 4294967295
+  useKey: 19
 --- !u!1 &8690847106272721590
 GameObject:
   m_ObjectHideFlags: 0

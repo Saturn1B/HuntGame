@@ -1,73 +1,113 @@
-using Unity.Netcode;
+using System;
 using UnityEngine;
+using Unity.Netcode;
 
-namespace DungeonSteakhouse.Net.Interactions
+public class NetInteractable : NetworkBehaviour
 {
-    /// <summary>
-    /// Base class for networked interactables.
-    /// - Server authoritative: interaction requests are validated and applied on the server.
-    /// - Clients should never change gameplay state directly here.
-    /// </summary>
-    [DisallowMultipleComponent]
-    public abstract class NetInteractable : NetworkBehaviour
+    [Header("Server Validation")]
+    [SerializeField] private float maxUseDistance = 3f;
+    [SerializeField] private float serverCooldownSeconds = 0.10f;
+    [SerializeField] private Transform interactionPointOverride;
+
+    [Header("Actions")]
+    [SerializeField] private InteractionBinding[] bindings;
+
+    [Serializable]
+    public class InteractionBinding
     {
-        [Header("Interaction")]
-        [Tooltip("Max allowed distance between the interactor and this object (server validation).")]
-        [SerializeField] private float maxInteractDistance = 2.5f;
+        public InteractionVerb verb = InteractionVerb.Use;
+        public InteractionAction[] actions;
+    }
 
-        [Tooltip("If true, this interactable can be triggered by any player. If false, only the host can use it.")]
-        [SerializeField] private bool allowNonHost = true;
+    // Generic replicated state slots (optional but super practical).
+    // Actions can use these without requiring extra scripts on the object.
+    private readonly NetworkVariable<bool> _boolState = new NetworkVariable<bool>(false);
+    private readonly NetworkVariable<int> _intState = new NetworkVariable<int>(0);
+    private readonly NetworkVariable<float> _floatState = new NetworkVariable<float>(0f);
 
-        public float MaxInteractDistance => maxInteractDistance;
+    public NetworkVariable<bool> BoolState => _boolState;
+    public NetworkVariable<int> IntState => _intState;
+    public NetworkVariable<float> FloatState => _floatState;
 
-        /// <summary>
-        /// Server-side validation entry point.
-        /// </summary>
-        public bool ServerTryInteract(ulong interactorClientId, Vector3 interactorPosition)
+    private double _lastUseServerTime;
+    private Quaternion _cachedClosedLocalRotation;
+    private bool _closedRotationCached;
+
+    public override void OnNetworkSpawn()
+    {
+        // Cache the initial "closed" rotation so door-like actions can reuse it.
+        _cachedClosedLocalRotation = transform.localRotation;
+        _closedRotationCached = true;
+    }
+
+    public Quaternion GetClosedLocalRotation()
+    {
+        if (!_closedRotationCached)
         {
-            if (!IsServer)
-                return false;
-
-            if (!allowNonHost && interactorClientId != NetworkManager.ServerClientId)
-                return false;
-
-            float dist = ComputeMinDistanceToInteractor(interactorPosition);
-            if (dist > maxInteractDistance)
-                return false;
-
-            return ServerOnInteract(interactorClientId);
+            _cachedClosedLocalRotation = transform.localRotation;
+            _closedRotationCached = true;
         }
 
-        private float ComputeMinDistanceToInteractor(Vector3 interactorPosition)
+        return _cachedClosedLocalRotation;
+    }
+
+    public Vector3 GetInteractionPoint()
+    {
+        return interactionPointOverride != null ? interactionPointOverride.position : transform.position;
+    }
+
+    // Called by the server (from the player's ServerRpc).
+    public bool TryUseServer(NetworkObject interactor, ulong senderClientId, InteractionVerb verb)
+    {
+        if (!IsServer)
         {
-            // Prefer collider-based distance (more robust than transform.position when pivots are offset)
-            Collider[] colliders = GetComponentsInChildren<Collider>(includeInactive: false);
-            if (colliders != null && colliders.Length > 0)
+            Debug.LogError("TryUseServer must run on the server.");
+            return false;
+        }
+
+        if (interactor == null)
+            return false;
+
+        // Cooldown (server-side anti-spam).
+        double now = NetworkManager.ServerTime.Time;
+        if (now - _lastUseServerTime < serverCooldownSeconds)
+            return false;
+
+        _lastUseServerTime = now;
+
+        // Distance validation (server authoritative).
+        float dist = Vector3.Distance(interactor.transform.position, GetInteractionPoint());
+        if (dist > maxUseDistance)
+        {
+            Debug.LogWarning($"[Server] Interaction denied (too far). Sender={senderClientId}, Dist={dist:0.00}");
+            return false;
+        }
+
+        var ctx = new InteractionContext(this, interactor, senderClientId, verb);
+
+        // Execute matching bindings.
+        for (int i = 0; i < bindings.Length; i++)
+        {
+            if (bindings[i].verb != verb)
+                continue;
+
+            var actions = bindings[i].actions;
+            if (actions == null)
+                continue;
+
+            for (int a = 0; a < actions.Length; a++)
             {
-                float min = float.MaxValue;
+                InteractionAction action = actions[a];
+                if (action == null)
+                    continue;
 
-                for (int i = 0; i < colliders.Length; i++)
-                {
-                    var c = colliders[i];
-                    if (c == null || !c.enabled)
-                        continue;
+                if (!action.CanExecute(in ctx))
+                    continue;
 
-                    Vector3 closest = c.ClosestPoint(interactorPosition);
-                    float d = Vector3.Distance(interactorPosition, closest);
-                    if (d < min) min = d;
-                }
-
-                if (min < float.MaxValue)
-                    return min;
+                action.Execute(in ctx);
             }
-
-            return Vector3.Distance(interactorPosition, transform.position);
         }
 
-        /// <summary>
-        /// Implement gameplay logic here. This runs on the server only.
-        /// Return true if the interaction succeeded.
-        /// </summary>
-        protected abstract bool ServerOnInteract(ulong interactorClientId);
+        return true;
     }
 }
