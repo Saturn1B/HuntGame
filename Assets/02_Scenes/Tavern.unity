@@ -4659,7 +4659,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   maxUseDistance: 3
   serverCooldownSeconds: 0.1
-  interactionPointOverride: {fileID: 0}
+  interactionPointOverride: {fileID: 1427633377}
   bindings:
   - verb: 0
     actions:

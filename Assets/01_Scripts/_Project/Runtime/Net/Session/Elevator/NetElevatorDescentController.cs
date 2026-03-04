@@ -14,7 +14,7 @@ namespace DungeonSteakhouse.Net.Session
 
         public bool IsMoving => _isMoving;
 
-        [Server]
+        //[Server]
         public void ServerMoveBy(float distance, float duration)
         {
             if (_routine != null)
