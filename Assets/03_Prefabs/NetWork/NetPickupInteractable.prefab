@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 9057556278143393254}
   - component: {fileID: 7022680666180034338}
   - component: {fileID: 3795975915233860049}
+  - component: {fileID: 5957244741122552744}
   m_Layer: 6
   m_Name: NetPickupInteractable
   m_TagString: Untagged
@@ -105,6 +106,26 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &5957244741122552744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4309440355362582998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ebda648667d1684b82947773c9fc0c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxUseDistance: 3
+  serverCooldownSeconds: 0.1
+  interactionPointOverride: {fileID: 9057556278143393254}
+  bindings:
+  - verb: 0
+    actions:
+    - {fileID: 11400000, guid: e69b5d3b1c97f9148893f45425ee4e17, type: 2}
 --- !u!1 &7403876912597211689
 GameObject:
   m_ObjectHideFlags: 0

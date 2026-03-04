@@ -15,7 +15,7 @@ public enum NetSessionPhase : byte
 }
 
 [DisallowMultipleComponent]
-public sealed class NetGameSession : NetworkBehaviour
+public sealed class NetGameSession : NetworkBehaviour, INetGameSession
 {
     public static NetGameSession Instance { get; private set; }
 
@@ -114,6 +114,16 @@ public sealed class NetGameSession : NetworkBehaviour
             Debug.Log($"[NetGameSession] Phase changed: {previous} -> {current}");
 
         PhaseChanged?.Invoke(previous, current);
+    }
+
+    public void RequestStartRun(ulong senderClientId)
+    {
+        // TODO: your server logic
+    }
+
+    public void ReturnToLobby(ulong senderClientId)
+    {
+        // TODO: your server logic
     }
 
     // -------------------------

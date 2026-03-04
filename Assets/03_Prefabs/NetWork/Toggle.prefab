@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3960748654653728369}
   - component: {fileID: 4824406011530103181}
+  - component: {fileID: 2038119220646584283}
   m_Layer: 0
   m_Name: Toggle
   m_TagString: Untagged
@@ -58,6 +59,26 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &2038119220646584283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920986715021678791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ebda648667d1684b82947773c9fc0c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxUseDistance: 3
+  serverCooldownSeconds: 0.1
+  interactionPointOverride: {fileID: 3960748654653728369}
+  bindings:
+  - verb: 0
+    actions:
+    - {fileID: 11400000, guid: ef21591e06db35a429a5eba57878dbbe, type: 2}
 --- !u!1 &5317186141336311434
 GameObject:
   m_ObjectHideFlags: 0

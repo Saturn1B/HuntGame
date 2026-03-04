@@ -135,6 +135,10 @@ PrefabInstance:
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 3947908401
       objectReference: {fileID: 0}
+    - target: {fileID: 2035000685728540622, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 36ca7a911dd9f004eb3e68268126689d, type: 2}
     - target: {fileID: 2695321795068451434, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
       propertyPath: action
       value: 10
@@ -161,7 +165,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7506960357946602000, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1
+      value: 0.88
       objectReference: {fileID: 0}
     - target: {fileID: 7506960357946602000, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3061,6 +3065,7 @@ GameObject:
   - component: {fileID: 1358325655}
   - component: {fileID: 1358325653}
   - component: {fileID: 1358325654}
+  - component: {fileID: 1358325656}
   m_Layer: 0
   m_Name: --- NetGameSession ---
   m_TagString: Untagged
@@ -3106,7 +3111,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Session.NetGameSession
   ShowTopMostFoldoutHeaderGroup: 1
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 9241eb81ec7c9f14fbef4c1e38343584, type: 2}
   lobbySceneName: Lobby
   runSceneName: Run
   onlyHostCanControlSession: 1
@@ -3129,6 +3134,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1358325656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358325652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7267e6de984d4d24a92c55ef1a64b56a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetGameSessionServerEventRouter
+  ShowTopMostFoldoutHeaderGroup: 1
+  netGameSessionBehaviour: {fileID: 1358325654}
 --- !u!1 &1359309292
 GameObject:
   m_ObjectHideFlags: 0
@@ -4472,57 +4491,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2007355524}
   m_CullTransparentMesh: 1
---- !u!1 &2042169746 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3930444410312037582, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
-  m_PrefabInstance: {fileID: 5154460248650844302}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2042169749
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2042169746}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
-  AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
-  RotationInterpolationType: 0
-  ScaleInterpolationType: 0
-  PositionLerpSmoothing: 1
-  PositionMaxInterpolationTime: 0.1
-  RotationLerpSmoothing: 1
-  RotationMaxInterpolationTime: 0.1
-  ScaleLerpSmoothing: 1
-  ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 0
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
-  SlerpPosition: 0
 --- !u!1 &2052214844
 GameObject:
   m_ObjectHideFlags: 0
@@ -4717,6 +4685,10 @@ PrefabInstance:
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 3947908401
       objectReference: {fileID: 0}
+    - target: {fileID: 2035000685728540622, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 5d46f0b60cdb57f499b1fc8d160686ad, type: 2}
     - target: {fileID: 2695321795068451434, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
       propertyPath: action
       value: 20
@@ -4743,7 +4715,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7506960357946602000, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.28
+      value: -1.87
       objectReference: {fileID: 0}
     - target: {fileID: 7506960357946602000, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4859,17 +4831,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 506727535}
     m_Modifications:
+    - target: {fileID: 3291602831658112192, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 38719553
+      objectReference: {fileID: 0}
+    - target: {fileID: 3291602831658112192, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 3604598638
+      objectReference: {fileID: 0}
     - target: {fileID: 3930444410312037582, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
       propertyPath: m_Name
       value: Door
       objectReference: {fileID: 0}
+    - target: {fileID: 4454609983932227239, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3140118743
+      objectReference: {fileID: 0}
     - target: {fileID: 5596205792357580059, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3838970742
-      objectReference: {fileID: 0}
-    - target: {fileID: 5596205792357580059, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 475097701
       objectReference: {fileID: 0}
     - target: {fileID: 7137792401673526344, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4914,10 +4894,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3930444410312037582, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2042169749}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
 --- !u!1001 &7256341520000806451
 PrefabInstance:
@@ -4937,7 +4914,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3960748654653728369, guid: 863f1cbc3236f6242ac81f51fa92e8a8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.82
+      value: 3.25
       objectReference: {fileID: 0}
     - target: {fileID: 3960748654653728369, guid: 863f1cbc3236f6242ac81f51fa92e8a8, type: 3}
       propertyPath: m_LocalPosition.y
