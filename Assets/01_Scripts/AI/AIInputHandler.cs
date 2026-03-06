@@ -104,5 +104,7 @@ namespace HuntingGame.AI
 
 		//Set a new target
 		public void SetTarget(Transform newTarget) => targetTransform = newTarget;
+
+		protected virtual void ToggleSprint(bool value) => movementController?.SetSprinting(value);
 	}
 }

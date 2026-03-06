@@ -353,7 +353,7 @@ GameObject:
   - component: {fileID: 2316261789353974981}
   - component: {fileID: 6334023525698170745}
   - component: {fileID: 7864628736817495594}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FPSPlayer
   m_TagString: Player
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}

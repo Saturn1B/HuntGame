@@ -9,7 +9,7 @@ namespace HuntingGame.AI
 		private enum State
 		{
 			IDLE,
-			PATROLLING,
+			WANDERING,
 			CHASING
 		}
 
@@ -22,6 +22,7 @@ namespace HuntingGame.AI
 		[Space]
 
 		[Header("AI Wandering Settings")]
+		[SerializeField] private bool debugWanderingRange;
 		[SerializeField] private float minWalkingRange;
 		[SerializeField] private float maxWalkingRange;
 		[SerializeField] private bool rangeAroundPoint;
@@ -29,20 +30,45 @@ namespace HuntingGame.AI
 
 		[Space]
 
-		[Header("AI Animation Settings")]
-		[SerializeField] private Animator animator;
+		[Header("AI Chasing Settings")]
+		[SerializeField] private bool debugChasingRange;
+		[SerializeField] private float loosingPlayerRange;
+		[SerializeField] private float explosionTriggerRange;
+
+		[Header("AI Effect Settings")]
+		[SerializeField] private Vector3 explosionSpawn;
+		[SerializeField] private GameObject explosionVfxPrefab;
+		[SerializeField] private ParticleSystem smokeVfx;
+		[SerializeField] private ParticleSystem alertVfx;
+
+
+		private Animator animator;
+		private Detector detector;
 
 		private State _state;
 		private float timer;
-		private bool isChasing;
+		private bool explosionTriggered;
+
+		private void OnEnable()
+		{
+			if (detector != null)
+				detector._onPlayerSpotted += SpotPlayer;
+		}
+
+		private void OnDisable()
+		{
+			if (detector != null)
+				detector._onPlayerSpotted -= SpotPlayer;
+		}
 
 		protected override void Awake()
 		{
 			base.Awake();
 
-			//Set animator if not already set
-			if (animator == null)
-				animator = GetComponentInChildren<Animator>();
+			//Set animator
+			animator = GetComponentInChildren<Animator>();
+			//Set detector
+			detector = GetComponent<Detector>();
 
 			//Set starting state to IDLE and start timer
 			ChangeState(State.IDLE);
@@ -54,10 +80,10 @@ namespace HuntingGame.AI
 			if (timer <= 0)
 			{
 				timer = Random.Range(timeMinLimit, timeMaxLimit);
-				if (!isChasing)
-					ChangeState(_state == State.IDLE ? State.PATROLLING : State.IDLE);
+				if (_state != State.CHASING)
+					ChangeState(_state == State.IDLE ? State.WANDERING : State.IDLE);
 			}
-			else if (!isChasing)
+			else if (_state != State.CHASING)
 				timer -= Time.deltaTime;
 
 			switch (_state)
@@ -66,7 +92,7 @@ namespace HuntingGame.AI
 					if (animator.GetBool("isMoving"))
 						animator.SetBool("isMoving", false);
 					break;
-				case State.PATROLLING:
+				case State.WANDERING:
 					if (animator.GetBool("isMoving"))
 					{
 						if (Vector3.Distance(transform.position, target) <= stoppingDistance)
@@ -80,14 +106,34 @@ namespace HuntingGame.AI
 					}
 					break;
 				case State.CHASING:
+					if (animator.GetBool("isMoving"))
+					{
+						if (Vector3.Distance(transform.position, targetTransform.position) >= loosingPlayerRange)
+						{
+							SetTarget(null);
+							ToggleSprint(false);
+							ChangeState(State.IDLE);
+							break;
+						}
+
+						if(Vector3.Distance(transform.position, targetTransform.position) <= explosionTriggerRange)
+						{
+							animator.SetBool("isMoving", false);
+							movementController.SetMovementInput(Vector2.zero);
+							StartCoroutine(Explose());
+						}
+						else
+							base.Update();
+					}
+					else
+						movementController.SetMovementInput(Vector2.zero);
+
 					break;
 			}
 		}
 
 		private void ChangeState(State newState)
 		{
-			isChasing = false;
-
 			_state = newState;
 
 			switch (_state)
@@ -97,12 +143,13 @@ namespace HuntingGame.AI
 					animator.SetBool("isMoving", false);
 					movementController.SetMovementInput(Vector2.zero);
 					break;
-				case State.PATROLLING:
+				case State.WANDERING:
 					timer += 2;
 					StartCoroutine(FindNewWanderingTarget());
 					break;
 				case State.CHASING:
-					animator.SetBool("isMoving", true);
+					StopAllCoroutines();
+					ToggleSprint(true);
 					break;
 			}
 		}
@@ -142,16 +189,66 @@ namespace HuntingGame.AI
 			return newTarget;
 		}
 
+		private void SpotPlayer(Transform player)
+		{
+			if (_state == State.CHASING || explosionTriggered) return;
+
+			SetTarget(player);
+			ChangeState(State.CHASING);
+			StartCoroutine(Detect());
+		}
+
+		private IEnumerator Detect()
+		{
+			animator.SetBool("isMoving", false);
+
+			alertVfx.Play();
+
+			yield return new WaitForSeconds(.8f);
+
+			animator.SetBool("isMoving", true);
+		}
+
+		private IEnumerator Explose()
+		{
+			explosionTriggered = true;
+
+			alertVfx.Stop();
+
+			//REPLACE BY EXPLOSION ANIMATION
+			yield return new WaitForSeconds(1f);
+
+			ParticleSystem explosionVfx = Instantiate(explosionVfxPrefab, transform.position + explosionSpawn, Quaternion.identity).GetComponent<ParticleSystem>();
+			explosionVfx.Play();
+
+			Destroy(gameObject);
+		}
+
 		//EDITOR
 
-		private void OnDrawGizmos()
+		private void OnDrawGizmosSelected()
 		{
-			Gizmos.color = Color.red;
 			Vector3 rangeCenter = transform.position;
+
 			if (rangeAroundPoint) rangeCenter = rangeCenterPoint;
-			Gizmos.DrawWireSphere(rangeCenter, minWalkingRange);
-			Gizmos.color = Color.cyan;
-			Gizmos.DrawWireSphere(rangeCenter, maxWalkingRange);
+
+			if (debugWanderingRange)
+			{
+				Gizmos.color = Color.red;
+				Gizmos.DrawWireSphere(rangeCenter, minWalkingRange);
+
+				Gizmos.color = Color.cyan;
+				Gizmos.DrawWireSphere(rangeCenter, maxWalkingRange);
+			}
+
+			if (debugChasingRange)
+			{
+				Gizmos.color = Color.red;
+				Gizmos.DrawWireSphere(transform.position, loosingPlayerRange);
+
+				Gizmos.color = new Color(1, .5f, 0, 1);
+				Gizmos.DrawWireSphere(transform.position, explosionTriggerRange);
+			}
 		}
 	}
 }
