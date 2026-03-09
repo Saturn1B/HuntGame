@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using System.Collections;
 using Sirenix.OdinInspector;
 
@@ -49,6 +50,8 @@ namespace HuntingGame.AI
 		private float timer;
 		private bool explosionTriggered;
 
+		private bool isKilled;
+
 		private void OnEnable()
 		{
 			if (detector != null)
@@ -77,6 +80,8 @@ namespace HuntingGame.AI
 
 		protected override void Update()
 		{
+			if (isKilled) return;
+
 			if (timer <= 0)
 			{
 				timer = Random.Range(timeMinLimit, timeMaxLimit);
@@ -222,6 +227,22 @@ namespace HuntingGame.AI
 			explosionVfx.Play();
 
 			Destroy(gameObject);
+		}
+
+		[ContextMenu("Kill Chicken")]
+		private void KillChicken() => StartCoroutine(Kill());
+		private IEnumerator Kill()
+        {
+			GetComponent<NavMeshAgent>().enabled = false;
+			GetComponent<CharacterController>().enabled = false;
+			movementController.enabled = false;
+			isKilled = true;
+
+			yield return new WaitForSeconds(.1f);
+
+			GetComponent<RagdollController>().ToggleRagdoll(true);
+
+			enabled = false;
 		}
 
 		//EDITOR
