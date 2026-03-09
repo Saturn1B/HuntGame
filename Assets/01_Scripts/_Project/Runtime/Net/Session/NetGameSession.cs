@@ -15,7 +15,7 @@ public enum NetSessionPhase : byte
 }
 
 [DisallowMultipleComponent]
-public sealed class NetGameSession : NetworkBehaviour, INetGameSession
+public sealed class NetGameSession : NetworkBehaviour
 {
     public static NetGameSession Instance { get; private set; }
 

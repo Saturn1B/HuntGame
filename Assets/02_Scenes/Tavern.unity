@@ -219,7 +219,6 @@ GameObject:
   - component: {fileID: 164352546}
   - component: {fileID: 164352549}
   - component: {fileID: 164352548}
-  - component: {fileID: 164352547}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -242,29 +241,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1585293482}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &164352547
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 164352545}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &164352548
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -826,7 +802,6 @@ GameObject:
   - component: {fileID: 448948540}
   - component: {fileID: 448948543}
   - component: {fileID: 448948542}
-  - component: {fileID: 448948541}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -849,29 +824,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 657194989}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &448948541
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 448948539}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &448948542
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3068,7 +3020,6 @@ GameObject:
   - component: {fileID: 1358325655}
   - component: {fileID: 1358325653}
   - component: {fileID: 1358325654}
-  - component: {fileID: 1358325656}
   m_Layer: 0
   m_Name: --- NetGameSession ---
   m_TagString: Untagged
@@ -3137,20 +3088,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1358325656
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1358325652}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7267e6de984d4d24a92c55ef1a64b56a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetGameSessionServerEventRouter
-  ShowTopMostFoldoutHeaderGroup: 1
-  netGameSessionBehaviour: {fileID: 1358325654}
 --- !u!1 &1359309292
 GameObject:
   m_ObjectHideFlags: 0
@@ -3167,6 +3104,7 @@ GameObject:
   - component: {fileID: 1359309297}
   - component: {fileID: 1359309293}
   - component: {fileID: 1359309300}
+  - component: {fileID: 1359309301}
   m_Layer: 0
   m_Name: --- Steam ---
   m_TagString: Untagged
@@ -3295,6 +3233,27 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 9241eb81ec7c9f14fbef4c1e38343584, type: 2}
   networkManager: {fileID: 1058636692}
   sceneFlow: {fileID: 1359309293}
+--- !u!114 &1359309301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359309292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e38f2b0fe8d51041b7ea6f3bcd0fab4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Session.NetRunSessionController
+  netGameRoot: {fileID: 1359309294}
+  startGate: {fileID: 1427633381}
+  returnGate: {fileID: 1427633381}
+  elevator: {fileID: 1427633380}
+  downDistance: 50
+  downDuration: 6
+  upDistance: 0
+  upDuration: 6
+  logDebug: 1
 --- !u!1 &1387133125
 GameObject:
   m_ObjectHideFlags: 0
@@ -3558,7 +3517,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1427633377}
   - component: {fileID: 1427633378}
+  - component: {fileID: 1427633382}
+  - component: {fileID: 1427633383}
   - component: {fileID: 1427633379}
+  - component: {fileID: 1427633380}
+  - component: {fileID: 1427633381}
   m_Layer: 0
   m_Name: DJ-Elevator
   m_TagString: Untagged
@@ -3622,6 +3585,108 @@ MonoBehaviour:
   allReadyIndicator: {fileID: 0}
   confirmCountdownSeconds: 1
   logDebug: 1
+--- !u!114 &1427633380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427633376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cf12b8b6b6956342b71f65f10b28247, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Session.NetElevatorDescentController
+  ShowTopMostFoldoutHeaderGroup: 1
+  localAxis: {x: 0, y: -50, z: 0}
+--- !u!114 &1427633381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427633376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c41ff055fb4a0fb4fac57d58050a3129, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Session.NetReadyPlatformGate
+  mode: 2
+  netGameRoot: {fileID: 1359309294}
+  allReadyIndicator: {fileID: 0}
+  confirmCountdownSeconds: 1
+  logDebug: 1
+--- !u!114 &1427633382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427633376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 1373293020
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &1427633383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427633376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 0
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
 --- !u!1 &1522305657
 GameObject:
   m_ObjectHideFlags: 0
@@ -3900,7 +3965,6 @@ GameObject:
   - component: {fileID: 1718895101}
   - component: {fileID: 1718895104}
   - component: {fileID: 1718895103}
-  - component: {fileID: 1718895102}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -3923,29 +3987,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1817850319}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &1718895102
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1718895100}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &1718895103
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4536,7 +4577,6 @@ GameObject:
   - component: {fileID: 2057566959}
   - component: {fileID: 2057566962}
   - component: {fileID: 2057566961}
-  - component: {fileID: 2057566960}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -4559,29 +4599,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1970553516}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &2057566960
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2057566958}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &2057566961
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4657,13 +4674,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetInteractable
   ShowTopMostFoldoutHeaderGroup: 1
-  maxUseDistance: 3
+  maxUseDistance: 5
   serverCooldownSeconds: 0.1
   interactionPointOverride: {fileID: 1427633377}
   bindings:
   - verb: 0
     actions:
-    - {fileID: 11400000, guid: 917a83cd4f111f740bdfdabc6b843d63, type: 2}
+    - {fileID: 11400000, guid: f04e41c181c4c50468a6d69debf69cf3, type: 2}
 --- !u!1 &2143411642
 GameObject:
   m_ObjectHideFlags: 0
@@ -4732,6 +4749,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ElevatorButtonInteractable
       objectReference: {fileID: 0}
+    - target: {fileID: 5587193314258787295, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7506960357946602000, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.8
@@ -4775,8 +4796,36 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5587193314258787295, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1903964451707876253}
   m_SourcePrefab: {fileID: 100100000, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
+--- !u!1 &1903964451707876252 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5587193314258787295, guid: b43b7219abcfbfd44893d3e01f133552, type: 3}
+  m_PrefabInstance: {fileID: 1903964451707876250}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1903964451707876253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1903964451707876252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ebda648667d1684b82947773c9fc0c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxUseDistance: 5
+  serverCooldownSeconds: 0.1
+  interactionPointOverride: {fileID: 1427633377}
+  bindings:
+  - verb: 0
+    actions:
+    - {fileID: 11400000, guid: 5bc73d3f4b344e04caf23a36b9c0ab3f, type: 2}
 --- !u!1001 &3277849556036292971
 PrefabInstance:
   m_ObjectHideFlags: 0

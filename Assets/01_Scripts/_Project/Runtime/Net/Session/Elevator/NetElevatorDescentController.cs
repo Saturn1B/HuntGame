@@ -14,9 +14,14 @@ namespace DungeonSteakhouse.Net.Session
 
         public bool IsMoving => _isMoving;
 
-        //[Server]
         public void ServerMoveBy(float distance, float duration)
         {
+            if (!IsServer)
+            {
+                Debug.LogWarning("[NetElevatorDescentController] ServerMoveBy called on a non-server instance.");
+                return;
+            }
+
             if (_routine != null)
                 StopCoroutine(_routine);
 
@@ -36,7 +41,7 @@ namespace DungeonSteakhouse.Net.Session
             while (t < duration)
             {
                 float a = t / duration;
-                a = a * a * (3f - 2f * a); // SmoothStep
+                a = a * a * (3f - 2f * a); // SmoothStep easing
 
                 transform.localPosition = Vector3.Lerp(start, end, a);
 
