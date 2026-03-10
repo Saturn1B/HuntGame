@@ -18,6 +18,9 @@ namespace DungeonSteakhouse.Net.Voice
         [Header("Talking Indicator (optional)")]
         [SerializeField] private VoiceTalkIndicator talkIndicator;
 
+        [Header("Mouth Blendshape (optional)")]
+        [SerializeField] private MouthBlendshapeTalkAnimator mouthBlendshapeAnimator;
+
         private AudioClip _clip;
 
         private float[] _ring;
@@ -45,6 +48,9 @@ namespace DungeonSteakhouse.Net.Voice
 
             if (talkIndicator == null)
                 talkIndicator = GetComponentInChildren<VoiceTalkIndicator>(true);
+
+            if (mouthBlendshapeAnimator == null)
+                mouthBlendshapeAnimator = GetComponentInChildren<MouthBlendshapeTalkAnimator>(true);
 
             audioSource.playOnAwake = false;
             audioSource.loop = true;
@@ -92,9 +98,12 @@ namespace DungeonSteakhouse.Net.Voice
             if (_ring == null)
                 return;
 
-            // Receiving voice data implies "talking" (simple indicator)
+            // Receiving voice data implies "talking" (simple indicators)
             if (talkIndicator != null)
                 talkIndicator.PingTalking();
+
+            if (mouthBlendshapeAnimator != null)
+                mouthBlendshapeAnimator.PingTalking();
 
             lock (_lock)
             {
