@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 7137792401673526344}
   - component: {fileID: 3291602831658112192}
   - component: {fileID: 3947796598659783878}
-  - component: {fileID: 628080022635015254}
+  - component: {fileID: 8290178513308626030}
+  - component: {fileID: 3555841071356806679}
   m_Layer: 6
   m_Name: Door
   m_TagString: Untagged
@@ -47,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3985748540
+  GlobalObjectIdHash: 3604598638
   InScenePlacedSourceGlobalObjectIdHash: 475097701
   DeferredDespawnTick: 0
   Ownership: 1
@@ -106,7 +107,7 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &628080022635015254
+--- !u!114 &8290178513308626030
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,17 +116,32 @@ MonoBehaviour:
   m_GameObject: {fileID: 3930444410312037582}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ebda648667d1684b82947773c9fc0c4, type: 3}
+  m_Script: {fileID: 11500000, guid: a12d0ee87812deb4aa210b80b7eaa8b8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetInteractable
-  ShowTopMostFoldoutHeaderGroup: 1
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableCore
   maxUseDistance: 3
-  serverCooldownSeconds: 0.1
+  cooldownSeconds: 0.1
   interactionPointOverride: {fileID: 7137792401673526344}
   bindings:
   - verb: 0
     actions:
-    - {fileID: 11400000, guid: 0384ec5fef8d7964296014e679306e48, type: 2}
+    - {fileID: 11400000, guid: 15fd2b00034fdef429239d4098941a69, type: 2}
+  boolState: 0
+  intState: 0
+  floatState: 0
+--- !u!114 &3555841071356806679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3930444410312037582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ea7ba6267deb084aa7384e0ec32041e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetInteractableAdapter
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &5339383604244249956
 GameObject:
   m_ObjectHideFlags: 0

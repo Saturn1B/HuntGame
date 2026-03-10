@@ -4908,6 +4908,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 506727535}
     m_Modifications:
     - target: {fileID: 3291602831658112192, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3291602831658112192, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 38719553
       objectReference: {fileID: 0}
@@ -4918,6 +4922,10 @@ PrefabInstance:
     - target: {fileID: 3930444410312037582, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
       propertyPath: m_Name
       value: Door
+      objectReference: {fileID: 0}
+    - target: {fileID: 3947796598659783878, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4454609983932227239, guid: a67e290e0c2d38a4392fd3bf010aac1c, type: 3}
       propertyPath: GlobalObjectIdHash
