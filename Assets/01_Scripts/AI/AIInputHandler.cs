@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System;
+using System.Collections;
 
 namespace HuntingGame.AI
 {
@@ -16,8 +17,13 @@ namespace HuntingGame.AI
 
 		protected NavMeshAgent agent;
 		protected CharacterMovement movementController;
+		protected CharacterController characterController;
+		protected RagdollController ragdollController;
+		[SerializeField] protected Collider ragdollCollider;
 
 		protected Action _arrivedAtTarget;
+
+		protected bool isRagdoll;
 
 		protected virtual void Awake()
 		{
@@ -28,6 +34,17 @@ namespace HuntingGame.AI
 			//Set agent if not already set
 			if (agent == null)
 				agent = GetComponent<NavMeshAgent>();
+
+			//Set character controller if not already set
+			if (characterController == null)
+				characterController = GetComponent<CharacterController>();
+
+			//Set ragdoll controller if not already set
+			if (ragdollController == null)
+				ragdollController = GetComponent<RagdollController>();
+
+			//Toggle ragdoll collider off at start
+			ragdollCollider.enabled = false;
 
 			//Turn off the agent handling of position and rotation, so the movement can all be handled by the character movement
 			agent.updatePosition = false;
@@ -106,5 +123,22 @@ namespace HuntingGame.AI
 		public void SetTarget(Transform newTarget) => targetTransform = newTarget;
 
 		protected virtual void ToggleSprint(bool value) => movementController?.SetSprinting(value);
+
+		[ContextMenu("Toggle Ragdoll")]
+		private void ToggleRagdoll() => StartCoroutine(Ragdoll());
+		protected virtual IEnumerator Ragdoll()
+		{
+			agent.enabled = false;
+			characterController.enabled = false;
+			movementController.enabled = false;
+
+			isRagdoll = true;
+
+			yield return new WaitForSeconds(.1f);
+
+			ragdollCollider.enabled = true;
+			ragdollController.Ragdoll();
+			enabled = false;
+		}
 	}
 }

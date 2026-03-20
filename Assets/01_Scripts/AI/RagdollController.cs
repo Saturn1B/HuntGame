@@ -1,12 +1,22 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class RagdollController : MonoBehaviour
+public class RagdollController : MonoBehaviour, ISimpleInteractable
 {
     [Header("Ragdoll Bones")]
     public List<Rigidbody> ragdollBodies = new List<Rigidbody>();
 
+    [Header("Ragdoll Grabbing Control")]
+    [SerializeField] private Rigidbody rootBone;
+    [SerializeField] private float ragdollWeight;
+
+
     private Animator animator;
+    private ConfigurableJoint joint;
+    private Transform grabber;
+
+    private bool isRagdolled;
+    private bool isGrabbed;
 
     private void Awake()
     {
@@ -14,7 +24,14 @@ public class RagdollController : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
     }
 
-    [ContextMenu("Toggle Ragdoll")]
+    private void LateUpdate()
+	{
+        if (!isRagdolled) return;
+
+        transform.position = rootBone.position;
+	}
+
+	[ContextMenu("Toggle Ragdoll")]
     public void Ragdoll() => ToggleRagdoll(true);
 
     public void ToggleRagdoll(bool enable)
@@ -27,6 +44,10 @@ public class RagdollController : MonoBehaviour
             if (rb == null) continue;
             rb.isKinematic = !enable;
         }
+
+        rootBone.transform.parent = null;
+
+        isRagdolled = enable;
     }
 
     public void ApplyForce(Vector3 position, Vector3 force, float radius = 0f)
@@ -61,4 +82,61 @@ public class RagdollController : MonoBehaviour
             }
         }
     }
+
+    private void ToggleRagdollCollision(bool value)
+	{
+        foreach (Rigidbody rb in ragdollBodies)
+        {
+            Collider col = rb.transform.GetComponent<Collider>();
+            if (col == null) continue;
+            col.isTrigger = !value;
+        }
+    }
+
+	public void StartInteract(Transform owner)
+	{
+        if (isGrabbed) return;
+
+        isGrabbed = true;
+        grabber = owner;
+
+        if(grabber.TryGetComponent(out CharacterMovement characterMovement))
+            characterMovement.SetSlowingWeight(true, ragdollWeight);
+
+        joint = grabber.GetComponentInChildren<ConfigurableJoint>();
+
+        joint.connectedBody = rootBone;
+        //Vector3 worldHandAnchor = joint.transform.TransformPoint(joint.anchor);
+        joint.connectedAnchor = rootBone.transform.InverseTransformPoint(rootBone.transform.position);
+
+        ToggleRagdollCollision(false);
+        transform.SetParent(joint.transform, true);
+	}
+
+	public void EndInteract()
+	{
+        if (!isGrabbed) return;
+
+        isGrabbed = false;
+
+        if (grabber.TryGetComponent(out CharacterMovement characterMovement))
+            characterMovement.SetSlowingWeight(false, 0);
+
+        grabber = null;
+
+        if (joint != null)
+		{
+            joint.connectedBody = null;
+            joint.connectedAnchor = Vector3.zero;
+            joint = null;
+		}
+
+        ToggleRagdollCollision(true);
+        transform.parent = null;
+	}
+
+	public bool CanInteract()
+	{
+        return isRagdolled;
+	}
 }

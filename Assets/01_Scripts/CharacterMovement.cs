@@ -26,6 +26,9 @@ public class CharacterMovement : MonoBehaviour, IControlable
     private bool isSprinting;
     private bool canMove = true;
 
+    private bool isDragging;
+    private float dragWeight;
+
 	private void Awake()
 	{
         characterController = GetComponent<CharacterController>();
@@ -70,10 +73,16 @@ public class CharacterMovement : MonoBehaviour, IControlable
         }
     }
 
+    public void SetSlowingWeight(bool dragging, float weight)
+	{
+        isDragging = dragging;
+        dragWeight = weight;
+	}
+
     private void HandleMovement()
     {
         //Check speed
-        float currentSpeed = GetCurrentSpeed();
+        float currentSpeed = isDragging ? GetCurrentSpeedWithDrag() : GetCurrentSpeed();
 
         //Calculate movement
         float horizontal = currentMovementInput.x * currentSpeed;
@@ -111,6 +120,14 @@ public class CharacterMovement : MonoBehaviour, IControlable
         if (isCrouching) return crouchSpeed;
         if (isSprinting) return sprintSpeed;
         return moveSpeed;
+	}
+
+    private float GetCurrentSpeedWithDrag()
+	{
+        float slowFactor = 1 / (1 + dragWeight / 40f);
+        float targetSpeed = GetCurrentSpeed() * slowFactor;
+
+        return targetSpeed;
 	}
 
     private IEnumerator CrouchStandTransition()
