@@ -106,10 +106,10 @@ public class RagdollController : MonoBehaviour, ISimpleInteractable
         joint = grabber.GetComponentInChildren<ConfigurableJoint>();
 
         joint.connectedBody = rootBone;
-        //Vector3 worldHandAnchor = joint.transform.TransformPoint(joint.anchor);
-        joint.connectedAnchor = rootBone.transform.InverseTransformPoint(rootBone.transform.position);
+        Vector3 worldHandAnchor = joint.transform.TransformPoint(joint.anchor);
+        joint.connectedAnchor = rootBone.transform.InverseTransformPoint(worldHandAnchor);
 
-        ToggleRagdollCollision(false);
+        //ToggleRagdollCollision(false);
         transform.SetParent(joint.transform, true);
 	}
 
@@ -131,7 +131,7 @@ public class RagdollController : MonoBehaviour, ISimpleInteractable
             joint = null;
 		}
 
-        ToggleRagdollCollision(true);
+        //ToggleRagdollCollision(true);
         transform.parent = null;
 	}
 
