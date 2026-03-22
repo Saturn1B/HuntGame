@@ -14,7 +14,10 @@ public class FirstPersonCamera : MonoBehaviour
     private float pitch;
     private Vector2 currentLookInput;
 
-	private void Start()
+    private bool isDragging;
+    private float dragWeight;
+
+    private void Start()
 	{
         if (cameraTransform == null)
             cameraTransform = GetComponentInChildren<Camera>().transform;
@@ -35,8 +38,10 @@ public class FirstPersonCamera : MonoBehaviour
 
     private void HandleCameraRotation()
 	{
-        yaw += currentLookInput.x * lookSensitivity;
-        pitch -= currentLookInput.y * lookSensitivity;
+        float sensitivity = isDragging ? GetSensitivityWithDrag() : lookSensitivity;
+
+        yaw += currentLookInput.x * sensitivity;
+        pitch -= currentLookInput.y * sensitivity;
 
         pitch = ClampAngle(pitch, minPitch, maxPitch);
 
@@ -50,4 +55,18 @@ public class FirstPersonCamera : MonoBehaviour
         if (angle > 360f) angle -= 360f;
         return Mathf.Clamp(angle, min, max);
 	}
+
+    public void SetSlowingWeight(bool dragging, float weight)
+    {
+        isDragging = dragging;
+        dragWeight = weight;
+    }
+
+    private float GetSensitivityWithDrag()
+    {
+        float slowFactor = 1 / (1 + dragWeight / 10f);
+        float targetSpeed = lookSensitivity * slowFactor;
+
+        return targetSpeed;
+    }
 }

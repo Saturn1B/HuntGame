@@ -256,7 +256,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!144 &341149241
@@ -353,8 +353,8 @@ MonoBehaviour:
   - {fileID: 1808751014}
   - {fileID: 1429015114}
   - {fileID: 1751508227}
+  _ragdollSize: 0
   rootBone: {fileID: 8088764809769545337}
-  ragdollWeight: 5
 --- !u!135 &564562887
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -565,7 +565,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!1 &806060948
@@ -941,7 +941,7 @@ ConfigurableJoint:
   m_ConnectedAnchor: {x: 0, y: 0, z: 0}
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 1
-  m_YMotion: 2
+  m_YMotion: 1
   m_ZMotion: 1
   m_AngularXMotion: 1
   m_AngularYMotion: 1
@@ -979,20 +979,20 @@ ConfigurableJoint:
   m_TargetVelocity: {x: 0, y: 0, z: 0}
   m_XDrive:
     serializedVersion: 4
-    positionSpring: 3000
-    positionDamper: 100
+    positionSpring: 400
+    positionDamper: 400
     maximumForce: 3.4028233e+38
     useAcceleration: 0
   m_YDrive:
     serializedVersion: 4
-    positionSpring: 3000
-    positionDamper: 100
+    positionSpring: 0
+    positionDamper: 0
     maximumForce: 3.4028233e+38
     useAcceleration: 0
   m_ZDrive:
     serializedVersion: 4
-    positionSpring: 3000
-    positionDamper: 100
+    positionSpring: 400
+    positionDamper: 400
     maximumForce: 3.4028233e+38
     useAcceleration: 0
   m_TargetRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1016,7 +1016,7 @@ ConfigurableJoint:
     positionDamper: 0
     maximumForce: 3.4028233e+38
     useAcceleration: 0
-  m_ProjectionMode: 0
+  m_ProjectionMode: 1
   m_ProjectionDistance: 0.1
   m_ProjectionAngle: 180
   m_ConfiguredInWorldSpace: 0
@@ -1147,7 +1147,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!54 &1429015114
@@ -1174,7 +1174,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!144 &1429015115
@@ -1647,7 +1647,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!144 &1751508228
@@ -2175,7 +2175,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8088764809769545334}
   serializedVersion: 5
-  m_Mass: 2
+  m_Mass: 3
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -2191,7 +2191,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!136 &8088764809769545341

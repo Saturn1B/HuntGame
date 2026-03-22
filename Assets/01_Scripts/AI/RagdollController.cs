@@ -3,13 +3,20 @@ using System.Collections.Generic;
 
 public class RagdollController : MonoBehaviour, ISimpleInteractable
 {
+    public enum RagdollSize
+	{
+        SMALL,
+        BIG
+	}
+
     [Header("Ragdoll Bones")]
     public List<Rigidbody> ragdollBodies = new List<Rigidbody>();
 
     [Header("Ragdoll Grabbing Control")]
+    [SerializeField] private RagdollSize _ragdollSize;
     [SerializeField] private Rigidbody rootBone;
-    [SerializeField] private float ragdollWeight;
 
+    private float ragdollWeight;
 
     private Animator animator;
     private ConfigurableJoint joint;
@@ -22,13 +29,14 @@ public class RagdollController : MonoBehaviour, ISimpleInteractable
     {
         //Set animator
         animator = GetComponentInChildren<Animator>();
+        ragdollWeight = rootBone.mass * 1.5f;
     }
 
-    private void LateUpdate()
+	private void LateUpdate()
 	{
-        if (!isRagdolled) return;
+		if (!isRagdolled) return;
 
-        transform.position = rootBone.position;
+		transform.position = rootBone.position;
 	}
 
 	[ContextMenu("Toggle Ragdoll")]
@@ -102,14 +110,62 @@ public class RagdollController : MonoBehaviour, ISimpleInteractable
 
         if(grabber.TryGetComponent(out CharacterMovement characterMovement))
             characterMovement.SetSlowingWeight(true, ragdollWeight);
+        if (grabber.TryGetComponent(out FirstPersonCamera firstPersonCamera))
+            firstPersonCamera.SetSlowingWeight(true, ragdollWeight);
 
         joint = grabber.GetComponentInChildren<ConfigurableJoint>();
 
         joint.connectedBody = rootBone;
-        Vector3 worldHandAnchor = joint.transform.TransformPoint(joint.anchor);
-        joint.connectedAnchor = rootBone.transform.InverseTransformPoint(worldHandAnchor);
 
-        //ToggleRagdollCollision(false);
+		switch (_ragdollSize)
+		{
+			case RagdollSize.SMALL:
+                SoftJointLimit limit1 = new SoftJointLimit
+                {
+                    limit = .3f,
+                    bounciness = 0,
+                    contactDistance = 0
+                };
+                joint.linearLimit = limit1;
+
+                joint.yMotion = ConfigurableJointMotion.Limited;
+
+                JointDrive drive1 = new JointDrive
+                {
+                    positionSpring = 400,
+                    positionDamper = 400,
+                    maximumForce = Mathf.Infinity
+                };
+                joint.yDrive = drive1;
+
+
+                joint.connectedAnchor = rootBone.transform.InverseTransformPoint(rootBone.transform.position);
+                ToggleRagdollCollision(false);
+                break;
+			case RagdollSize.BIG:
+                SoftJointLimit limit2 = new SoftJointLimit
+                {
+                    limit = 1,
+                    bounciness = 0,
+                    contactDistance = 0
+                };
+                joint.linearLimit = limit2;
+
+                joint.yMotion = ConfigurableJointMotion.Free;
+
+                JointDrive drive2 = new JointDrive
+                {
+                    positionSpring = 0,
+                    positionDamper = 0,
+                    maximumForce = Mathf.Infinity
+                };
+                joint.yDrive = drive2;
+
+                Vector3 worldHandAnchor = joint.transform.TransformPoint(joint.anchor);
+                joint.connectedAnchor = rootBone.transform.InverseTransformPoint(worldHandAnchor);
+                break;
+		}
+
         transform.SetParent(joint.transform, true);
 	}
 
@@ -121,6 +177,8 @@ public class RagdollController : MonoBehaviour, ISimpleInteractable
 
         if (grabber.TryGetComponent(out CharacterMovement characterMovement))
             characterMovement.SetSlowingWeight(false, 0);
+        if (grabber.TryGetComponent(out FirstPersonCamera firstPersonCamera))
+            firstPersonCamera.SetSlowingWeight(false, 0);
 
         grabber = null;
 
@@ -131,7 +189,9 @@ public class RagdollController : MonoBehaviour, ISimpleInteractable
             joint = null;
 		}
 
-        //ToggleRagdollCollision(true);
+        if(_ragdollSize == RagdollSize.SMALL)
+            ToggleRagdollCollision(true);
+
         transform.parent = null;
 	}
 
