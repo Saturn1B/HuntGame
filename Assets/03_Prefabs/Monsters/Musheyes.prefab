@@ -76,6 +76,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Musheyes
       objectReference: {fileID: 0}
+    - target: {fileID: 4914297875807667972, guid: 98fdf87e73a17d543b16d165760b1538, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 47a5cd74232286f4fa5547dd995fee80, type: 2}
     - target: {fileID: 8449996119470504636, guid: 98fdf87e73a17d543b16d165760b1538, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
