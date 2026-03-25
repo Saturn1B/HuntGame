@@ -95,7 +95,7 @@ namespace ProceduralGeneration
 				//Check on all open socket
 				foreach (Socket otherSocket in openSocket.ToList())
 				{
-					//if the socket is not available or it's from the same room as the other sockt we're trying to bridge with, we skip
+					//if the socket is not available or it's from the same room as the other socket we're trying to bridge with, we skip
 					if (!otherSocket.isAvailable || otherSocket.room == targetSocket.room) continue;
 
 					//get the distance between the two socket
@@ -325,17 +325,19 @@ namespace ProceduralGeneration
 		{
 			Physics.SyncTransforms();
 
-			float padding = .05f;
+			//float padding = .05f;
 			//Get the bounds or our room
-			Bounds b = room.boundCollider.bounds;
+			//Bounds b = room.boundCollider.bounds;
 
 			//Get all the object colliding with our room (added a small bit of padding for tolerance)
-			Collider[] colliders = Physics.OverlapBox(b.center, (b.extents - Vector3.one * padding), room.transform.rotation, roomLayer);
+			//Collider[] colliders = Physics.OverlapBox(b.center, (b.extents - Vector3.one * padding), room.transform.rotation, roomLayer);
+
+			Vector2[] incoming = GetWorldFootprint(room);
 
 			//Check on all the room colliding object found
-			foreach (var c in colliders)
+			foreach (Room hitRoom in spawnedRoom)
 			{
-				Room hitRoom = c.transform.GetComponentInParent<Room>();
+				//Room hitRoom = c.transform.GetComponentInParent<Room>();
 
 				//If doesn't have room script, skip
 				if (hitRoom == null) continue;
@@ -347,11 +349,54 @@ namespace ProceduralGeneration
 				if (hitRoom == targetSocket.room) continue;
 
 				//Else, we're colliding with another room, return overlapping to true
-				return true;
+				//return true;
+
+				Vector2[] placed = GetWorldFootprint(hitRoom);
+				if (PolygonsOverlap(incoming, placed)) return true;
 			}
 
 			//No overlapping found
 			return false;
+		}
+
+		private bool PolygonsOverlap(Vector2[] polyA, Vector2[] polyB)
+		{
+			foreach (Vector2[] poly in new[] { polyA, polyB})
+			{
+				for (int i = 0; i < poly.Length; i++)
+				{
+					Vector2 edge = poly[(i + 1) % poly.Length] - poly[i];
+					Vector2 axis = new Vector2(-edge.y, edge.x);
+
+					Project(polyA, axis, out float minA, out float maxA);
+					Project(polyB, axis, out float minB, out float maxB);
+
+					if (maxA <= minB + .05f || maxB <= minA + .05f) return false;
+				}
+			}
+			return true;
+		}
+
+		private void Project(Vector2[] poly, Vector2 axis, out float min, out float max)
+		{
+			min = max = Vector2.Dot(poly[0], axis);
+			for (int i = 1; i < poly.Length; i++)
+			{
+				float p = Vector2.Dot(poly[i], axis);
+				if (p < min) min = p;
+				if (p > max) max = p;
+			}
+		}
+
+		private Vector2[] GetWorldFootprint(Room room)
+		{
+			Vector2[] world = new Vector2[room.footprint.Length];
+			for (int i = 0; i < room.footprint.Length; i++)
+			{
+				Vector3 p = room.transform.TransformPoint(new Vector3(room.footprint[i].x, 0, room.footprint[i].y));
+				world[i] = new Vector2(p.x, p.z);
+			}
+			return world;
 		}
 
 		[ContextMenu("ClearDungeon")]

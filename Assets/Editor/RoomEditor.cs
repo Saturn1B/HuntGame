@@ -30,9 +30,14 @@ namespace ProceduralGeneration
             EditorGUILayout.Space(5);
 
             // Fetch Bounds button
-            if (GUILayout.Button("Fetch Room Bounds", GUILayout.Height(30)))
+            //if (GUILayout.Button("Fetch Room Bounds", GUILayout.Height(30)))
+            //{
+            //    FetchBound(room);
+            //}
+            // Fetch Footprint button
+            if (GUILayout.Button("Fetch Room Footprint", GUILayout.Height(30)))
             {
-                FetchBound(room);
+                FetchFootprint(room);
             }
 
             EditorGUILayout.Space(5);
@@ -44,6 +49,23 @@ namespace ProceduralGeneration
                 RunFullRegistrationFlow(room);
             }
             GUI.backgroundColor = Color.white;
+        }
+
+		// ---------------------------------------------------------------
+
+		private void OnSceneGUI()
+		{
+            Room room = (Room)target;
+            if (room.footprint == null || room.footprint.Length < 2) return;
+
+            Vector3[] points = room.footprint.Select(p => room.transform.TransformPoint(new Vector3(p.x, 0, p.y))).ToArray();
+
+            Handles.color = new Color(0f, 1f, 1f, .15f);
+            Handles.DrawAAConvexPolygon(points);
+
+            Handles.color = Color.cyan;
+            for (int i = 0; i < points.Length; i++)
+                Handles.DrawLine(points[i], points[(i + 1) % points.Length]);
         }
 
         // ---------------------------------------------------------------
@@ -83,6 +105,67 @@ namespace ProceduralGeneration
             EditorUtility.SetDirty(room);
             Debug.Log($"[RoomEditor] Fetched bounds on '{room.name}'.");
         }
+
+        // ---------------------------------------------------------------
+
+        private void FetchFootprint(Room room)
+		{
+            Undo.RecordObject(room, "Fetch Footprint");
+
+            MeshFilter[] meshFilters = room.GetComponentsInChildren<MeshFilter>();
+            List<Vector2> points = new List<Vector2>();
+
+			foreach (MeshFilter mf in meshFilters)
+			{
+                Mesh mesh = mf.sharedMesh;
+				foreach (Vector3 v in mesh.vertices)
+				{
+                    Vector3 world = mf.transform.TransformPoint(v);
+                    points.Add(new Vector2(world.x, world.z));
+				}
+			}
+
+            room.footprint = ConvexHull(points.ToArray());
+
+            EditorUtility.SetDirty(room);
+            AssetDatabase.SaveAssets();
+        }
+
+        Vector2[] ConvexHull(Vector2[] points)
+		{
+            //rework
+            points = points.Distinct().OrderBy(p => p.x).ThenBy(p => p.y).ToArray();
+
+            int n = points.Length;
+            if (n <= 2) return points;
+
+            List<Vector2> hull = new List<Vector2>();
+
+			for (int i = 0; i < n; i++)
+			{
+                while (hull.Count >= 2 && Cross(hull[hull.Count - 2], hull[hull.Count - 1], points[i]) <= 0)
+                    hull.RemoveAt(hull.Count - 1);
+
+                hull.Add(points[i]);
+			}
+
+            int lowerHullCount = hull.Count;
+			for (int i = n - 2; i >= 0; i--)
+			{
+				while (hull.Count > lowerHullCount && Cross(hull[hull.Count - 2], hull[hull.Count - 1], points[i]) <= 0)
+                    hull.RemoveAt(hull.Count - 1);
+
+                hull.Add(points[i]);
+            }
+
+            hull.RemoveAt(hull.Count - 1);
+            return hull.ToArray();
+		}
+
+        float Cross(Vector2 O, Vector2 A, Vector2 B)
+		{
+            return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
+		}
 
         // ---------------------------------------------------------------
 

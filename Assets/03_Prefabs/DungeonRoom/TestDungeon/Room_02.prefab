@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4483659964464358601}
-  - component: {fileID: 1615181234243879393}
   - component: {fileID: 1581400864522846830}
   m_Layer: 7
   m_Name: Room_02
@@ -27,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 7300346905331310618}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0863, y: -0, z: -0.92142}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -36,27 +35,6 @@ Transform:
   - {fileID: 5440117240876850781}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1615181234243879393
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7300346905331310618}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 7.5, y: 3.5, z: 7.5}
-  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!114 &1581400864522846830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,7 +51,13 @@ MonoBehaviour:
   sockets:
   - {fileID: 3787105495698364404}
   - {fileID: 8615417349450086076}
-  boundCollider: {fileID: 1615181234243879393}
+  boundCollider: {fileID: 0}
+  footprint:
+  - {x: -3.75, y: -3.75}
+  - {x: 3.75, y: -3.75}
+  - {x: 3.7500002, y: 1.0000001}
+  - {x: 3.75, y: 3.75}
+  - {x: -3.75, y: 3.75}
 --- !u!1 &7924485906855185765
 GameObject:
   m_ObjectHideFlags: 0
