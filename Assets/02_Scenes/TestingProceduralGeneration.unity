@@ -449,8 +449,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProceduralGeneration.Room
   roomName: Room01
   sockets: []
-  boundCollider: {fileID: 0}
   footprint: []
+  originalData: {fileID: 0}
 --- !u!65 &1305429373
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -497,6 +497,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1933651532}
   - component: {fileID: 1933651533}
+  - component: {fileID: 1933651534}
   m_Layer: 0
   m_Name: LoopPregenerator
   m_TagString: Untagged
@@ -531,9 +532,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d280f8c310381447b64160b27132738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProceduralGeneration.LoopPregenerator
+  dungeonNameType: TestLoopDungeon
   roomLibrary:
-  - {fileID: 11400000, guid: fe0055e259c7e6440a669b2c750daa73, type: 2}
-  - {fileID: 11400000, guid: 5b3e9e390ce487e40892e96d9bf7660e, type: 2}
   - {fileID: 11400000, guid: 9fb67da0ee599634b904e7941b5dc183, type: 2}
   - {fileID: 11400000, guid: f4ae3cc0aa7ba4642912e2596eee5019, type: 2}
   - {fileID: 11400000, guid: 5d14834cbeff3d24da22caed475ff458, type: 2}
@@ -542,10 +542,20 @@ MonoBehaviour:
   roomLayer:
     serializedVersion: 2
     m_Bits: 128
-  currentLoop: []
-  currentLoopData: []
-  openSocket: []
-  dungeonNameType: TestLoopDungeon
+  useManualConfirmation: 1
+--- !u!114 &1933651534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1933651531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 573475a892fbbb04286bc101eb2c855b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProceduralGeneration.LoopViewer
+  loopData: {fileID: 0}
 --- !u!1 &2086298473
 GameObject:
   m_ObjectHideFlags: 0

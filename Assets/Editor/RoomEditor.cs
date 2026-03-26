@@ -92,19 +92,19 @@ namespace ProceduralGeneration
 
         // ---------------------------------------------------------------
 
-        private void FetchBound(Room room)
-        {
-            Undo.RecordObject(room, "Fetch Bound");
+        //private void FetchBound(Room room)
+        //{
+        //    Undo.RecordObject(room, "Fetch Bound");
 
-            Collider bounds = room.GetComponent<Collider>();
+        //    Collider bounds = room.GetComponent<Collider>();
 
-            Undo.RecordObject(room, "Assign Bound Value");
+        //    Undo.RecordObject(room, "Assign Bound Value");
 
-            room.boundCollider = bounds;
+        //    room.boundCollider = bounds;
 
-            EditorUtility.SetDirty(room);
-            Debug.Log($"[RoomEditor] Fetched bounds on '{room.name}'.");
-        }
+        //    EditorUtility.SetDirty(room);
+        //    Debug.Log($"[RoomEditor] Fetched bounds on '{room.name}'.");
+        //}
 
         // ---------------------------------------------------------------
 

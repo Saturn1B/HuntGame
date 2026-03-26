@@ -11,41 +11,72 @@ namespace ProceduralGeneration
 	public class LoopPregenerator : MonoBehaviour
 	{
 		[Header("Loop Pregenerator Parameter")]
+		[SerializeField, Tooltip("Name of the dungeon, will create all loop under this folder name")] private string dungeonNameType;
 		[SerializeField, Tooltip("All the room used in pregeneration")] private RoomData[] roomLibrary;
 		[SerializeField, Tooltip("Number of room in a loop"), Range(3, 6)] private int loopSize;
 		[SerializeField] private LayerMask roomLayer;
 
-		[SerializeField] private List<Room> currentLoop = new List<Room>();
-		[SerializeField] private List<RoomData> currentLoopData = new List<RoomData>();
-		[SerializeField] private List<Socket> openSocket = new List<Socket>();
+		private List<Room> currentLoop = new List<Room>();
+		private List<Socket> openSocket = new List<Socket>();
+		private bool isPregen;
 
-		[SerializeField] private string dungeonNameType;
+		[Space]
 
-		[ContextMenu("Loop Pregen")]
+		[Header("Manual Confirmation")]
+		[SerializeField] private bool useManualConfirmation = true;
+		private bool isWaitingForDecision = false;
+		private bool userConfirmedSave = false;
+
+#if UNITY_EDITOR
+		[Sirenix.OdinInspector.Button, Sirenix.OdinInspector.DisableIf("isPregen"), Sirenix.OdinInspector.GUIColor(.1f, .5f, .8f)]
+		public void LaunchPregeneration()
+		{
+			LoopPregen();
+		}
+
+		[Sirenix.OdinInspector.Button, Sirenix.OdinInspector.EnableIf("isWaitingForDecision"), Sirenix.OdinInspector.GUIColor(0, 1, 0)]
+		public void ConfirmAndSave()
+		{
+			userConfirmedSave = true;
+			isWaitingForDecision = false;
+		}
+
+		[Sirenix.OdinInspector.Button, Sirenix.OdinInspector.EnableIf("isWaitingForDecision"), Sirenix.OdinInspector.GUIColor(1, 0, 0)]
+		public void SkipAndContinue()
+		{
+			userConfirmedSave = false;
+			isWaitingForDecision = false;
+		}
+#endif
+
+		private HashSet<string> _discoveredLoopShapes = new HashSet<string>();
+
 		async public void LoopPregen()
 		{
 			//Purge library of mistaken dead end
+
+			isPregen = true;
 
 			roomLibrary = roomLibrary.Where(r => r.roomPrefab.GetComponent<Room>().sockets.Length > 1).ToArray();
 
 			foreach (RoomData data in roomLibrary)
 			{
 				Room room = Instantiate(data.roomPrefab, Vector3.zero, Quaternion.identity).GetComponent<Room>();
+				room.originalData = data;
 				currentLoop.Add(room);
-				currentLoopData.Add(data);
 				openSocket.AddRange(room.sockets);
 
 				await TryLoop();
 
 				ClearLoop();
 			}
+
+			isPregen = false;
 		}
-
-
 
 		private async Task<bool> TryLoop()
 		{
-			await Task.Delay(500);
+			await Task.Delay(1);
 
 			int testingRoomIndex = currentLoop.Count - 1;
 			Room lastRoom = currentLoop[testingRoomIndex];
@@ -59,6 +90,7 @@ namespace ProceduralGeneration
 					if (data.roomPrefab.GetComponent<Room>().sockets.Where(s => s.socketType == socket.socketType).Count() <= 0) continue;
 
 					Room room = Instantiate(data.roomPrefab, Vector3.zero, Quaternion.identity).GetComponent<Room>();
+					room.originalData = data;
 
 					foreach (Socket incomingSocket in room.sockets)
 					{
@@ -67,8 +99,6 @@ namespace ProceduralGeneration
 						AlignRooms(socket, incomingSocket, room.transform);
 
 						if (IsOverlapping(room, socket)) continue;
-
-						await Task.Delay(500);
 
 						//Check if no good socket found on this room -> the room cannot be placed
 						if (incomingSocket == null)
@@ -80,7 +110,6 @@ namespace ProceduralGeneration
 						}
 
 						currentLoop.Add(room);
-						currentLoopData.Add(data);
 						socket.isAvailable = false;
 						socket.connectedRoom = room;
 						incomingSocket.isAvailable = false;
@@ -89,7 +118,7 @@ namespace ProceduralGeneration
 
 						openSocket.AddRange(room.sockets.Where(s => s.isAvailable));
 
-						await Task.Delay(500);
+						await Task.Delay(1);
 
 						if (currentLoop.Count >= loopSize)
 						{
@@ -105,21 +134,39 @@ namespace ProceduralGeneration
 
 									if (Vector3.Distance(newSocket.socket.transform.position, existingSocket.socket.transform.position) < .1f)
 									{
+										string shapeSignature = GetCombinedFootprintSignature();
+
+										if (_discoveredLoopShapes.Contains(shapeSignature))
+										{
+											Debug.Log($"Already known loop found");
+											continue;
+										}
+
+										if (useManualConfirmation)
+										{
+											isWaitingForDecision = true;
+											userConfirmedSave = false;
+
+											while (isWaitingForDecision)
+												await Task.Yield();
+
+											if (!userConfirmedSave)
+												continue;
+										}
+
+										_discoveredLoopShapes.Add(shapeSignature);
+
 										newSocket.isAvailable = false;
-										//existingSocket.isAvailable = false;
 										Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
 										Debug.Log($"Loop found");
-										//REGISTER LOOP IN SO
 #if UNITY_EDITOR
 										LoopData loopData = ScriptableObject.CreateInstance<LoopData>();
 
-										foreach (RoomData rd in currentLoopData)
-											loopData.roomLoop.Add(rd);
-
-										foreach (Room r in currentLoop)
+										for (int i = 0; i < currentLoop.Count; i++)
 										{
-											loopData.relativePositionLoop.Add(r.transform.position);
-											loopData.relativeRotationLoop.Add(r.transform.rotation);
+											loopData.relativePositionLoop.Add(currentLoop[i].transform.position);
+											loopData.relativeRotationLoop.Add(currentLoop[i].transform.rotation);
+											loopData.roomLoop.Add(currentLoop[i].originalData);
 										}
 
 										string folderPath = $"Assets/03_Prefabs/DungeonLoop/{dungeonNameType}/{loopSize}";
@@ -140,13 +187,13 @@ namespace ProceduralGeneration
 							}
 
 							Debug.Log($"Loop not found");
-							Backtrack(data, room, socket, incomingSocket);
+							Backtrack(room, socket, incomingSocket);
 							continue;
 						}
 
 						if (await TryLoop()) continue;
 
-						Backtrack(data, room, socket, incomingSocket);
+						Backtrack(room, socket, incomingSocket);
 					}
 
 					Debug.LogWarning("Switch room");
@@ -160,14 +207,13 @@ namespace ProceduralGeneration
 			return false;
 		}
 
-		private void Backtrack(RoomData data, Room room, Socket parentSocket, Socket incomingSocket)
+		private void Backtrack(Room room, Socket parentSocket, Socket incomingSocket)
 		{
 			parentSocket.isAvailable = true;
 			parentSocket.connectedRoom = null;
 			incomingSocket.isAvailable = true;
 			incomingSocket.connectedRoom = null;
 			currentLoop.Remove(room);
-			currentLoopData.Remove(data);
 			foreach (Socket s in room.sockets)
 			{
 				if (openSocket.Contains(s))
@@ -310,8 +356,34 @@ namespace ProceduralGeneration
 
 			//Clear all Lists
 			currentLoop.Clear();
-			currentLoopData.Clear();
 			openSocket.Clear();
+		}
+
+		private string GetCombinedFootprintSignature()
+		{
+			List<Vector2> allVertices = new List<Vector2>();
+
+			foreach (Room room in currentLoop)
+			{
+				Vector2[] roomVertices = GetWorldFootprint(room);
+				allVertices.AddRange(roomVertices);
+			}
+
+			Vector2 min = new Vector2(allVertices.Min(v => v.x), allVertices.Min(v => v.y));
+			Vector2 max = new Vector2(allVertices.Max(v => v.x), allVertices.Max(v => v.y));
+			Vector2 center = (min + max) / 2;
+
+			List<string> vertexStrings = new List<string>();
+			foreach (Vector2 v in allVertices)
+			{
+				float normalizedX = Mathf.Round((v.x - center.x) * 10f) / 10f;
+				float normalizedY = Mathf.Round((v.y - center.y) * 10f) / 10f;
+				vertexStrings.Add($"{normalizedX},{normalizedY}");
+			}
+
+			vertexStrings.Sort();
+
+			return string.Join("|", vertexStrings);
 		}
 	}
 }
