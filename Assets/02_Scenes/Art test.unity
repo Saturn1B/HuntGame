@@ -700,6 +700,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2073536741312008871, guid: a5fcc76d1170fde40ba52dffa0e232b9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: d50a056af585341409f4e33a3481b76f, type: 2}
     - target: {fileID: 5860137930298743369, guid: a5fcc76d1170fde40ba52dffa0e232b9, type: 3}
       propertyPath: m_Name
       value: Gnomercy
