@@ -543,7 +543,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   currentLoop: []
+  currentLoopData: []
   openSocket: []
+  dungeonNameType: TestLoopDungeon
 --- !u!1 &2086298473
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,6 +689,7 @@ MonoBehaviour:
   socketType: 2
   isAvailable: 1
   room: {fileID: 0}
+  connectedRoom: {fileID: 0}
   boundCollider: {fileID: 1112467328118080143}
   socket: {fileID: 0}
   barricade: {fileID: 0}

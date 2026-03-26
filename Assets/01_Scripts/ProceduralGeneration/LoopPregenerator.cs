@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEditor;
+using System.IO;
 
 namespace ProceduralGeneration
 {
@@ -14,7 +16,10 @@ namespace ProceduralGeneration
 		[SerializeField] private LayerMask roomLayer;
 
 		[SerializeField] private List<Room> currentLoop = new List<Room>();
+		[SerializeField] private List<RoomData> currentLoopData = new List<RoomData>();
 		[SerializeField] private List<Socket> openSocket = new List<Socket>();
+
+		[SerializeField] private string dungeonNameType;
 
 		[ContextMenu("Loop Pregen")]
 		async public void LoopPregen()
@@ -27,6 +32,7 @@ namespace ProceduralGeneration
 			{
 				Room room = Instantiate(data.roomPrefab, Vector3.zero, Quaternion.identity).GetComponent<Room>();
 				currentLoop.Add(room);
+				currentLoopData.Add(data);
 				openSocket.AddRange(room.sockets);
 
 				await TryLoop();
@@ -74,8 +80,11 @@ namespace ProceduralGeneration
 						}
 
 						currentLoop.Add(room);
+						currentLoopData.Add(data);
 						socket.isAvailable = false;
+						socket.connectedRoom = room;
 						incomingSocket.isAvailable = false;
+						incomingSocket.connectedRoom = socket.room;
 						//room.transform.SetParent(socket.transform);
 
 						openSocket.AddRange(room.sockets.Where(s => s.isAvailable));
@@ -101,18 +110,43 @@ namespace ProceduralGeneration
 										Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
 										Debug.Log($"Loop found");
 										//REGISTER LOOP IN SO
+#if UNITY_EDITOR
+										LoopData loopData = ScriptableObject.CreateInstance<LoopData>();
+
+										foreach (RoomData rd in currentLoopData)
+											loopData.roomLoop.Add(rd);
+
+										foreach (Room r in currentLoop)
+										{
+											loopData.relativePositionLoop.Add(r.transform.position);
+											loopData.relativeRotationLoop.Add(r.transform.rotation);
+										}
+
+										string folderPath = $"Assets/03_Prefabs/DungeonLoop/{dungeonNameType}/{loopSize}";
+										string path = $"{folderPath}/{ loopData.roomLoop[0].roomName}{ GUID.Generate()}_Data.asset";
+
+
+										if (!Directory.Exists(folderPath))
+										{
+											Directory.CreateDirectory(folderPath);
+											AssetDatabase.Refresh();
+										}
+
+										AssetDatabase.CreateAsset(loopData, path);
+										AssetDatabase.SaveAssets();
+#endif
 									}
 								}
 							}
 
 							Debug.Log($"Loop not found");
-							Backtrack(room, socket, incomingSocket);
+							Backtrack(data, room, socket, incomingSocket);
 							continue;
 						}
 
 						if (await TryLoop()) continue;
 
-						Backtrack(room, socket, incomingSocket);
+						Backtrack(data, room, socket, incomingSocket);
 					}
 
 					Debug.LogWarning("Switch room");
@@ -126,11 +160,14 @@ namespace ProceduralGeneration
 			return false;
 		}
 
-		private void Backtrack(Room room, Socket parentSocket, Socket incomingSocket)
+		private void Backtrack(RoomData data, Room room, Socket parentSocket, Socket incomingSocket)
 		{
 			parentSocket.isAvailable = true;
+			parentSocket.connectedRoom = null;
 			incomingSocket.isAvailable = true;
+			incomingSocket.connectedRoom = null;
 			currentLoop.Remove(room);
+			currentLoopData.Remove(data);
 			foreach (Socket s in room.sockets)
 			{
 				if (openSocket.Contains(s))
@@ -273,6 +310,7 @@ namespace ProceduralGeneration
 
 			//Clear all Lists
 			currentLoop.Clear();
+			currentLoopData.Clear();
 			openSocket.Clear();
 		}
 	}

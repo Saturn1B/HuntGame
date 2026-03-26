@@ -16,6 +16,7 @@ namespace ProceduralGeneration
 		public SocketType socketType;
 		public bool isAvailable = true;
 		public Room room;
+		public Room connectedRoom;
 		public Collider boundCollider;
 		public Collider socket;
 		[SerializeField] private GameObject barricade;
