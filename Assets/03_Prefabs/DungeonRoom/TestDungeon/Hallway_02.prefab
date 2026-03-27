@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6633422070837894164}
-  - component: {fileID: 5175041360771984654}
   - component: {fileID: 6868827921099680408}
   m_Layer: 7
   m_Name: Hallway_02
@@ -27,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 3599185645620812199}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -36,27 +35,6 @@ Transform:
   - {fileID: 7866681766399126676}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &5175041360771984654
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3599185645620812199}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5, y: 3.5, z: 10}
-  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!114 &6868827921099680408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,7 +51,12 @@ MonoBehaviour:
   sockets:
   - {fileID: 34808765815292101}
   - {fileID: 405392504983654565}
-  boundCollider: {fileID: 5175041360771984654}
+  boundCollider: {fileID: 0}
+  footprint:
+  - {x: -2.5, y: -5}
+  - {x: 2.5, y: -5}
+  - {x: 2.5, y: 5}
+  - {x: -2.5, y: 5}
 --- !u!1 &5221605217107814042
 GameObject:
   m_ObjectHideFlags: 0

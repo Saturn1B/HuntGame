@@ -14,11 +14,18 @@ namespace ProceduralGeneration
 	public class Socket : MonoBehaviour
 	{
 		public SocketType socketType;
-		public bool isAvailable = true;
-		public Room room;
-		public Collider boundCollider;
+		[HideInInspector] public bool isAvailable = true;
+		[HideInInspector] public Room room;
+		[HideInInspector] public Room connectedRoom;
+		[HideInInspector] public BoxCollider boundCollider;
 		public Collider socket;
 		[SerializeField] private GameObject barricade;
+
+		private void Awake()
+		{
+			if (boundCollider == null)
+				boundCollider = GetComponent<BoxCollider>();
+		}
 
 		public void CloseSocket()
 		{
@@ -31,10 +38,14 @@ namespace ProceduralGeneration
 		private void OnDrawGizmos()
 		{
 			Gizmos.color = Color.cyan;
-			Gizmos.DrawRay(transform.position, transform.forward * 1f);
+			if (socket != null)
+				Gizmos.DrawRay(socket.transform.position, transform.forward * 1f);
+
 			Gizmos.color = isAvailable ? Color.green : Color.red;
-			Gizmos.DrawWireCube(socket.bounds.center, socket.bounds.size);
-			Gizmos.DrawWireCube(boundCollider.bounds.center, boundCollider.bounds.size);
+			if (socket != null)
+				Gizmos.DrawWireCube(socket.bounds.center, socket.bounds.size);
+			if (boundCollider != null)
+				Gizmos.DrawWireCube(boundCollider.bounds.center, boundCollider.bounds.size);
 		}
 	}
 }
