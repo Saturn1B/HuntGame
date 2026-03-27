@@ -76,7 +76,7 @@ namespace ProceduralGeneration
 
 		private async Task<bool> TryLoop()
 		{
-			await Task.Delay(1);
+			//await Task.Delay(1);
 
 			int testingRoomIndex = currentLoop.Count - 1;
 			Room lastRoom = currentLoop[testingRoomIndex];
@@ -118,7 +118,7 @@ namespace ProceduralGeneration
 
 						openSocket.AddRange(room.sockets.Where(s => s.isAvailable));
 
-						await Task.Delay(1);
+						//await Task.Delay(1);
 
 						if (currentLoop.Count >= loopSize)
 						{
@@ -131,6 +131,8 @@ namespace ProceduralGeneration
 									if (!existingSocket.isAvailable || existingSocket == newSocket) continue;
 
 									if (existingSocket.socketType != newSocket.socketType) continue;
+
+									if (existingSocket.room != currentLoop[0]) continue;
 
 									if (Vector3.Distance(newSocket.socket.transform.position, existingSocket.socket.transform.position) < .1f)
 									{
@@ -164,8 +166,7 @@ namespace ProceduralGeneration
 
 										for (int i = 0; i < currentLoop.Count; i++)
 										{
-											loopData.relativePositionLoop.Add(currentLoop[i].transform.position);
-											loopData.relativeRotationLoop.Add(currentLoop[i].transform.rotation);
+											loopData.relativePoseLoop.Add(new Pose(currentLoop[i].transform.position, currentLoop[i].transform.rotation));
 											loopData.roomLoop.Add(currentLoop[i].originalData);
 										}
 

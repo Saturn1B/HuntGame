@@ -402,6 +402,84 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   tryLooping: 0
+  loopLibrary:
+  - {fileID: 11400000, guid: cf77b8d0e673b5a4ebccc6b1a931884d, type: 2}
+  - {fileID: 11400000, guid: 0180d616175d5f24788705dd303989f3, type: 2}
+  - {fileID: 11400000, guid: f75b57e2cbf413e42b0bbc2a076728a6, type: 2}
+  - {fileID: 11400000, guid: d1132aa3a3f2b794d8014b5814319eed, type: 2}
+  - {fileID: 11400000, guid: a7d5b0b0ced48784f8dd6c46268a2c21, type: 2}
+  - {fileID: 11400000, guid: c497056bb02efcc4c83f4da6ef439427, type: 2}
+  - {fileID: 11400000, guid: ef41eb3afb660854cbb3de0d4160433d, type: 2}
+  - {fileID: 11400000, guid: 6a32a8b500acd184fb8bde107a46f69f, type: 2}
+  - {fileID: 11400000, guid: d9761f8627e48b34186331aa1fdf3338, type: 2}
+  - {fileID: 11400000, guid: 1a62b9ef1aec3e74fbe39baaa17a2baa, type: 2}
+  - {fileID: 11400000, guid: f1aeabaef349ccb4d999e66dabb50a30, type: 2}
+  - {fileID: 11400000, guid: 6f9e1363bc1c3164cad19ecdb59749b6, type: 2}
+  - {fileID: 11400000, guid: 870616c434ae38f4e917eb7e9ae1f995, type: 2}
+  - {fileID: 11400000, guid: 5b630bd19d6b6ab4f8b48f4dffe4ac26, type: 2}
+  - {fileID: 11400000, guid: 47f06bf9f8220c642852750d0540e0e7, type: 2}
+  - {fileID: 11400000, guid: 6da9d8be3a772d74fb03d24b4c6e42b8, type: 2}
+  - {fileID: 11400000, guid: 8e138faff3224b14d856a64e2677e8ce, type: 2}
+  - {fileID: 11400000, guid: eef4213b27fd8954492afc1e0add71da, type: 2}
+  - {fileID: 11400000, guid: cfe6f9bb07156454ca0ecc709445dbf1, type: 2}
+  - {fileID: 11400000, guid: 439be41218452da448c32ff7dacde623, type: 2}
+  - {fileID: 11400000, guid: 1baaef1baf2495f4696347711e7fa643, type: 2}
+  - {fileID: 11400000, guid: 3660f7edc8c74274aa5c2b31dd6eec54, type: 2}
+  - {fileID: 11400000, guid: a5ec0ecbf85e0b5439fb64bbeec9fca6, type: 2}
+  - {fileID: 11400000, guid: 3ae50a078eff05740a5de204070dcd46, type: 2}
+  - {fileID: 11400000, guid: e58cf0059f8aa7f4482e89c2e38a1511, type: 2}
+  - {fileID: 11400000, guid: bc7e9153d9b66584391e8c586f8897cf, type: 2}
+  - {fileID: 11400000, guid: 3f325a02455b30f499be0909da6e167f, type: 2}
+  - {fileID: 11400000, guid: 6307ffc125e0efb46af2ee6ac73dbdbf, type: 2}
+  - {fileID: 11400000, guid: 5a9f504a98c2b83469d83d7c8866f585, type: 2}
+  - {fileID: 11400000, guid: 4b130b54eeb8af8449cf426ecaa313c9, type: 2}
+  - {fileID: 11400000, guid: db4b20f1573a0c64e8f86972914ed313, type: 2}
+  - {fileID: 11400000, guid: 4f5b3047ec9f1d6478905ca23c2ce1a2, type: 2}
+  - {fileID: 11400000, guid: 35d729315d1768a4d9119eb44ffe6d48, type: 2}
+  - {fileID: 11400000, guid: 83ad86f2fa920264f84935d2376b3b92, type: 2}
+  - {fileID: 11400000, guid: df65f4fe16f3d904181c65a3d7e71e0a, type: 2}
+  - {fileID: 11400000, guid: 817f2ccf6e5cb624f82232ae394c5f78, type: 2}
+  - {fileID: 11400000, guid: a39e89324b5d9554285e61483db83825, type: 2}
+  - {fileID: 11400000, guid: c254ced2d51cd494c8664cc029dce99c, type: 2}
+  - {fileID: 11400000, guid: 03c7cb389b74626469cf6a4aedb73b34, type: 2}
+  - {fileID: 11400000, guid: 09b11979f43e64145bdf3496eedd3310, type: 2}
+  - {fileID: 11400000, guid: 4dec5ea9fa1a4ab4ba0d6c317ec20d91, type: 2}
+  - {fileID: 11400000, guid: 89a7dd0108fa57b4f898911499ec386c, type: 2}
+  - {fileID: 11400000, guid: 92b0bee268fc02f4f97f86c18ac0c3ee, type: 2}
+  - {fileID: 11400000, guid: e1ef8a19ae5cbbd448ae913b30a64565, type: 2}
+  - {fileID: 11400000, guid: eb9dad21a1505964da327f8402a4d6e3, type: 2}
+  - {fileID: 11400000, guid: b27baf8e78a278b45895d1cb65c886ba, type: 2}
+  - {fileID: 11400000, guid: 0ecc796e8d040aa4ba79fa9d697db978, type: 2}
+  - {fileID: 11400000, guid: 5e157c0cbeef97247a72544ca03d8609, type: 2}
+  - {fileID: 11400000, guid: ab8c232031708d04eab8af6bd881630a, type: 2}
+  - {fileID: 11400000, guid: 5052fa8ca5b7156429dd3f2265013d30, type: 2}
+  - {fileID: 11400000, guid: 0c6f1f5e69c85424a85202d27959e727, type: 2}
+  - {fileID: 11400000, guid: a9cff53a273a72843870589d2ad0f504, type: 2}
+  - {fileID: 11400000, guid: 2c23fe941f674b248a088710bc64e2ee, type: 2}
+  - {fileID: 11400000, guid: bb6aef8711b9c7a498d3ccbece706210, type: 2}
+  - {fileID: 11400000, guid: f07324f2c1d67574aad7b31aad40b043, type: 2}
+  - {fileID: 11400000, guid: 6c41f82f07d95aa459d48f263902f13f, type: 2}
+  - {fileID: 11400000, guid: be85338ce1ceedc4895ed91536f96730, type: 2}
+  - {fileID: 11400000, guid: 2e74a891b02839d40b38142295a87967, type: 2}
+  - {fileID: 11400000, guid: d4cb416eea2df314389d5ea963280c1c, type: 2}
+  - {fileID: 11400000, guid: 3386bf0996958004eb6bfa8224893300, type: 2}
+  - {fileID: 11400000, guid: aca2b620553e3a947bb3fa1bbd201140, type: 2}
+  - {fileID: 11400000, guid: 539e9428772da874d9a815225c954cb7, type: 2}
+  - {fileID: 11400000, guid: d1ffebcfbc85be64b99c094c67612418, type: 2}
+  - {fileID: 11400000, guid: 5947401ac0b817e498a45b936dafe0cf, type: 2}
+  - {fileID: 11400000, guid: e15f9321c95ebe64cbf7d6e4c551dfa7, type: 2}
+  - {fileID: 11400000, guid: 37bd2ba91ec26c7419252b6a4208d20f, type: 2}
+  - {fileID: 11400000, guid: b49d51e8ea5eead49bfb8ee4427ca706, type: 2}
+  - {fileID: 11400000, guid: 65fd8899fa800da4a8d7eab1eb61a9c6, type: 2}
+  - {fileID: 11400000, guid: 11585b167adfaf54ea05d3deaccaf4ec, type: 2}
+  - {fileID: 11400000, guid: 48abc97954fe6254d88b5bf254f46a67, type: 2}
+  - {fileID: 11400000, guid: 7df3eeb99b036f24f8252f1554643c58, type: 2}
+  - {fileID: 11400000, guid: 00020154e012dbd40b5c1db46d41f635, type: 2}
+  - {fileID: 11400000, guid: 0ce9260f76411b9448048793c065f647, type: 2}
+  - {fileID: 11400000, guid: f30e75a13285161469121003f79e1b29, type: 2}
+  - {fileID: 11400000, guid: 3f847e3fb752cae4e8bd4085614dd93a, type: 2}
+  - {fileID: 11400000, guid: 9cb2b7888e05e4f439f2fec3682343c8, type: 2}
+  loopProbability: 0.2
 --- !u!4 &536361917
 Transform:
   m_ObjectHideFlags: 0
@@ -538,7 +616,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f4ae3cc0aa7ba4642912e2596eee5019, type: 2}
   - {fileID: 11400000, guid: 5d14834cbeff3d24da22caed475ff458, type: 2}
   - {fileID: 11400000, guid: 311f55729b8800147ad9ad9a1e1ddd91, type: 2}
-  loopSize: 4
+  loopSize: 5
   roomLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -555,7 +633,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 573475a892fbbb04286bc101eb2c855b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProceduralGeneration.LoopViewer
-  loopData: {fileID: 0}
+  loopLibrary:
+  - {fileID: 11400000, guid: 3c21d3237bda89448ac06d9a18fd4e49, type: 2}
+  - {fileID: 11400000, guid: fa78e778d2343cf4b82662897fbb5261, type: 2}
+  - {fileID: 11400000, guid: 7b7538bc2ef50254eabba93946eb6024, type: 2}
+  - {fileID: 11400000, guid: 0e9dd10197a705449873b6e7c70c8b34, type: 2}
+  - {fileID: 11400000, guid: d73f97482141fca48a37e2fa1db989ae, type: 2}
+  - {fileID: 11400000, guid: 7848b4b1e2eb7b24badf2c6bf7afa950, type: 2}
+  - {fileID: 11400000, guid: 3fc33ceadd9bae349ada4b37f50c7635, type: 2}
+  - {fileID: 11400000, guid: a418fd9792d5c5748adfea32faf578ae, type: 2}
+  - {fileID: 11400000, guid: e9860b095a0f86c4d8c84aa55557c968, type: 2}
+  - {fileID: 11400000, guid: 148f2765756b4b0448438024f49b00d7, type: 2}
+  currentlyViewing: 
+  currentIndex: 0
 --- !u!1 &2086298473
 GameObject:
   m_ObjectHideFlags: 0

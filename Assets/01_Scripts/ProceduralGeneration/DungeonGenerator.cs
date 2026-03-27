@@ -15,6 +15,10 @@ namespace ProceduralGeneration
 		[SerializeField, Tooltip("Set to true if you want to actively try looping in the dungeon. Might not work depending on room type. Will slow down generation")]
 		private bool tryLooping;
 
+		[Header("Loop Parameter")]
+		[SerializeField, Tooltip("All the loop that might generate in the dungeon")] private LoopData[] loopLibrary;
+		[SerializeField, Range(0, 1), Tooltip("Chance to try spawning a loop instead of a room")] private float loopProbability;
+
 		private List<Socket> openSocket = new List<Socket>();
 		private List<Room> spawnedRoom = new List<Room>();
 
@@ -88,6 +92,13 @@ namespace ProceduralGeneration
 		{
 			SetupGhostPool(); //Ensure ghost pool is set
 
+			//Random try placing a loop from loop library
+			if(Random.value < loopProbability)
+			{
+				if (TryPlaceLoop(targetSocket)) return true;
+			}
+
+			//REDUNDANT, MIGHT REMOVE THE ACTIVE LOOP GENERATION
 			//Check if we want to actively try looping
 			if (tryLooping)
 			{
@@ -153,30 +164,127 @@ namespace ProceduralGeneration
 				spawnedRoom.Add(realRoom);
 				openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
 
-				foreach (Socket newSocket in realRoom.sockets)
-				{
-					if (!newSocket.isAvailable) continue;
-
-					foreach (Socket existingSocket in openSocket)
-					{
-						if (!existingSocket.isAvailable || existingSocket == newSocket) continue;
-
-						if (existingSocket.socketType != newSocket.socketType) continue;
-
-						if (Vector3.Distance(newSocket.socket.transform.position, existingSocket.socket.transform.position) < .1f)
-						{
-							newSocket.isAvailable = false;
-							existingSocket.isAvailable = false;
-							Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
-							Debug.Log($"Natural loop created between {realRoom.name} and {existingSocket.room.name}");
-						}
-					}
-				}
+				CheckForNaturalLoop(realRoom);
 
 				return true;
 			}
 
 			//return the state of our search, did we found a room to place or not
+			return false;
+		}
+
+		private void CheckForNaturalLoop(Room room)
+		{
+			foreach (Socket newSocket in room.sockets)
+			{
+				if (!newSocket.isAvailable) continue;
+
+				foreach (Socket existingSocket in openSocket)
+				{
+					if (!existingSocket.isAvailable || existingSocket == newSocket) continue;
+
+					if (existingSocket.socketType != newSocket.socketType) continue;
+
+					if (Vector3.Distance(newSocket.socket.transform.position, existingSocket.socket.transform.position) < .1f)
+					{
+						newSocket.isAvailable = false;
+						existingSocket.isAvailable = false;
+						Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
+						Debug.Log($"Natural loop created between {room.name} and {existingSocket.room.name}");
+					}
+				}
+			}
+		}
+
+		private bool TryPlaceLoop(Socket targetSocket)
+		{
+			if (loopLibrary == null || loopLibrary.Length == 0) return false;
+
+			//Shuffle library to avaoid always picking th same room
+			List<LoopData> loopsToTry = loopLibrary.OrderBy(x => Random.value).ToList();
+
+			foreach (LoopData loop in loopsToTry)
+			{
+				for (int i = 0; i < loop.roomLoop.Count; i++)
+				{
+					RoomData anchorData = loop.roomLoop[i];
+					Room anchorGhost = GetGhost(anchorData);
+
+					//Check every socket on this specific room in the loop
+					foreach (Socket incomingSocket in anchorGhost.sockets)
+					{
+						if (incomingSocket.socketType != targetSocket.socketType) continue;
+
+						//Calculate world pos for the anchor room based on target socket
+						AlignRooms(targetSocket, incomingSocket, anchorGhost.transform);
+
+						Vector3 worldAnchorPos = anchorGhost.transform.position;
+						Quaternion worldAnchorRot = anchorGhost.transform.rotation;
+						Vector3 localAnchorPos = loop.relativePoseLoop[i].position;
+						Quaternion localAnchorRot = loop.relativePoseLoop[i].rotation;
+
+						//Pre calculate world pose for entire loop and check overlaps
+						List<Pose> worldPoses = new List<Pose>();
+						bool anyOverlap = false;
+
+						for (int j = 0; j < loop.roomLoop.Count; j++)
+						{
+							//Calculate relative transform from anchor to current room in loop space
+							Quaternion relRot = Quaternion.Inverse(localAnchorRot) * loop.relativePoseLoop[j].rotation;
+							Vector3 relPos = Quaternion.Inverse(localAnchorRot) * (loop.relativePoseLoop[j].position - localAnchorPos);
+
+							//Map loop space coord to world space based on our anchor alignment
+							Vector3 worldPos = worldAnchorPos + (worldAnchorRot * relPos);
+							Quaternion worldRot = worldAnchorRot * relRot;
+							worldPoses.Add(new Pose(worldPos, worldRot));
+
+							//Use ghot to verify room doesn't hit the existing dungeon
+							Room checkGhost = GetGhost(loop.roomLoop[j]);
+							checkGhost.transform.position = worldPos;
+							checkGhost.transform.rotation = worldRot;
+
+							if(IsOverlapping(checkGhost, targetSocket))
+							{
+								anyOverlap = true;
+								checkGhost.gameObject.SetActive(false);
+								break;
+							}
+							checkGhost.gameObject.SetActive(false);
+						}
+
+						//Check if any overlap, skip to try a different anchor or loop
+						if (anyOverlap) continue;
+
+						//Entire loop fits ! Instantiate all rooms
+						for (int j = 0; j < loop.roomLoop.Count; j++)
+						{
+							GameObject realRoomObj = Instantiate(loop.roomLoop[j].roomPrefab, transform);
+							Room realRoom = realRoomObj.GetComponent<Room>();
+							realRoom.transform.position = worldPoses[j].position;
+							realRoom.transform.rotation = worldPoses[j].rotation;
+
+							//Connect room anchor to dungeon entry socket
+							if (j == i)
+							{
+								targetSocket.isAvailable = false;
+								int socketIndex = System.Array.IndexOf(anchorGhost.sockets, incomingSocket);
+								realRoom.sockets[socketIndex].isAvailable = false;
+							}
+
+							spawnedRoom.Add(realRoom);
+							openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
+
+							CheckForNaturalLoop(realRoom);
+						}
+
+						//Loop succesfully placed
+						anchorGhost.gameObject.SetActive(false);
+						Debug.Log("Loop succesfully generated");
+						return true;
+					}
+					anchorGhost.gameObject.SetActive(false);
+				}
+			}
 			return false;
 		}
 
