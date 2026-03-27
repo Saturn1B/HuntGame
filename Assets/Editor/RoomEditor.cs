@@ -225,7 +225,7 @@ namespace ProceduralGeneration
             string folder = EditorUtility.OpenFolderPanel("Choose Prefab Save Folder", "Assets", "");
             if (string.IsNullOrEmpty(folder)) return null;
 
-            // Convert absolute path → relative
+            // Convert absolute path -> relative
             folder = MakeRelative(folder);
             return $"{folder}/{roomName}.prefab";
         }
