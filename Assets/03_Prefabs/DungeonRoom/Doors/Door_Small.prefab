@@ -124,6 +124,7 @@ MonoBehaviour:
   socketType: 0
   isAvailable: 1
   room: {fileID: 0}
+  connectedRoom: {fileID: 0}
   boundCollider: {fileID: 5599849610983402079}
   socket: {fileID: 6150847590195344624}
   barricade: {fileID: 0}
@@ -175,9 +176,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2737544405538385759, guid: 802ca16644c709a4097008534b2348a0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3343344678548229761, guid: 802ca16644c709a4097008534b2348a0, type: 3}
       propertyPath: m_Name
       value: COMP_Gate_no_door_half
+      objectReference: {fileID: 0}
+    - target: {fileID: 3343344678548229761, guid: 802ca16644c709a4097008534b2348a0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
