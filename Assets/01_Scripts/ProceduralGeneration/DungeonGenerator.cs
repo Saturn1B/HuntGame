@@ -15,6 +15,10 @@ namespace ProceduralGeneration
 		[SerializeField, Tooltip("Set to true if you want to actively try looping in the dungeon. Might not work depending on room type. Will slow down generation")]
 		private bool tryLooping;
 
+		[Header("Loop Parameter")]
+		[SerializeField, Tooltip("All the loop that might generate in the dungeon")] private LoopData[] loopLibrary;
+		[SerializeField, Range(0, 1), Tooltip("Chance to try spawning a loop instead of a room")] private float loopProbability;
+
 		private List<Socket> openSocket = new List<Socket>();
 		private List<Room> spawnedRoom = new List<Room>();
 
@@ -88,6 +92,13 @@ namespace ProceduralGeneration
 		{
 			SetupGhostPool(); //Ensure ghost pool is set
 
+			//Random try placing a loop from loop library
+			if(Random.value < loopProbability)
+			{
+				if (TryPlaceLoop(targetSocket)) return true;
+			}
+
+			//REDUNDANT, MIGHT REMOVE THE ACTIVE LOOP GENERATION
 			//Check if we want to actively try looping
 			if (tryLooping)
 			{
@@ -95,7 +106,7 @@ namespace ProceduralGeneration
 				//Check on all open socket
 				foreach (Socket otherSocket in openSocket.ToList())
 				{
-					//if the socket is not available or it's from the same room as the other sockt we're trying to bridge with, we skip
+					//if the socket is not available or it's from the same room as the other socket we're trying to bridge with, we skip
 					if (!otherSocket.isAvailable || otherSocket.room == targetSocket.room) continue;
 
 					//get the distance between the two socket
@@ -153,30 +164,127 @@ namespace ProceduralGeneration
 				spawnedRoom.Add(realRoom);
 				openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
 
-				foreach (Socket newSocket in realRoom.sockets)
-				{
-					if (!newSocket.isAvailable) continue;
-
-					foreach (Socket existingSocket in openSocket)
-					{
-						if (!existingSocket.isAvailable || existingSocket == newSocket) continue;
-
-						if (existingSocket.socketType != newSocket.socketType) continue;
-
-						if (Vector3.Distance(newSocket.socket.transform.position, existingSocket.socket.transform.position) < .1f)
-						{
-							newSocket.isAvailable = false;
-							existingSocket.isAvailable = false;
-							Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
-							Debug.Log($"Natural loop created between {realRoom.name} and {existingSocket.room.name}");
-						}
-					}
-				}
+				CheckForNaturalLoop(realRoom);
 
 				return true;
 			}
 
 			//return the state of our search, did we found a room to place or not
+			return false;
+		}
+
+		private void CheckForNaturalLoop(Room room)
+		{
+			foreach (Socket newSocket in room.sockets)
+			{
+				if (!newSocket.isAvailable) continue;
+
+				foreach (Socket existingSocket in openSocket)
+				{
+					if (!existingSocket.isAvailable || existingSocket == newSocket) continue;
+
+					if (existingSocket.socketType != newSocket.socketType) continue;
+
+					if (Vector3.Distance(newSocket.socket.transform.position, existingSocket.socket.transform.position) < .1f)
+					{
+						newSocket.isAvailable = false;
+						existingSocket.isAvailable = false;
+						Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
+						Debug.Log($"Natural loop created between {room.name} and {existingSocket.room.name}");
+					}
+				}
+			}
+		}
+
+		private bool TryPlaceLoop(Socket targetSocket)
+		{
+			if (loopLibrary == null || loopLibrary.Length == 0) return false;
+
+			//Shuffle library to avaoid always picking th same room
+			List<LoopData> loopsToTry = loopLibrary.OrderBy(x => Random.value).ToList();
+
+			foreach (LoopData loop in loopsToTry)
+			{
+				for (int i = 0; i < loop.roomLoop.Count; i++)
+				{
+					RoomData anchorData = loop.roomLoop[i];
+					Room anchorGhost = GetGhost(anchorData);
+
+					//Check every socket on this specific room in the loop
+					foreach (Socket incomingSocket in anchorGhost.sockets)
+					{
+						if (incomingSocket.socketType != targetSocket.socketType) continue;
+
+						//Calculate world pos for the anchor room based on target socket
+						AlignRooms(targetSocket, incomingSocket, anchorGhost.transform);
+
+						Vector3 worldAnchorPos = anchorGhost.transform.position;
+						Quaternion worldAnchorRot = anchorGhost.transform.rotation;
+						Vector3 localAnchorPos = loop.relativePoseLoop[i].position;
+						Quaternion localAnchorRot = loop.relativePoseLoop[i].rotation;
+
+						//Pre calculate world pose for entire loop and check overlaps
+						List<Pose> worldPoses = new List<Pose>();
+						bool anyOverlap = false;
+
+						for (int j = 0; j < loop.roomLoop.Count; j++)
+						{
+							//Calculate relative transform from anchor to current room in loop space
+							Quaternion relRot = Quaternion.Inverse(localAnchorRot) * loop.relativePoseLoop[j].rotation;
+							Vector3 relPos = Quaternion.Inverse(localAnchorRot) * (loop.relativePoseLoop[j].position - localAnchorPos);
+
+							//Map loop space coord to world space based on our anchor alignment
+							Vector3 worldPos = worldAnchorPos + (worldAnchorRot * relPos);
+							Quaternion worldRot = worldAnchorRot * relRot;
+							worldPoses.Add(new Pose(worldPos, worldRot));
+
+							//Use ghot to verify room doesn't hit the existing dungeon
+							Room checkGhost = GetGhost(loop.roomLoop[j]);
+							checkGhost.transform.position = worldPos;
+							checkGhost.transform.rotation = worldRot;
+
+							if(IsOverlapping(checkGhost, targetSocket))
+							{
+								anyOverlap = true;
+								checkGhost.gameObject.SetActive(false);
+								break;
+							}
+							checkGhost.gameObject.SetActive(false);
+						}
+
+						//Check if any overlap, skip to try a different anchor or loop
+						if (anyOverlap) continue;
+
+						//Entire loop fits ! Instantiate all rooms
+						for (int j = 0; j < loop.roomLoop.Count; j++)
+						{
+							GameObject realRoomObj = Instantiate(loop.roomLoop[j].roomPrefab, transform);
+							Room realRoom = realRoomObj.GetComponent<Room>();
+							realRoom.transform.position = worldPoses[j].position;
+							realRoom.transform.rotation = worldPoses[j].rotation;
+
+							//Connect room anchor to dungeon entry socket
+							if (j == i)
+							{
+								targetSocket.isAvailable = false;
+								int socketIndex = System.Array.IndexOf(anchorGhost.sockets, incomingSocket);
+								realRoom.sockets[socketIndex].isAvailable = false;
+							}
+
+							spawnedRoom.Add(realRoom);
+							openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
+
+							CheckForNaturalLoop(realRoom);
+						}
+
+						//Loop succesfully placed
+						anchorGhost.gameObject.SetActive(false);
+						Debug.Log("Loop succesfully generated");
+						return true;
+					}
+					anchorGhost.gameObject.SetActive(false);
+				}
+			}
 			return false;
 		}
 
@@ -325,17 +433,19 @@ namespace ProceduralGeneration
 		{
 			Physics.SyncTransforms();
 
-			float padding = .05f;
+			//float padding = .05f;
 			//Get the bounds or our room
-			Bounds b = room.boundCollider.bounds;
+			//Bounds b = room.boundCollider.bounds;
 
 			//Get all the object colliding with our room (added a small bit of padding for tolerance)
-			Collider[] colliders = Physics.OverlapBox(b.center, (b.extents - Vector3.one * padding), room.transform.rotation, roomLayer);
+			//Collider[] colliders = Physics.OverlapBox(b.center, (b.extents - Vector3.one * padding), room.transform.rotation, roomLayer);
+
+			Vector2[] incoming = GetWorldFootprint(room);
 
 			//Check on all the room colliding object found
-			foreach (var c in colliders)
+			foreach (Room hitRoom in spawnedRoom)
 			{
-				Room hitRoom = c.transform.GetComponentInParent<Room>();
+				//Room hitRoom = c.transform.GetComponentInParent<Room>();
 
 				//If doesn't have room script, skip
 				if (hitRoom == null) continue;
@@ -347,11 +457,54 @@ namespace ProceduralGeneration
 				if (hitRoom == targetSocket.room) continue;
 
 				//Else, we're colliding with another room, return overlapping to true
-				return true;
+				//return true;
+
+				Vector2[] placed = GetWorldFootprint(hitRoom);
+				if (PolygonsOverlap(incoming, placed)) return true;
 			}
 
 			//No overlapping found
 			return false;
+		}
+
+		private bool PolygonsOverlap(Vector2[] polyA, Vector2[] polyB)
+		{
+			foreach (Vector2[] poly in new[] { polyA, polyB})
+			{
+				for (int i = 0; i < poly.Length; i++)
+				{
+					Vector2 edge = poly[(i + 1) % poly.Length] - poly[i];
+					Vector2 axis = new Vector2(-edge.y, edge.x);
+
+					Project(polyA, axis, out float minA, out float maxA);
+					Project(polyB, axis, out float minB, out float maxB);
+
+					if (maxA <= minB + .05f || maxB <= minA + .05f) return false;
+				}
+			}
+			return true;
+		}
+
+		private void Project(Vector2[] poly, Vector2 axis, out float min, out float max)
+		{
+			min = max = Vector2.Dot(poly[0], axis);
+			for (int i = 1; i < poly.Length; i++)
+			{
+				float p = Vector2.Dot(poly[i], axis);
+				if (p < min) min = p;
+				if (p > max) max = p;
+			}
+		}
+
+		private Vector2[] GetWorldFootprint(Room room)
+		{
+			Vector2[] world = new Vector2[room.footprint.Length];
+			for (int i = 0; i < room.footprint.Length; i++)
+			{
+				Vector3 p = room.transform.TransformPoint(new Vector3(room.footprint[i].x, 0, room.footprint[i].y));
+				world[i] = new Vector2(p.x, p.z);
+			}
+			return world;
 		}
 
 		[ContextMenu("ClearDungeon")]

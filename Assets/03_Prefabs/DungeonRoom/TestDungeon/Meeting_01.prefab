@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2990537574985612653}
-  - component: {fileID: 3207640614860513911}
   - component: {fileID: 6556654716633654878}
   m_Layer: 7
   m_Name: Meeting_01
@@ -27,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 1029878473686404040}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0863, y: -0, z: -0.92142}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -37,27 +36,6 @@ Transform:
   - {fileID: 5830421216635993125}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &3207640614860513911
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1029878473686404040}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5, y: 3.5, z: 5}
-  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!114 &6556654716633654878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,7 +53,16 @@ MonoBehaviour:
   - {fileID: 8336706179851498724}
   - {fileID: 296593727409608319}
   - {fileID: 7784155935625827524}
-  boundCollider: {fileID: 3207640614860513911}
+  boundCollider: {fileID: 0}
+  footprint:
+  - {x: -2.5, y: -2.5}
+  - {x: 2.5, y: -2.5}
+  - {x: 2.5000002, y: 1.0000001}
+  - {x: 2.5, y: 2.5}
+  - {x: 0.5, y: 2.5}
+  - {x: 0.05888343, y: 2.0624368}
+  - {x: -2.0624368, y: -0.05888343}
+  - {x: -2.5, y: -0.5}
 --- !u!1 &5892516958322122593
 GameObject:
   m_ObjectHideFlags: 0
