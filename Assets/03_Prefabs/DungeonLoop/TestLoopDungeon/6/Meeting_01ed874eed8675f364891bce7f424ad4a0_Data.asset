@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d5e59c3c7a7a7e4d99203f22d98d32b, type: 3}
+  m_Name: Meeting_01ed874eed8675f364891bce7f424ad4a0_Data
+  m_EditorClassIdentifier: Assembly-CSharp::ProceduralGeneration.LoopData
+  roomLoop:
+  - {fileID: 11400000, guid: 5d14834cbeff3d24da22caed475ff458, type: 2}
+  - {fileID: 11400000, guid: 9fb67da0ee599634b904e7941b5dc183, type: 2}
+  - {fileID: 11400000, guid: 9fb67da0ee599634b904e7941b5dc183, type: 2}
+  - {fileID: 11400000, guid: 5d14834cbeff3d24da22caed475ff458, type: 2}
+  - {fileID: 11400000, guid: 9fb67da0ee599634b904e7941b5dc183, type: 2}
+  - {fileID: 11400000, guid: 9fb67da0ee599634b904e7941b5dc183, type: 2}
+  relativePoseLoop:
+  - position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0, w: 1}
+  - position: {x: 0, y: 0, z: -7.5}
+    rotation: {x: 0, y: 0, z: -0, w: 1}
+  - position: {x: 7.4999995, y: 0, z: -7.5000005}
+    rotation: {x: 0, y: -0.7071068, z: -0, w: -0.7071067}
+  - position: {x: 14.999999, y: 0, z: -7.5000014}
+    rotation: {x: 0, y: -1, z: -0, w: 0.0000000842937}
+  - position: {x: 15, y: 0, z: -0.0000014305115}
+    rotation: {x: 0, y: 1, z: 0, w: -0.0000000842937}
+  - position: {x: 7.4999995, y: 0, z: -0.0000014560778}
+    rotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
