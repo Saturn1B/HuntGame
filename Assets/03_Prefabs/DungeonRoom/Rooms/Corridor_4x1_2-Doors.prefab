@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 963115132614360632}
   - component: {fileID: 3803404230613797471}
   m_Layer: 0
-  m_Name: Corridor_4x4_2-Doors
+  m_Name: Corridor_4x1_2-Doors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
