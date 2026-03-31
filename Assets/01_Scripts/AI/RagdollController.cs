@@ -51,6 +51,7 @@ public class RagdollController : MonoBehaviour, ISimpleInteractable
         {
             if (rb == null) continue;
             rb.isKinematic = !enable;
+            rb.interpolation = enable ? RigidbodyInterpolation.Interpolate : RigidbodyInterpolation.None;
         }
 
         rootBone.transform.parent = null;
