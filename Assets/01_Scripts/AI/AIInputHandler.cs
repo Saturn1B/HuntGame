@@ -62,7 +62,7 @@ namespace HuntingGame.AI
 			FaceMovementDirection();
 		}
 
-		bool stoppedMoving;
+		protected bool stoppedMoving;
 
 		protected virtual void MoveTowardsTarget()
 		{
