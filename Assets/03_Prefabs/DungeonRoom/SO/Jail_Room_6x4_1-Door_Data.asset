@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb069394a11133543a687616677471f6, type: 3}
+  m_Name: Jail_Room_6x4_1-Door_Data
+  m_EditorClassIdentifier: Assembly-CSharp::ProceduralGeneration.RoomData
+  roomName: Jail_Room_6x4_1-Door
+  roomPrefab: {fileID: 2671171839085101924, guid: 689803ed22b819942997882c06ac5ab2, type: 3}
+  roomWeight: 5
+  socketTypes: 00000000
