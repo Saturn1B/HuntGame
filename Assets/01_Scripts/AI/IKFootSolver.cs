@@ -12,9 +12,13 @@ namespace HuntingGame.AI
         [SerializeField] private float speed;
         [SerializeField] private IKFootSolver opposedLegA, opposedLegB, opposedLegC;
 
+        [SerializeField] private float panicDistanceMultiplier = 2f;
+
         private Vector3 newPosition;
         private Vector3 currentPosition;
         private Vector3 oldPosition;
+
+        private Vector3 lastBodyPosition;
 
         private float lerp;
 
@@ -28,22 +32,30 @@ namespace HuntingGame.AI
 		{
             transform.position = currentPosition;
 
+            float bodyVelocity = (mainBody.position - lastBodyPosition).magnitude / Time.deltaTime;
+
             Ray ray = new Ray(home.transform.position + Vector3.up, Vector3.down);
 
             if(Physics.Raycast(ray, out RaycastHit hit, 4))
 			{
                 float dist = Vector3.Distance(newPosition, hit.point);
 
-                if (dist > stepDistance && lerp >= 1 && !opposedLegA.IsMoving() && !opposedLegB.IsMoving() && !opposedLegC.IsMoving())
+                bool isTooFar = dist > stepDistance * panicDistanceMultiplier;
+                bool canMoveGait = !opposedLegA.IsMoving() && !opposedLegB.IsMoving() && !opposedLegC.IsMoving();
+
+                if (dist > stepDistance && lerp >= 1 && (canMoveGait || isTooFar))
 				{
                     lerp = 0;
 
                     Vector3 direction = (hit.point - newPosition).normalized;
-                    float overshootDistance = stepDistance * .5f;
+                    float dynamicOvershoot = bodyVelocity * .1f;
+                    dynamicOvershoot = Mathf.Clamp(dynamicOvershoot, 0, stepDistance);
 
-                    newPosition = hit.point + direction * stepDistance;
+                    newPosition = hit.point + direction * dynamicOvershoot;
 				}
 			}
+            else if(Vector3.Distance(newPosition, home.position) > stepDistance * panicDistanceMultiplier)
+                newPosition = home.position;
 
             if(lerp < 1)
 			{
@@ -52,13 +64,14 @@ namespace HuntingGame.AI
 
                 currentPosition = footPosition;
 
-                lerp += Time.deltaTime * speed;
+                float currentStepSpeed = speed + (bodyVelocity * .5f);
+                lerp += Time.deltaTime * currentStepSpeed;
 			}
 			else
-			{
                 oldPosition = newPosition;
-			}
-		}
+
+            lastBodyPosition = mainBody.position;
+        }
 
         public bool IsMoving()
 		{

@@ -25,12 +25,26 @@ namespace HuntingGame.AI
 
 		[Space]
 
+		[Header("AI Fleeing Settings")]
+		[SerializeField] private bool debugFleeingRange;
+		[SerializeField] private float fleeingRange;
+		[SerializeField] private float relaxingRange;
+
+		[Space]
+
+		[Header("AI `Hiding Settings")]
+		[SerializeField] private bool debugHidingRange;
+		[SerializeField] private float hidingRange;
+
+
 		private Animator animator;
 		private Detector detector;
 
 		private State _state;
-		public bool isMoving;
+		private bool isMoving;
 		private float distancePadding = .1f;
+
+		private Transform currentTrackingPlayer;
 
 		private void OnEnable()
 		{
@@ -75,8 +89,27 @@ namespace HuntingGame.AI
 					base.Update();
 					break;
 				case State.FLEEING:
+					float distanceToTarget = Vector3.Distance(transform.position, targetTransform.position);
+					if (distanceToTarget >= relaxingRange)
+					{
+						ChangeState(State.WANDERING);
+						break;
+					}
+					if(distanceToTarget < hidingRange)
+					{
+						ChangeState(State.HIDING);
+						break;
+					}
+					FaceTarget();
+					KeepDistance();
 					break;
 				case State.HIDING:
+					if (Vector3.Distance(transform.position, targetTransform.position) >= hidingRange)
+					{
+						SetTarget(currentTrackingPlayer);
+						ChangeState(State.FLEEING);
+						break;
+					}
 					break;
 			}
 		}
@@ -88,11 +121,20 @@ namespace HuntingGame.AI
 			switch (_state)
 			{
 				case State.WANDERING:
+					StopAllCoroutines();
 					StartCoroutine(FindNewWanderingTarget());
+					currentTrackingPlayer = null;
+					SetTarget(currentTrackingPlayer);
 					break;
 				case State.FLEEING:
+					StopAllCoroutines();
+					isMoving = false;
+					movementController.SetMovementInput(Vector2.zero);
 					break;
 				case State.HIDING:
+					StopAllCoroutines();
+					isMoving = false;
+					movementController.SetMovementInput(Vector2.zero);
 					break;
 			}
 		}
@@ -111,9 +153,16 @@ namespace HuntingGame.AI
 			newTarget = KeepTargetInRange(newTarget);
 			newTarget = rangeAroundPoint ? rangeCenterPoint + newTarget : transform.position + newTarget;
 			newTarget.y = 0;
-			target = newTarget;
 
-			isMoving = true;
+			NavMeshHit hit;
+
+			if (NavMesh.SamplePosition(newTarget, out hit, maxWalkingRange, NavMesh.AllAreas))
+			{
+				target = hit.position;
+				isMoving = true;
+			}
+			else
+				StartCoroutine(FindNewWanderingTarget());
 		}
 
 		private Vector3 KeepTargetInRange(Vector3 newTarget)
@@ -135,10 +184,39 @@ namespace HuntingGame.AI
 
 		private void SpotPlayer(Transform player)
 		{
-			//if (_state == State.FLEEING) return;
+			if (_state == State.FLEEING) return;
 
-			//SetTarget(player);
-			//ChangeState(State.FLEEING);
+			currentTrackingPlayer = player;
+			SetTarget(currentTrackingPlayer);
+			ChangeState(State.FLEEING);
+		}
+
+		private void KeepDistance()
+		{
+			if (targetTransform == null) return;
+
+			float distanceToPlayer = Vector3.Distance(transform.position, targetTransform.position);
+
+			if(distanceToPlayer < fleeingRange)
+			{
+				Vector3 fleeDirection = (transform.position - targetTransform.position).normalized;
+				Vector3 fleePoint = transform.position + fleeDirection * 5;
+
+				NavMeshHit hit;
+				if(NavMesh.SamplePosition(fleePoint, out hit, 5f, NavMesh.AllAreas))
+				{
+					isMoving = true;
+					target = hit.position;
+					ToggleSprint(true);
+					MoveTowardsSetTarget(target);
+				}
+			}
+			else
+			{
+				isMoving = false;
+				ToggleSprint(false);
+				movementController.SetMovementInput(Vector2.zero);
+			}
 		}
 
 		//EDITOR
@@ -156,6 +234,21 @@ namespace HuntingGame.AI
 
 				Gizmos.color = Color.cyan;
 				Gizmos.DrawWireSphere(rangeCenter, maxWalkingRange);
+			}
+
+			if (debugFleeingRange)
+			{
+				Gizmos.color = Color.red;
+				Gizmos.DrawWireSphere(rangeCenter, fleeingRange);
+
+				Gizmos.color = Color.cyan;
+				Gizmos.DrawWireSphere(rangeCenter, relaxingRange);
+			}
+
+			if (debugHidingRange)
+			{
+				Gizmos.color = Color.blue;
+				Gizmos.DrawWireSphere(rangeCenter, hidingRange);
 			}
 		}
 	}

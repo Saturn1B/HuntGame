@@ -111,7 +111,8 @@ namespace HuntingGame.AI
 				case State.CHASING:
 					if (animator.GetBool("isMoving"))
 					{
-						if (Vector3.Distance(transform.position, targetTransform.position) >= loosingPlayerRange)
+						float distanceToTarget = Vector3.Distance(transform.position, targetTransform.position);
+						if (distanceToTarget >= loosingPlayerRange)
 						{
 							SetTarget(null);
 							ToggleSprint(false);
@@ -119,7 +120,7 @@ namespace HuntingGame.AI
 							break;
 						}
 
-						if(Vector3.Distance(transform.position, targetTransform.position) <= explosionTriggerRange)
+						if(distanceToTarget <= explosionTriggerRange)
 						{
 							animator.SetBool("isMoving", false);
 							movementController.SetMovementInput(Vector2.zero);

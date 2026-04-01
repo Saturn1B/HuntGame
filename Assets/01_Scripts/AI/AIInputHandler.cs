@@ -64,10 +64,10 @@ namespace HuntingGame.AI
 
 		protected bool stoppedMoving;
 
-		protected virtual void MoveTowardsTarget()
+		protected virtual void MoveTowardsSetTarget(Vector3 destination)
 		{
 			//Set the destination to the target
-			agent.SetDestination(targetTransform == null ? target : targetTransform.position);
+			agent.SetDestination(destination);
 
 			//Check if the remaining distance between AI and target is less than stopping distance, if yes set the movement to 0 and return
 			if (agent.remainingDistance <= stoppingDistance)
@@ -97,6 +97,10 @@ namespace HuntingGame.AI
 			//Set next pos to current pos
 			agent.nextPosition = transform.position;
 		}
+		protected virtual void MoveTowardsTarget()
+		{
+			MoveTowardsSetTarget(targetTransform == null ? target : targetTransform.position);
+		}
 
 		protected virtual void FaceMovementDirection()
 		{
@@ -105,6 +109,29 @@ namespace HuntingGame.AI
 
 			//Calculate the movement direction toward next point
 			Vector3 direction = (agent.steeringTarget - transform.position);
+
+			//Check if direction is close to 0, it means we're already on point, if so, return
+			if (direction.sqrMagnitude < .01f) return;
+
+			//Keep rotation aligned with the current surface
+			direction = Vector3.ProjectOnPlane(direction, transform.up);
+
+			//Set target rotation to the movement direction with the AI current local up
+			Quaternion targetRotation = Quaternion.LookRotation(direction, transform.up);
+
+			//Smoothly rotate toward the target rotation
+			transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turningSpeed);
+		}
+
+		protected virtual void FaceTarget()
+		{
+			//Check if agent is enabled and on mesh, if not, return
+			if (!agent.enabled || !agent.isOnNavMesh) return;
+
+			Vector3 targetPosition = targetTransform == null ? target : targetTransform.position;
+
+			//Calculate the movement direction toward target
+			Vector3 direction = (targetPosition - transform.position);
 
 			//Check if direction is close to 0, it means we're already on point, if so, return
 			if (direction.sqrMagnitude < .01f) return;
