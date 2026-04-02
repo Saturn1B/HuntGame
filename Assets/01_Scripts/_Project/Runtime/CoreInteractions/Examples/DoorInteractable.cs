@@ -3,11 +3,6 @@ using UnityEngine;
 
 namespace HuntGame.Interactions
 {
-    /// <summary>
-    /// Network-agnostic door. Implements IInteractable.
-    /// In multiplayer, NetcodeInteractableObject handles replication —
-    /// this component stays pure and plays the animation locally on each client.
-    /// </summary>
     [DisallowMultipleComponent]
     public sealed class DoorInteractable : MonoBehaviour, IInteractable
     {
@@ -40,19 +35,20 @@ namespace HuntGame.Interactions
 
         public bool CanInteract(in InteractionContext context)
         {
+            // Server context skips all local state checks (animating, cooldown, distance).
+            // These are already validated client-side before the ServerRpc is sent.
+            // Checking them server-side would block the broadcast when the host interacts,
+            // because local prediction already mutated _isAnimating and _lastUseTime.
+            if (context.IsServer)
+            {
+                if (_debugLogs) Debug.Log("[DoorInteractable] CanInteract = true (server context).");
+                return true;
+            }
+
             if (_isAnimating)
             {
                 if (_debugLogs) Debug.Log("[DoorInteractable] CanInteract = false (animating).");
                 return false;
-            }
-
-            // Server context skips cooldown and distance — already validated client-side.
-            // Checking cooldown server-side would block broadcast when host interacts
-            // (prediction already updated _lastUseTime before ServerRpc runs).
-            if (context.IsServer)
-            {
-                if (_debugLogs) Debug.Log("[DoorInteractable] CanInteract = true (server context, skipping cooldown + distance).");
-                return true;
             }
 
             float timeSinceLastUse = Time.time - _lastUseTime;
@@ -97,9 +93,6 @@ namespace HuntGame.Interactions
             SetState(targetState);
         }
 
-        /// <summary>
-        /// Drives the door to a specific open/closed state.
-        /// </summary>
         public void SetState(bool open)
         {
             if (_isOpen == open)
