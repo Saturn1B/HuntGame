@@ -46,6 +46,15 @@ namespace HuntGame.Interactions
                 return false;
             }
 
+            // Server context skips cooldown and distance — already validated client-side.
+            // Checking cooldown server-side would block broadcast when host interacts
+            // (prediction already updated _lastUseTime before ServerRpc runs).
+            if (context.IsServer)
+            {
+                if (_debugLogs) Debug.Log("[DoorInteractable] CanInteract = true (server context, skipping cooldown + distance).");
+                return true;
+            }
+
             float timeSinceLastUse = Time.time - _lastUseTime;
             if (timeSinceLastUse < _useCooldownSeconds)
             {
@@ -55,7 +64,7 @@ namespace HuntGame.Interactions
 
             if (context.Interactor == null)
             {
-                if (_debugLogs) Debug.Log("[DoorInteractable] CanInteract = true (no interactor, server context).");
+                if (_debugLogs) Debug.Log("[DoorInteractable] CanInteract = true (no interactor).");
                 return true;
             }
 
@@ -83,11 +92,14 @@ namespace HuntGame.Interactions
                 _ => !_isOpen
             };
 
-            if (_debugLogs) Debug.Log($"[DoorInteractable] Interact called. Verb={context.Verb} IsMultiplayer={context.IsMultiplayer} → targetState={targetState}");
+            if (_debugLogs) Debug.Log($"[DoorInteractable] Interact called. Verb={context.Verb} IsServer={context.IsServer} → targetState={targetState}");
 
             SetState(targetState);
         }
 
+        /// <summary>
+        /// Drives the door to a specific open/closed state.
+        /// </summary>
         public void SetState(bool open)
         {
             if (_isOpen == open)
