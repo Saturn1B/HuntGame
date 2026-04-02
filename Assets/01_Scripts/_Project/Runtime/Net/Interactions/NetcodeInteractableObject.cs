@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -27,20 +29,35 @@ namespace HuntGame.Interactions
         /// </summary>
         public void RequestInteractFromClient(InteractionVerb verb, NetworkObject playerNetworkObject)
         {
-            if (_interactable == null) return;
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] RequestInteractFromClient called. verb={verb}");
+
+            if (_interactable == null)
+            {
+                Debug.LogError("[NetcodeInteractableObject] _interactable is null, cannot interact.");
+                return;
+            }
+
+            if (playerNetworkObject == null)
+            {
+                Debug.LogError("[NetcodeInteractableObject] playerNetworkObject is null. Is NetworkObject on the player?");
+                return;
+            }
+
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] playerNetworkObject: {playerNetworkObject.name} (clientId={playerNetworkObject.OwnerClientId})");
 
             var localCtx = InteractionContext.Local(playerNetworkObject.transform, verb);
 
-            if (!_interactable.CanInteract(in localCtx)) return;
+            bool canInteract = _interactable.CanInteract(in localCtx);
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] CanInteract = {canInteract}");
+
+            if (!canInteract) return;
 
             // Local prediction: play immediately on the interacting client.
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] Playing local prediction on {gameObject.name}.");
             _interactable.Interact(in localCtx);
 
-            if (_debugLogs)
-                Debug.Log($"[NetcodeInteractableObject] Local prediction on {gameObject.name}.");
-
-            // Send to server for validation and broadcast to others.
-            ulong playerNetObjId = playerNetworkObject != null ? playerNetworkObject.NetworkObjectId : ulong.MaxValue;
+            ulong playerNetObjId = playerNetworkObject.NetworkObjectId;
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] Sending ServerRpc. playerNetObjId={playerNetObjId}");
             RequestInteractServerRpc(verb, playerNetObjId);
         }
 
@@ -48,68 +65,70 @@ namespace HuntGame.Interactions
         private void RequestInteractServerRpc(InteractionVerb verb, ulong playerNetworkObjectId, ServerRpcParams rpcParams = default)
         {
             ulong senderClientId = rpcParams.Receive.SenderClientId;
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] ServerRpc received from clientId={senderClientId}");
 
             if (!NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(playerNetworkObjectId, out NetworkObject playerNetObj))
             {
-                if (_debugLogs)
-                    Debug.LogWarning($"[NetcodeInteractableObject] Player NetworkObject {playerNetworkObjectId} not found.");
+                Debug.LogWarning($"[NetcodeInteractableObject] Player NetworkObject {playerNetworkObjectId} not found.");
                 return;
             }
 
-            // Security: sender must own the player NetworkObject.
             if (playerNetObj.OwnerClientId != senderClientId)
             {
-                if (_debugLogs)
-                    Debug.LogWarning($"[NetcodeInteractableObject] Client {senderClientId} does not own NetworkObject {playerNetworkObjectId}.");
+                Debug.LogWarning($"[NetcodeInteractableObject] Security rejected: client {senderClientId} does not own NetworkObject {playerNetworkObjectId}.");
                 return;
             }
 
             var ctx = InteractionContext.Server(playerNetObj.transform, verb, senderClientId);
 
-            if (_interactable == null || !_interactable.CanInteract(in ctx)) return;
+            bool canInteract = _interactable.CanInteract(in ctx);
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] Server CanInteract = {canInteract}");
 
-            if (_debugLogs)
-                Debug.Log($"[NetcodeInteractableObject] Server validated interaction on {gameObject.name}.");
+            if (!canInteract) return;
 
-            // Broadcast to all clients except the sender (already played locally).
+            // Build target list excluding the sender (already played locally).
+            var otherClients = new List<ulong>();
+            foreach (var id in NetworkManager.ConnectedClientsIds)
+            {
+                if (id != senderClientId)
+                    otherClients.Add(id);
+            }
+
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] Broadcasting to {otherClients.Count} other client(s).");
+
+            if (otherClients.Count == 0) return;
+
+            // NativeArray with Persistent allocator — safe for NGO to read asynchronously.
+            var targetArray = new NativeArray<ulong>(otherClients.ToArray(), Allocator.Persistent);
+
             var clientRpcParams = new ClientRpcParams
             {
                 Send = new ClientRpcSendParams
                 {
-                    TargetClientIdsNativeArray = GetOtherClientIds(senderClientId)
+                    TargetClientIdsNativeArray = targetArray
                 }
             };
 
             BroadcastInteractClientRpc(verb, playerNetworkObjectId, clientRpcParams);
+
+            targetArray.Dispose();
         }
 
         [ClientRpc]
         private void BroadcastInteractClientRpc(InteractionVerb verb, ulong playerNetworkObjectId, ClientRpcParams clientRpcParams = default)
         {
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] ClientRpc received. Playing on {gameObject.name}.");
+
             if (_interactable == null) return;
 
             if (!NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(playerNetworkObjectId, out NetworkObject playerNetObj))
+            {
+                Debug.LogWarning($"[NetcodeInteractableObject] ClientRpc: player NetworkObject {playerNetworkObjectId} not found.");
                 return;
+            }
 
             var ctx = InteractionContext.Local(playerNetObj.transform, verb);
             _interactable.Interact(in ctx);
-
-            if (_debugLogs)
-                Debug.Log($"[NetcodeInteractableObject] Received broadcast interaction on {gameObject.name}.");
-        }
-
-        private Unity.Collections.NativeArray<ulong> GetOtherClientIds(ulong excludeClientId)
-        {
-            var allClients = NetworkManager.ConnectedClientsIds;
-            var others = new System.Collections.Generic.List<ulong>();
-
-            foreach (var id in allClients)
-            {
-                if (id != excludeClientId)
-                    others.Add(id);
-            }
-
-            return new Unity.Collections.NativeArray<ulong>(others.ToArray(), Unity.Collections.Allocator.Temp);
         }
     }
 }
