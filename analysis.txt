@@ -1,0 +1,522 @@
+HuntGame — C# Architecture Overview
+=====================================
+Generated: 2026-04-02
+
+Project Stack
+-------------
+- Unity Netcode for GameObjects (NGO) + Facepunch Steam transport (P2P)
+- Unity New Input System
+- Steamworks.NET (voice, lobby, identity)
+- ScriptableObject-driven configuration
+
+
+FILE LIST
+=========
+
+Assets/01_Scripts/ (Root-level FPS controllers)
+  CharacterMovement.cs
+  FirstPersonCamera.cs
+  HeadBobbing.cs
+  PlayerInputHandler.cs
+  Interfaces/IControlable.cs
+
+Assets/01_Scripts/_Project/Runtime/Config/
+  NetGameConfig.cs
+  NetSteamVoiceConfig.cs
+
+Assets/01_Scripts/_Project/Runtime/CoreInteractions/
+  IInteractableState.cs
+  InteractableCore.cs
+  InteractionActionCore.cs
+  InteractionContextCore.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/
+  NetGameRoot.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Connection/
+  NetConnectionApproval.cs
+  NetConnectionPayload.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Core/
+  INetIdentityProvider.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Flow/
+  NetSceneFlow.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Interactions/
+  NetInteractableAdapter.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Interactions/Actions/
+  DoorToggleRotateActionCore.cs
+  ToggleBoolStateActionCore.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Interactions/dEPRECAT/ (deprecated, still compiled)
+  InteractionVerb.cs
+  InteractionContext.cs
+  InteractionAction.cs
+  NetInteractable.cs
+  PlayerInteractor.cs
+  DoorRotateToggleAction.cs
+  DebugIncrementCounterAction.cs
+  NetPickupAction.cs
+  NetToggleBoolAction.cs
+  ElevatorSessionAutoCommandAction.cs
+  ElevatorStartRun.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Players/
+  NetPlayer.cs
+  NetPlayerRegistry.cs
+  NetFpsPlayerAdapter.cs
+  NetLocalCameraEnforcer.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Session/
+  NetGameSession.cs
+  NetLobbyReadyPlatform.cs
+  NetReadyPlatformGate.cs
+  NetRunSessionController.cs
+  NetSpawnPointGroup.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Session/Elevator/
+  NetElevatorDescentController.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Steam/
+  SteamBootstrap.cs
+  SteamIdentityProvider.cs
+  SteamLobbyNetcode.cs
+
+Assets/01_Scripts/_Project/Runtime/Net/Voice/
+  NetSteamProximityVoiceChat.cs
+  SteamVoiceSpeaker.cs
+  VoiceTalkIndicator.cs
+  MouthBlendshapeTalkAnimator.cs
+
+Assets/01_Scripts/_Project/Runtime/UI/
+  NetDemoUI.cs
+  NetLobbyRosterTMP.cs
+
+
+SYSTEMS
+=======
+
+1. LOCAL FPS CONTROLLER
+-----------------------
+Classes: CharacterMovement, FirstPersonCamera, HeadBobbing, PlayerInputHandler, IControlable
+
+Fully standalone — zero networking code. PlayerInputHandler bridges Unity's PlayerInput callbacks
+to the movement/camera components. NetFpsPlayerAdapter enables/disables these components based on
+IsOwner, acting as a clean adapter that never touches the FPS code itself.
+
+  IControlable (interface)
+    Methods: SetMovementInput, SetLookInput, SetSprinting, SetCrouching, Jump
+
+  CharacterMovement : MonoBehaviour, IControlable
+    Physics-based movement via CharacterController. Handles sprint/crouch/jump.
+
+  FirstPersonCamera : MonoBehaviour
+    Yaw/pitch look using LateUpdate. Receives look input from outside.
+
+  HeadBobbing : MonoBehaviour
+    Reads CharacterController.velocity to oscillate camera position.
+
+  PlayerInputHandler : MonoBehaviour
+    Bridges Unity's PlayerInput (New Input System) callbacks to CharacterMovement and
+    FirstPersonCamera. Requires PlayerInput component.
+    Callbacks: OnMove, OnCamera, OnSprint, OnCrouch, OnJump
+
+
+2. NETWORKING ROOT & TRANSPORT
+-------------------------------
+Chain: NetGameRoot → SteamLobbyNetcode → FacepunchTransport → Steam P2P
+
+  NetGameRoot (Singleton, MonoBehaviour)
+    Owns NetworkManager, FacepunchTransport, NetPlayerRegistry, NetSceneFlow,
+    SteamBootstrap, SteamLobbyNetcode refs.
+    Exposes Host() / Shutdown().
+    Fires StateChanged event.
+    Enum NetGameState: Offline, Hosting, Connecting, InSession
+
+  SteamLobbyNetcode (MonoBehaviour)
+    Creates/joins a Steam lobby and calls NetworkManager.StartHost() / StartClient().
+    Encodes NetConnectionPayload into NetworkConfig.ConnectionData.
+    Hooks SteamFriends.OnGameLobbyJoinRequested for Steam friend invites.
+
+  SteamBootstrap (MonoBehaviour, ExecutionOrder -1000)
+    Optionally initializes SteamClient. Fires ReadyChanged event.
+
+  SteamIdentityProvider : MonoBehaviour, INetIdentityProvider
+    TryGetLocalIdentity() returns SteamClient.SteamId + SteamClient.Name.
+
+  NetConnectionApproval (MonoBehaviour)
+    Hooks NetworkManager.ConnectionApprovalCallback.
+    Enforces: build version match, max player cap, no-late-join (via NetSceneFlow.Phase).
+
+  NetConnectionPayload (struct)
+    JSON-encoded payload: buildVersion, platformUserId, displayName.
+
+
+3. PLAYER REPRESENTATION
+-------------------------
+  NetPlayer (NetworkBehaviour)
+    NetworkVariable<ulong> _platformUserId
+    NetworkVariable<FixedString64Bytes> _displayName
+    NetworkVariable<bool> _isReady
+    SubmitIdentityServerRpc() — sends identity on spawn.
+    ToggleReady() (owner-only) / ServerSetReady(bool) (server-only).
+    Registers/unregisters itself with NetPlayerRegistry on spawn/despawn.
+
+  NetPlayerRegistry (MonoBehaviour, non-networked)
+    Fires PlayerAdded, PlayerRemoved, PlayerUpdated events.
+    Exposes AreAllReady.
+    Consumed by: NetLobbyRosterTMP, NetLobbyReadyPlatform, NetReadyPlatformGate.
+
+  NetFpsPlayerAdapter (NetworkBehaviour)
+    On IsOwner: enables PlayerInput, PlayerInputHandler, CharacterMovement,
+                FirstPersonCamera, HeadBobbing, Camera, AudioListener.
+    On !IsOwner: disables all of the above + disables other scene cameras/listeners.
+
+  NetLocalCameraEnforcer (NetworkBehaviour)
+    Hooks SceneManager.sceneLoaded + activeSceneChanged.
+    Re-enforces owner camera exclusivity for a configurable window after scene load.
+
+
+4. SCENE & SESSION FLOW
+------------------------
+Two overlapping orchestration layers representing successive design iterations:
+
+  NetSceneFlow (MonoBehaviour) — low-level
+    Tracks NetRunPhase (Hub / InRun).
+    Hooks NetworkManager.OnServerStarted and NetworkSceneManager.OnSceneEvent.
+    Fires PhaseChanged event.
+    TryStartRun() / TryReturnToHub().
+
+  NetGameSession (NetworkBehaviour, Singleton) — high-level
+    NetworkVariable<NetSessionPhase>: Lobby, LoadingRun, InRun, ReturningToLobby.
+    Fires PhaseChanged event.
+    Handles additive Dungeon scene load/unload.
+    ServerTeleportAllPlayers() via NetSpawnPointGroup.
+    RPCs: RequestStartRunServerRpc, RequestReturnToLobbyServerRpc.
+
+  NetRunSessionController (MonoBehaviour, Singleton) — top-level coordinator
+    Wires NetReadyPlatformGate (start + return) → NetElevatorDescentController
+    → NetworkSceneManager in coroutine sequences.
+    Waits for LoadEventCompleted + elevator stop before advancing phase.
+    ServerExecuteCommand(NetSessionAutoCommand): Auto, StartRun, ReturnToHub.
+
+  NetSpawnPointGroup (MonoBehaviour)
+    Array of Transform spawn points tagged with NetSpawnContext (Lobby / Run).
+    TryGetSpawnPoint(clientId) = points[clientId % points.Length].
+    Draws gizmos in editor.
+
+  NetElevatorDescentController (NetworkBehaviour)
+    Server-only ServerMoveBy(distance, duration).
+    SmoothStep easing via coroutine. Exposes IsMoving.
+
+
+5. INTERACTION SYSTEM (TWO-GENERATION)
+----------------------------------------
+
+NEW PIPELINE (preferred):
+
+  PlayerInteractor → RequestUseNewAdapterServerRpc
+    → NetInteractableAdapter.TryUseServer()
+      → InteractableCore.TryUseInternal()
+        → InteractionActionCore.Execute(ctx)  [ScriptableObject asset]
+          → ctx.State (= NetInteractableAdapter) writes NetworkVariables
+
+  IInteractableState (interface)
+    Slots: BoolState, IntState, FloatState
+
+  InteractableCore : MonoBehaviour, IInteractableState
+    Holds InteractionBinding[] (verb → InteractionActionCore[]).
+    TryUseLocal() for solo, TryUseInternal() for both.
+    Manages Dictionary<int, Coroutine> tween runner (RunTween).
+
+  InteractionContextCore (readonly struct)
+    Carries: Target, Interactor, InteractorClientId, Verb, State, IsServerAuthoritative.
+
+  InteractionActionCore : ScriptableObject (abstract)
+    CanExecute(ctx) + Execute(ctx). Actions are assets, not scene components.
+
+  DoorToggleRotateActionCore : InteractionActionCore
+    Toggles BoolState. Computes open/closed Quaternion from cached closed rotation
+    + openLocalEulerOffset. Runs tween via InteractableCore.RunTween.
+
+  ToggleBoolStateActionCore : InteractionActionCore
+    Toggles or sets BoolState.
+
+  NetInteractableAdapter : NetworkBehaviour, IInteractableState
+    Wraps InteractableCore with 3 NetworkVariables (bool, int, float).
+    TryUseServer() delegates to InteractableCore.TryUseInternal() passing
+    itself as state, so actions write to replicated vars.
+
+DEPRECATED PIPELINE (dEPRECAT/, still compiled):
+
+  PlayerInteractor → RequestUseLegacyServerRpc
+    → NetInteractable.TryUseServer()
+      → InteractionAction.Execute(ctx)
+
+  NetInteractable (NetworkBehaviour)
+    Embedded NetworkVariable<bool/int/float>. Server-only TryUseServer().
+
+  InteractionAction (ScriptableObject, abstract)
+    Uses InteractionContext (holds NetInteractable Target, NetworkObject Interactor).
+
+  DoorRotateToggleAction    — writes transform.localRotation (relies on NetworkTransform)
+  NetPickupAction           — despawns target NetworkObject
+  NetToggleBoolAction       — toggles NetInteractable.BoolState
+  DebugIncrementCounterAction — increments NetInteractable.IntState
+  ElevatorSessionAutoCommandAction — calls NetRunSessionController.ServerExecuteCommand()
+  ElevatorStartRun          — checks NetLobbyReadyPlatform.AllReadyConfirmedServer (stubbed)
+
+
+6. READY GATE
+--------------
+  NetReadyPlatformGate (MonoBehaviour)
+    Trigger collider tracking per-client overlap counts.
+    Modes: HubOnly, InRunOnly, HubAndRun.
+    When all registered players inside for confirmCountdownSeconds:
+      AllReadyConfirmedServer = true.
+    Optionally syncs state to NetInteractable.BoolState for UI replication.
+    Consumed by NetRunSessionController.CanStartRunServer().
+
+  NetLobbyReadyPlatform (MonoBehaviour) — older version
+    Calls NetPlayer.ServerSetReady(true/false) on trigger enter/exit.
+    Consumed by ElevatorStartRun action.
+
+  NetSpawnPointGroup (MonoBehaviour)
+    TryGetSpawnPoint(clientId) = points[clientId % count].
+
+
+7. STEAM VOICE CHAT
+--------------------
+Hub-and-spoke relay via NGO's CustomMessagingManager:
+
+  Client:
+    NetSteamProximityVoiceChat.Update()
+      SteamUser.ReadVoiceData()
+      → SendNamedMessage("SteamVoice_C2S") to server
+
+  Server:
+    OnVoiceFromClient()
+      → relay "SteamVoice_S2C" to all other clients
+
+  Client (receiver):
+    OnVoiceFromServer()
+      → find player NetworkObject by clientId
+      → SteamUser.DecompressVoice() → PCM16 to float
+      → SteamVoiceSpeaker.PushSamples()  [if within decodeDistanceMax]
+
+  SteamVoiceSpeaker (MonoBehaviour)
+    Ring-buffer streaming AudioClip. OnAudioRead() callback drains buffer.
+    3D spatial AudioSource. On data receipt:
+      → pings VoiceTalkIndicator (sprite swap: mouthClosed / mouthOpen)
+      → pings MouthBlendshapeTalkAnimator (blend shapes on SkinnedMeshRenderer)
+
+  MouthBlendshapeTalkAnimator (MonoBehaviour)
+    Drives two blend shapes (close/open) via smooth lerp.
+    Supports: ping-hold mode, SetTalking(bool), SetTalkLevel01(float amplitude).
+    Optionally oscillates open weight via sine wave to simulate speech.
+
+  Configuration: NetSteamVoiceConfig (ScriptableObject)
+    sendIntervalSeconds, maxChunkBytes, bufferSeconds, prefillSeconds,
+    talkerActiveSeconds, fadeIn/OutSeconds, rebufferOnUnderrun,
+    hubSpatialBlend (2D), runSpatialBlend (3D), runMaxDistance, runMinDistance.
+
+
+8. UI
+------
+  NetDemoUI (MonoBehaviour)
+    Debug-only. Host button → NetGameRoot.Host(). Status text polls GetDebugStatus() each frame.
+
+  NetLobbyRosterTMP (MonoBehaviour)
+    Subscribes to NetPlayerRegistry.PlayerAdded/Removed/Updated.
+    Renders roster via TMP_Text: host marker, display name, ready state.
+    Ready button → NetPlayer.ToggleReady().
+    Start button → NetGameSession.RequestStartRun() (host only, when CanStartRun()).
+
+
+9. CONFIGURATION (ScriptableObjects)
+--------------------------------------
+  NetGameConfig
+    maxPlayers, buildVersion, allowLateJoin, dontDestroyOnLoad,
+    syncActiveScene, tavernSceneName, dungeonSceneName.
+
+  NetSteamVoiceConfig
+    enableVoice, sendIntervalSeconds, maxChunkBytes, chunkAssemblyTimeoutSeconds,
+    bufferSeconds, prefillSeconds, talkerActiveSeconds, fadeIn/OutSeconds,
+    rebufferOnUnderrun, hubSpatialBlend, runSpatialBlend,
+    runMaxDistance, runMinDistance.
+
+
+SYSTEM INTERACTION MAP
+=======================
+
+[Input System]
+    PlayerInput (Unity)
+         |
+    PlayerInputHandler
+         |-- SetMovementInput --> CharacterMovement
+         |-- SetLookInput     --> FirstPersonCamera
+         |-- SetSprinting     --> CharacterMovement
+         |-- SetCrouching     --> CharacterMovement
+         '-- Jump             --> CharacterMovement
+
+[Steam / Transport Layer]
+    SteamBootstrap (static Ready / ReadyChanged)
+         |
+    SteamIdentityProvider (INetIdentityProvider)
+         |
+    SteamLobbyNetcode
+         |-- CreateLobbyAsync / JoinLobbyAsync
+         '-- NetworkManager.StartHost() / StartClient()
+              |
+         FacepunchTransport (Steam P2P)
+
+[Networking Root]
+    NetGameRoot (Singleton)
+         |-- owns: NetworkManager, FacepunchTransport
+         |-- owns: NetPlayerRegistry, NetSceneFlow
+         |-- owns: SteamBootstrap, SteamLobbyNetcode refs
+         |-- fires: StateChanged (NetGameState)
+         '-- Host() --> reflection --> SteamLobbyNetcode.Host()
+
+[Connection Gate]
+    NetConnectionApproval
+         |-- hooks NetworkManager.ConnectionApprovalCallback
+         |-- reads NetGameConfig (version, max players)
+         '-- reads NetSceneFlow.Phase (late-join gate)
+
+[Scene Management]
+    NetSceneFlow
+         |-- fires PhaseChanged (NetRunPhase: Hub / InRun)
+         |-- hooks NetworkManager.OnServerStarted
+         |-- TryStartRun() / TryReturnToHub()
+         '-- hooks NetworkSceneManager.OnSceneEvent
+
+    NetGameSession (NetworkBehaviour, Singleton)
+         |-- NetworkVariable<NetSessionPhase>
+         |-- fires PhaseChanged event
+         |-- RequestStartRunServerRpc / RequestReturnToLobbyServerRpc
+         |-- ServerTeleportAllPlayers() via NetSpawnPointGroup
+         '-- hooks NetworkSceneManager.OnSceneEvent
+
+    NetRunSessionController (Singleton)
+         |-- gates on NetReadyPlatformGate.AllReadyConfirmedServer
+         |-- triggers NetElevatorDescentController.ServerMoveBy()
+         |-- calls NetworkSceneManager.LoadScene / UnloadScene
+         '-- waits for LoadEventCompleted + elevator stop in coroutine
+
+[Player Objects]
+    NetPlayer (NetworkBehaviour)
+         |-- registers self with NetPlayerRegistry (OnNetworkSpawn)
+         |-- submits identity via SubmitIdentityServerRpc
+         '-- ToggleReady() --> SetReadyServerRpc()
+
+    NetPlayerRegistry
+         |-- fires PlayerAdded / PlayerRemoved / PlayerUpdated
+         '-- consumed by NetLobbyRosterTMP, NetLobbyReadyPlatform, NetReadyPlatformGate
+
+    NetFpsPlayerAdapter (NetworkBehaviour)
+         |-- on IsOwner: enables PlayerInput, PlayerInputHandler,
+         |               CharacterMovement, FirstPersonCamera, HeadBobbing,
+         |               Camera, AudioListener
+         '-- on !IsOwner: disables all of the above
+
+    NetLocalCameraEnforcer (NetworkBehaviour)
+         |-- hooks SceneManager.sceneLoaded + activeSceneChanged
+         '-- re-enforces owner camera exclusivity for N seconds after scene load
+
+[Interactions - New Pipeline]
+    PlayerInteractor
+         |-- raycast on E press
+         '-- NetworkObject hit --> RequestUseNewAdapterServerRpc
+                                      |
+                              NetInteractableAdapter.TryUseServer()
+                                      |
+                              InteractableCore.TryUseInternal()
+                                      |
+                              InteractionActionCore.Execute(ctx)
+                                  (DoorToggleRotateActionCore, ToggleBoolStateActionCore)
+                                      |
+                              ctx.State (= NetInteractableAdapter) writes NetworkVariables
+
+[Interactions - Deprecated Pipeline]
+    PlayerInteractor --> RequestUseLegacyServerRpc
+                              |
+                        NetInteractable.TryUseServer()
+                              |
+                        InteractionAction.Execute(ctx)
+                           (DoorRotateToggleAction, NetToggleBoolAction,
+                            NetPickupAction, DebugIncrementCounterAction,
+                            ElevatorSessionAutoCommandAction)
+
+[Ready Gate / Session Start]
+    NetReadyPlatformGate (trigger collider)
+         |-- OnTriggerEnter/Exit tracks per-client overlap counts
+         |-- when all players inside for countdown: AllReadyConfirmedServer = true
+         |-- optionally sets NetInteractable.BoolState for UI replication
+         '-- consumed by NetRunSessionController.CanStartRunServer()
+
+    NetLobbyReadyPlatform (older version)
+         |-- calls NetPlayer.ServerSetReady(true/false)
+         '-- consumed by ElevatorStartRun action
+
+    NetSpawnPointGroup
+         '-- TryGetSpawnPoint(clientId) = points[clientId % count]
+
+[Voice Chat]
+    NetSteamProximityVoiceChat (Singleton)
+         |-- Update: SteamUser.ReadVoiceData → SendNamedMessage("SteamVoice_C2S")
+         |-- Server OnVoiceFromClient → relay to all other clients "SteamVoice_S2C"
+         '-- Client OnVoiceFromServer → find player NetworkObject
+                                              |
+                                      SteamVoiceSpeaker.PushSamples()
+                                              |
+                                      SteamVoiceSpeaker rings back to AudioClip
+                                              |
+                                      pings VoiceTalkIndicator (sprite swap)
+                                      pings MouthBlendshapeTalkAnimator (blend shapes)
+
+[UI]
+    NetDemoUI
+         '-- Host button → NetGameRoot.Host()
+
+    NetLobbyRosterTMP
+         |-- subscribes NetPlayerRegistry.PlayerAdded/Removed/Updated
+         |-- Ready button → NetPlayer.ToggleReady()
+         '-- Start button → NetGameSession.RequestStartRun()
+
+
+KEY ARCHITECTURAL PATTERNS
+===========================
+
+Adapter pattern
+  FPS controller has no net code. NetFpsPlayerAdapter wraps it by toggling component
+  enabled-states based on IsOwner — solo code stays unmodified.
+
+Server authority
+  All writes guarded by if (!IsServer). Clients request actions via [ServerRpc].
+  Connection approval enforces version and player cap before client is admitted.
+
+ScriptableObject actions
+  Interaction actions are assets, not scene components. Easy to swap/configure per
+  interactable in the Inspector without code duplication.
+
+Two-generation interaction pipeline
+  dEPRECAT/ pipeline still fully functional alongside the new one.
+  PlayerInteractor detects both pipelines and routes accordingly.
+  New pipeline cleanly separates state (IInteractableState) from transport
+  (NetworkVariable vs local field).
+
+Scene flow duplication
+  NetSceneFlow and NetGameSession both track run phase — successive design iterations.
+  NetRunSessionController is the current top-level coordinator using NetSceneFlow
+  as its phase source.
+
+Config-driven tunables
+  NetGameConfig and NetSteamVoiceConfig ScriptableObjects centralize all settings,
+  keeping magic numbers out of MonoBehaviours.
+
+Voice distance culling
+  Decoding is skipped if speaker is beyond decodeDistanceMax, saving CPU.
+  Spatialization switches from 2D (hub) to 3D (dungeon) via NetSteamVoiceConfig.

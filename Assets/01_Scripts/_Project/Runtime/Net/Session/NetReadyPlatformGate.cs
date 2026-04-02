@@ -30,9 +30,9 @@ namespace DungeonSteakhouse.Net.Session
         [Header("References")]
         [SerializeField] private NetGameRoot netGameRoot;
 
-        [Header("Optional replicated indicator")]
-        [Tooltip("Optional: a NetInteractable used as a replicated indicator (BoolState).")]
-        [SerializeField] private NetInteractable allReadyIndicator;
+        //[Header("Optional replicated indicator")]
+        //[Tooltip("Optional: a NetInteractable used as a replicated indicator (BoolState).")]
+        //[SerializeField] private NetInteractable allReadyIndicator;
 
         [Header("Countdown")]
         [Tooltip("Countdown duration before confirming 'all ready' once everyone is on the platform.")]
@@ -248,8 +248,8 @@ namespace DungeonSteakhouse.Net.Session
 
             _allReadyConfirmedServer = value;
 
-            if (allReadyIndicator != null && allReadyIndicator.IsServer)
-                allReadyIndicator.BoolState.Value = value;
+            //if (allReadyIndicator != null && allReadyIndicator.IsServer)
+            //    allReadyIndicator.BoolState.Value = value;
 
             if (logDebug)
                 Debug.Log($"[NetReadyPlatformGate] {reason} -> AllReadyConfirmedServer={value}");

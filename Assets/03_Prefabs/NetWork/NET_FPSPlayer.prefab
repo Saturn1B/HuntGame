@@ -673,7 +673,7 @@ GameObject:
   - component: {fileID: 91209416009654275}
   - component: {fileID: 5205995077333441403}
   - component: {fileID: 6003677194489283233}
-  - component: {fileID: 3606316115331540558}
+  - component: {fileID: 8999903022198765945}
   m_Layer: 0
   m_Name: NET_FPSPlayer
   m_TagString: Player
@@ -909,7 +909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1402152254
+  GlobalObjectIdHash: 3760544391
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1023,7 +1023,7 @@ MonoBehaviour:
   disableOtherAudioListeners: 1
   enforceForSecondsAfterSceneLoad: 1
   logDebug: 0
---- !u!114 &3606316115331540558
+--- !u!114 &8999903022198765945
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1032,16 +1032,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 8342106431650556681}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eab206b629c289e4e84debaeea119f1e, type: 3}
+  m_Script: {fileID: 11500000, guid: e8d2f0ee2e982f64b8e67cd4c9a3a5bf, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractor
-  ShowTopMostFoldoutHeaderGroup: 1
-  viewCamera: {fileID: 1020143624784532481}
-  rayDistance: 5
-  interactableMask:
+  m_EditorClassIdentifier: Assembly-CSharp::HuntGame.Interactions.PlayerInteractor
+  _viewCamera: {fileID: 1020143624784532481}
+  _rayDistance: 3
+  _interactableMask:
     serializedVersion: 2
-    m_Bits: 4294967295
-  useKey: 19
+    m_Bits: 64
+  _useKey: 19
+  _debugLogs: 1
 --- !u!1 &8690847106272721590
 GameObject:
   m_ObjectHideFlags: 0

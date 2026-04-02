@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using DungeonSteakhouse.Net.Players;
 using DungeonSteakhouse.Net.Flow;
-// DungeonSteakhouse.Net.Interactions; // NetInteractable lives here in your project (adjust if needed)
+//DungeonSteakhouse.Net.Interactions; // NetInteractable lives here in your project (adjust if needed)
 
 namespace DungeonSteakhouse.Net.Session
 {
@@ -20,9 +20,9 @@ namespace DungeonSteakhouse.Net.Session
         [Header("References")]
         [SerializeField] private NetGameRoot netGameRoot;
 
-        [Header("Optional network indicator")]
-        [Tooltip("Optional: a NetInteractable used as a replicated indicator (BoolState).")]
-        [SerializeField] private NetInteractable allReadyIndicator;
+        //[Header("Optional network indicator")]
+        //[Tooltip("Optional: a NetInteractable used as a replicated indicator (BoolState).")]
+        //[SerializeField] private NetInteractable allReadyIndicator;
 
         [Header("Countdown")]
         [Tooltip("Countdown duration before confirming 'all ready' once everyone is on the platform.")]
@@ -234,8 +234,8 @@ namespace DungeonSteakhouse.Net.Session
             _allReadyConfirmedServer = value;
 
             // Optional replicated indicator using NetInteractable.BoolState
-            if (allReadyIndicator != null && allReadyIndicator.IsServer)
-                allReadyIndicator.BoolState.Value = value;
+            //if (allReadyIndicator != null && allReadyIndicator.IsServer)
+            //    allReadyIndicator.BoolState.Value = value;
 
             if (logDebug)
                 Debug.Log($"[NetLobbyReadyPlatform] {reason} -> AllReadyConfirmedServer={value}");

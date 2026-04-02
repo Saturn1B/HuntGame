@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 7137792401673526344}
   - component: {fileID: 3291602831658112192}
   - component: {fileID: 3947796598659783878}
-  - component: {fileID: 8290178513308626030}
-  - component: {fileID: 3555841071356806679}
+  - component: {fileID: 2775046799967601749}
+  - component: {fileID: 7948493956454011260}
   m_Layer: 6
   m_Name: Door
   m_TagString: Untagged
@@ -33,7 +33,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 345353216379633703}
+  - {fileID: 9141769057137681427}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3291602831658112192
@@ -107,7 +107,7 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &8290178513308626030
+--- !u!114 &2775046799967601749
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -116,32 +116,61 @@ MonoBehaviour:
   m_GameObject: {fileID: 3930444410312037582}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a12d0ee87812deb4aa210b80b7eaa8b8, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d487de7145e9c447ae9c56482ee0dc0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableCore
-  maxUseDistance: 3
-  cooldownSeconds: 0.1
-  interactionPointOverride: {fileID: 7137792401673526344}
-  bindings:
-  - verb: 0
-    actions:
-    - {fileID: 11400000, guid: 15fd2b00034fdef429239d4098941a69, type: 2}
-  boolState: 0
-  intState: 0
-  floatState: 0
---- !u!114 &3555841071356806679
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3930444410312037582}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ea7ba6267deb084aa7384e0ec32041e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetInteractableAdapter
+  m_EditorClassIdentifier: Assembly-CSharp::HuntGame.Interactions.Netcode.NetcodeInteractableObject
   ShowTopMostFoldoutHeaderGroup: 1
+  _debugLogs: 0
+--- !u!114 &7948493956454011260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3930444410312037582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e868795b0425f642ab582d31d8eb62c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntGame.Interactions.Examples.DoorInteractable
+  _doorPivot: {fileID: 9141769057137681427}
+  _openAngle: 90
+  _openCloseTime: 0.5
+  _maxUseDistance: 3
+  _useCooldownSeconds: 0.1
+  _debugLogs: 0
+--- !u!1 &4964881633510571183
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9141769057137681427}
+  m_Layer: 6
+  m_Name: Pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9141769057137681427
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4964881633510571183}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 345353216379633703}
+  m_Father: {fileID: 7137792401673526344}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5339383604244249956
 GameObject:
   m_ObjectHideFlags: 0
@@ -174,7 +203,7 @@ Transform:
   m_LocalScale: {x: 2, y: 3, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7137792401673526344}
+  m_Father: {fileID: 9141769057137681427}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2929910073681680156
 MeshFilter:
