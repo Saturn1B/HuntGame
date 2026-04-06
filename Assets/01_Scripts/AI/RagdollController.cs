@@ -30,6 +30,8 @@ public class RagdollController : MonoBehaviour, ISimpleInteractable
         //Set animator
         animator = GetComponentInChildren<Animator>();
         ragdollWeight = rootBone.mass * 1.5f;
+
+        ToggleRagdoll(false);
     }
 
 	private void LateUpdate()
@@ -50,11 +52,13 @@ public class RagdollController : MonoBehaviour, ISimpleInteractable
         foreach (Rigidbody rb in ragdollBodies)
         {
             if (rb == null) continue;
+            rb.GetComponent<CapsuleCollider>().enabled = enable;
             rb.isKinematic = !enable;
             rb.interpolation = enable ? RigidbodyInterpolation.Interpolate : RigidbodyInterpolation.None;
         }
 
-        rootBone.transform.parent = null;
+        if(enable)
+            rootBone.transform.parent = null;
 
         isRagdolled = enable;
     }
