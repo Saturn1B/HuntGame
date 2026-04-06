@@ -19,6 +19,7 @@ namespace HuntingGame.AI
 		protected CharacterMovement movementController;
 		protected CharacterController characterController;
 		protected RagdollController ragdollController;
+		protected Health health;
 		[SerializeField] protected Collider ragdollCollider;
 
 		protected Action _arrivedAtTarget;
@@ -43,6 +44,10 @@ namespace HuntingGame.AI
 			if (ragdollController == null)
 				ragdollController = GetComponent<RagdollController>();
 
+			//Set health if not already set
+			if (health == null)
+				health = GetComponent<Health>();
+
 			//Toggle ragdoll collider off at start
 			ragdollCollider.enabled = false;
 
@@ -50,6 +55,18 @@ namespace HuntingGame.AI
 			agent.updatePosition = false;
 			agent.updateRotation = false;
 			agent.updateUpAxis = false;
+		}
+
+		private void OnEnable()
+		{
+			if (health != null)
+				health._onDeath += Death;
+		}
+
+		private void OnDisable()
+		{
+			if (health != null)
+				health._onDeath -= Death;
 		}
 
 		protected virtual void Update()
@@ -158,6 +175,7 @@ namespace HuntingGame.AI
 			agent.enabled = false;
 			characterController.enabled = false;
 			movementController.enabled = false;
+			health.enabled = false;
 
 			isRagdoll = true;
 
@@ -166,6 +184,11 @@ namespace HuntingGame.AI
 			ragdollCollider.enabled = true;
 			ragdollController.Ragdoll();
 			enabled = false;
+		}
+
+		protected virtual void Death()
+		{
+			StartCoroutine(Ragdoll());
 		}
 	}
 }

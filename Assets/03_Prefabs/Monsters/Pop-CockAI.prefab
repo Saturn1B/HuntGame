@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2235682090246751004}
   - component: {fileID: 6343219175549357665}
   - component: {fileID: 5896534189328686879}
+  - component: {fileID: 9214421097063546760}
   - component: {fileID: 231603712897779870}
   - component: {fileID: 5499757653299860764}
   m_Layer: 0
@@ -22,7 +23,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6536602735323448716
 Transform:
   m_ObjectHideFlags: 0
@@ -159,6 +160,19 @@ MonoBehaviour:
   detectionInterval: 0.1
   viewRadius: 12
   viewAngle: 145
+--- !u!114 &9214421097063546760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6451769286289163658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d53e3d8d37882624ebd280c5f0e7bfb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Health
+  healthPoint: 5
 --- !u!114 &231603712897779870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,12 +187,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RagdollController
   ragdollBodies:
   - {fileID: 7943540685152812683}
+  - {fileID: 8169818903246454400}
   - {fileID: 7394149017917393915}
   - {fileID: 7180203323756728277}
   - {fileID: 8477738058627509973}
-  - {fileID: 6422186408519237261}
   - {fileID: 1971318348340629069}
-  - {fileID: 8169818903246454400}
   _ragdollSize: 0
   rootBone: {fileID: 7943540685152812683}
 --- !u!135 &5499757653299860764
@@ -414,7 +427,7 @@ CharacterJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 143820648707742024}
   serializedVersion: 3
-  m_ConnectedBody: {fileID: 1971318348340629069}
+  m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
@@ -508,7 +521,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!136 &2113628241599950743
@@ -609,7 +622,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!136 &5323604223707469184
@@ -664,7 +677,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!136 &3850971951419311189
@@ -765,7 +778,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!136 &543031373172776716
@@ -866,7 +879,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!136 &9094864211759453326
@@ -1006,7 +1019,7 @@ CharacterJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7221317910303874666}
   serializedVersion: 3
-  m_ConnectedBody: {fileID: 8477738058627509973}
+  m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
@@ -1073,7 +1086,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!136 &2812530928899102009

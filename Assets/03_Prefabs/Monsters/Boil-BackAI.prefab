@@ -347,6 +347,7 @@ GameObject:
   - component: {fileID: 1534352055656349482}
   - component: {fileID: 1850472393321288077}
   - component: {fileID: 3133137354201840056}
+  - component: {fileID: 2332676076958204676}
   - component: {fileID: 4424110824876080642}
   - component: {fileID: 82531634097796976}
   m_Layer: 0
@@ -487,6 +488,19 @@ MonoBehaviour:
   relaxingRange: 15
   debugHidingRange: 1
   hidingRange: 5
+--- !u!114 &2332676076958204676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4123868978342659880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d53e3d8d37882624ebd280c5f0e7bfb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Health
+  healthPoint: 5
 --- !u!114 &4424110824876080642
 MonoBehaviour:
   m_ObjectHideFlags: 0

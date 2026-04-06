@@ -119,11 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!54 &18321004 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 8169818903246454400, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-  m_PrefabInstance: {fileID: 8088764809769545322}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &107684743
 GameObject:
   m_ObjectHideFlags: 0
@@ -237,21 +232,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
---- !u!54 &245823456 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 7394149017917393915, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-  m_PrefabInstance: {fileID: 8088764809769545322}
-  m_PrefabAsset: {fileID: 0}
---- !u!54 &318517017 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 7180203323756728277, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-  m_PrefabInstance: {fileID: 8088764809769545322}
-  m_PrefabAsset: {fileID: 0}
---- !u!54 &370803616 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 8477738058627509973, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-  m_PrefabInstance: {fileID: 8088764809769545322}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &806060948
 GameObject:
   m_ObjectHideFlags: 0
@@ -738,11 +718,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!54 &1462187285 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 1971318348340629069, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-  m_PrefabInstance: {fileID: 8088764809769545322}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1485643494
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1249,53 +1224,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 231603712897779870, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: ragdollBodies.Array.size
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 231603712897779870, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: 'ragdollBodies.Array.data[1]'
-      value: 
-      objectReference: {fileID: 18321004}
-    - target: {fileID: 231603712897779870, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: 'ragdollBodies.Array.data[2]'
-      value: 
-      objectReference: {fileID: 245823456}
-    - target: {fileID: 231603712897779870, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: 'ragdollBodies.Array.data[3]'
-      value: 
-      objectReference: {fileID: 318517017}
-    - target: {fileID: 231603712897779870, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: 'ragdollBodies.Array.data[4]'
-      value: 
-      objectReference: {fileID: 370803616}
-    - target: {fileID: 231603712897779870, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: 'ragdollBodies.Array.data[5]'
-      value: 
-      objectReference: {fileID: 1462187285}
-    - target: {fileID: 231603712897779870, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: 'ragdollBodies.Array.data[6]'
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1971318348340629069, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2809610277746130335, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_Center.y
-      value: 0.68
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336518060331394861, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_ConnectedBody
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 6451769286289163658, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
       propertyPath: m_Name
       value: Pop-CockAI
-      objectReference: {fileID: 0}
-    - target: {fileID: 6451769286289163658, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6536602735323448716, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1335,34 +1266,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6536602735323448716, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7180203323756728277, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7394149017917393915, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7943540685152812683, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_Constraints
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7943540685152812683, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8169818903246454400, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8312332655420283814, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_ConnectedBody
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 8477738058627509973, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
-      propertyPath: m_Interpolate
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
