@@ -2,8 +2,9 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
-namespace ProceduralGeneration
+namespace HuntingGame.ProceduralGeneration
 {
 	public class DungeonGenerator : MonoBehaviour
 	{
@@ -200,7 +201,7 @@ namespace ProceduralGeneration
 		{
 			if (loopLibrary == null || loopLibrary.Length == 0) return false;
 
-			//Shuffle library to avaoid always picking th same room
+			//Shuffle library to avaoid always picking the same room
 			List<LoopData> loopsToTry = loopLibrary.OrderBy(x => Random.value).ToList();
 
 			foreach (LoopData loop in loopsToTry)
@@ -243,7 +244,7 @@ namespace ProceduralGeneration
 							checkGhost.transform.position = worldPos;
 							checkGhost.transform.rotation = worldRot;
 
-							if(IsOverlapping(checkGhost, targetSocket))
+							if (IsOverlapping(checkGhost, targetSocket))
 							{
 								anyOverlap = true;
 								checkGhost.gameObject.SetActive(false);
@@ -431,7 +432,7 @@ namespace ProceduralGeneration
 
 		private bool IsOverlapping(Room room, Socket targetSocket)
 		{
-			Physics.SyncTransforms();
+			//Physics.SyncTransforms();
 
 			//float padding = .05f;
 			//Get the bounds or our room

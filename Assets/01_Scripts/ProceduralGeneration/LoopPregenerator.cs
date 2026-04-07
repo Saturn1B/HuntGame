@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using System.IO;
 
-namespace ProceduralGeneration
+namespace HuntingGame.ProceduralGeneration
 {
 	public class LoopPregenerator : MonoBehaviour
 	{
@@ -51,6 +51,51 @@ namespace ProceduralGeneration
 
 		private HashSet<string> _discoveredLoopShapes = new HashSet<string>();
 
+		[Space]
+
+		[SerializeField] private Transform loopPool;
+		private Dictionary<RoomData, Stack<Room>> roomPool = new Dictionary<RoomData, Stack<Room>>();
+
+		private Room GetFromPool(RoomData data)
+		{
+			if (!roomPool.ContainsKey(data))
+				roomPool[data] = new Stack<Room>();
+
+			Room room;
+
+			if (roomPool[data].Count > 0)
+				room = roomPool[data].Pop();
+			else
+			{
+				GameObject obj = Instantiate(data.roomPrefab);
+				obj.name = $"Pool_{data.name}";
+				room = obj.GetComponent<Room>();
+				room.originalData = data;
+			}
+
+			room.gameObject.SetActive(true);
+			room.transform.SetParent(transform);
+			return room;
+		}
+
+		private void SendToPool(Room room)
+		{
+			if(room == null) return;
+
+			if(room.originalData == null)
+			{
+				DestroyImmediate(room.gameObject);
+				return;
+			}
+
+			if (!roomPool.ContainsKey(room.originalData))
+				roomPool[room.originalData] = new Stack<Room>();
+
+			room.gameObject.SetActive(false);
+			room.transform.SetParent(loopPool);
+			roomPool[room.originalData].Push(room);
+		}
+
 		async public void LoopPregen()
 		{
 			//Purge library of mistaken dead end
@@ -61,7 +106,8 @@ namespace ProceduralGeneration
 
 			foreach (RoomData data in roomLibrary)
 			{
-				Room room = Instantiate(data.roomPrefab, Vector3.zero, Quaternion.identity).GetComponent<Room>();
+				//Room room = Instantiate(data.roomPrefab, Vector3.zero, Quaternion.identity).GetComponent<Room>();
+				Room room = GetFromPool(data);
 				room.originalData = data;
 				currentLoop.Add(room);
 				openSocket.AddRange(room.sockets);
@@ -89,7 +135,8 @@ namespace ProceduralGeneration
 				{
 					if (data.roomPrefab.GetComponent<Room>().sockets.Where(s => s.socketType == socket.socketType).Count() <= 0) continue;
 
-					Room room = Instantiate(data.roomPrefab, Vector3.zero, Quaternion.identity).GetComponent<Room>();
+					//Room room = Instantiate(data.roomPrefab, Vector3.zero, Quaternion.identity).GetComponent<Room>();
+					Room room = GetFromPool(data);
 					room.originalData = data;
 
 					foreach (Socket incomingSocket in room.sockets)
@@ -105,7 +152,8 @@ namespace ProceduralGeneration
 						{
 							Debug.Log($"Room {room.roomName} not valid");
 							//Remove room from loop and destroy
-							DestroyImmediate(room.gameObject);
+							//DestroyImmediate(room.gameObject);
+							SendToPool(room);
 							continue;
 						}
 
@@ -199,7 +247,8 @@ namespace ProceduralGeneration
 
 					Debug.LogWarning("Switch room");
 
-					DestroyImmediate(room.gameObject);
+					//DestroyImmediate(room.gameObject);
+					SendToPool(room);
 
 					//Find if room can be placed with one socket
 					//Socket incomingSocket = CheckRoomValidityWithSocket(socket, room);
@@ -267,7 +316,7 @@ namespace ProceduralGeneration
 
 		private bool IsOverlapping(Room room, Socket targetSocket)
 		{
-			Physics.SyncTransforms();
+			//Physics.SyncTransforms();
 
 			//float padding = .05f;
 			//Get the bounds or our room
@@ -352,7 +401,8 @@ namespace ProceduralGeneration
 			//Destroy all room in loop
 			for (int i = currentLoop.Count - 1; i >= 0; i--)
 			{
-				DestroyImmediate(currentLoop[i].gameObject);
+				//DestroyImmediate(currentLoop[i].gameObject);
+				SendToPool(currentLoop[i]);
 			}
 
 			//Clear all Lists
