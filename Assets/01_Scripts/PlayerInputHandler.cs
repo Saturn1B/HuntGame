@@ -6,6 +6,7 @@ public class PlayerInputHandler : MonoBehaviour
 {
 	[SerializeField] private CharacterMovement movementController;
 	[SerializeField] private FirstPersonCamera cameraController;
+	[SerializeField] private SimplePlayerInteractor playerInteractor;
 
 	private void Awake()
 	{
@@ -14,6 +15,9 @@ public class PlayerInputHandler : MonoBehaviour
 
 		if (cameraController == null)
 			cameraController = GetComponent<FirstPersonCamera>();
+
+		if (playerInteractor == null)
+			playerInteractor = GetComponent<SimplePlayerInteractor>();
 	}
 
 	public void OnMove(InputValue value)
@@ -39,4 +43,6 @@ public class PlayerInputHandler : MonoBehaviour
 	}
 
 	public void OnJump(InputValue value) { movementController?.Jump(); }
+
+	public void OnInteract(InputValue value) { playerInteractor.TryInteract(value.isPressed);  }
 }
