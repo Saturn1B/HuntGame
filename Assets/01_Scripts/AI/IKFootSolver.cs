@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HuntingGame.AI
 {
@@ -10,7 +12,7 @@ namespace HuntingGame.AI
         [SerializeField] private float stepDistance;
         [SerializeField] private float stepHeight;
         [SerializeField] private float speed;
-        [SerializeField] private IKFootSolver opposedLegA, opposedLegB, opposedLegC;
+        [SerializeField] private List<IKFootSolver> opposedLegs;
 
         [SerializeField] private float panicDistanceMultiplier = 2f;
 
@@ -41,7 +43,7 @@ namespace HuntingGame.AI
                 float dist = Vector3.Distance(newPosition, hit.point);
 
                 bool isTooFar = dist > stepDistance * panicDistanceMultiplier;
-                bool canMoveGait = !opposedLegA.IsMoving() && !opposedLegB.IsMoving() && !opposedLegC.IsMoving();
+                bool canMoveGait = !opposedLegs.Any(l => l.IsMoving());
 
                 if (dist > stepDistance && lerp >= 1 && (canMoveGait || isTooFar))
 				{

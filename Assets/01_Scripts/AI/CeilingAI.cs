@@ -37,7 +37,7 @@ namespace HuntingGame.AI
 		protected override void Update()
 		{
 			//If no target, return
-			if (target == null) return;
+			if (target == Vector3.zero && targetTransform == null) return;
 
 			//If is not transitionning, do base update
 			if (!isTransitioning)

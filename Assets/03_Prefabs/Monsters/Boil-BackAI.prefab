@@ -347,6 +347,7 @@ GameObject:
   - component: {fileID: 1534352055656349482}
   - component: {fileID: 1850472393321288077}
   - component: {fileID: 3133137354201840056}
+  - component: {fileID: 320389884523613507}
   - component: {fileID: 2332676076958204676}
   - component: {fileID: 4424110824876080642}
   - component: {fileID: 82531634097796976}
@@ -478,16 +479,28 @@ MonoBehaviour:
   stoppingDistance: 0
   turningSpeed: 4
   ragdollCollider: {fileID: 82531634097796976}
-  debugWanderingRange: 0
-  minWalkingRange: 3
-  maxWalkingRange: 10
-  rangeAroundPoint: 0
-  rangeCenterPoint: {x: 0, y: 0, z: 0}
   debugFleeingRange: 0
   fleeingRange: 10
   relaxingRange: 15
   debugHidingRange: 1
   hidingRange: 5
+--- !u!114 &320389884523613507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4123868978342659880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f482e6e334ac0438ba7dfd4f3d744e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.AI.WanderingBehaviour
+  debugWanderingRange: 0
+  minWalkingRange: 3
+  maxWalkingRange: 10
+  rangeAroundPoint: 0
+  rangeCenterPoint: {x: 0, y: 0, z: 0}
 --- !u!114 &2332676076958204676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -607,9 +620,10 @@ MonoBehaviour:
   stepDistance: 0.4
   stepHeight: 0.2
   speed: 8
-  opposedLegA: {fileID: 7387830182444864624}
-  opposedLegB: {fileID: 767821856977041297}
-  opposedLegC: {fileID: 2343712984243352923}
+  opposedLegs:
+  - {fileID: 7387830182444864624}
+  - {fileID: 767821856977041297}
+  - {fileID: 2343712984243352923}
   panicDistanceMultiplier: 1.5
 --- !u!1 &4978493154796304139
 GameObject:
@@ -691,9 +705,10 @@ MonoBehaviour:
   stepDistance: 0.4
   stepHeight: 0.2
   speed: 8
-  opposedLegA: {fileID: 7387830182444864624}
-  opposedLegB: {fileID: 767821856977041297}
-  opposedLegC: {fileID: 2343712984243352923}
+  opposedLegs:
+  - {fileID: 7387830182444864624}
+  - {fileID: 767821856977041297}
+  - {fileID: 2343712984243352923}
   panicDistanceMultiplier: 1.5
 --- !u!1 &5242562618113999840
 GameObject:
@@ -833,9 +848,10 @@ MonoBehaviour:
   stepDistance: 0.4
   stepHeight: 0.2
   speed: 8
-  opposedLegA: {fileID: 4242236149762090700}
-  opposedLegB: {fileID: 4227156408446715221}
-  opposedLegC: {fileID: 7113594674048996084}
+  opposedLegs:
+  - {fileID: 4242236149762090700}
+  - {fileID: 4227156408446715221}
+  - {fileID: 7113594674048996084}
   panicDistanceMultiplier: 1.5
 --- !u!1 &6058493434629516449
 GameObject:
@@ -944,9 +960,10 @@ MonoBehaviour:
   stepDistance: 0.4
   stepHeight: 0.2
   speed: 8
-  opposedLegA: {fileID: 4242236149762090700}
-  opposedLegB: {fileID: 4227156408446715221}
-  opposedLegC: {fileID: 7113594674048996084}
+  opposedLegs:
+  - {fileID: 4242236149762090700}
+  - {fileID: 4227156408446715221}
+  - {fileID: 7113594674048996084}
   panicDistanceMultiplier: 1.5
 --- !u!1 &6456127280419143961
 GameObject:
@@ -1383,9 +1400,10 @@ MonoBehaviour:
   stepDistance: 0.4
   stepHeight: 0.2
   speed: 8
-  opposedLegA: {fileID: 4242236149762090700}
-  opposedLegB: {fileID: 4227156408446715221}
-  opposedLegC: {fileID: 7113594674048996084}
+  opposedLegs:
+  - {fileID: 4242236149762090700}
+  - {fileID: 4227156408446715221}
+  - {fileID: 7113594674048996084}
   panicDistanceMultiplier: 1.5
 --- !u!1 &7358810770799176627
 GameObject:
@@ -1525,9 +1543,10 @@ MonoBehaviour:
   stepDistance: 0.4
   stepHeight: 0.2
   speed: 8
-  opposedLegA: {fileID: 7387830182444864624}
-  opposedLegB: {fileID: 767821856977041297}
-  opposedLegC: {fileID: 2343712984243352923}
+  opposedLegs:
+  - {fileID: 7387830182444864624}
+  - {fileID: 767821856977041297}
+  - {fileID: 2343712984243352923}
   panicDistanceMultiplier: 1.5
 --- !u!1001 &1163068848879184445
 PrefabInstance:

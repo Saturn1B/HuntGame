@@ -4,15 +4,18 @@ using System.Collections;
 
 namespace HuntingGame.AI
 {
-    public class Detector : MonoBehaviour
+    public abstract class Detector : MonoBehaviour
     {
         [Header("Detection Settings")]
         [SerializeField] protected LayerMask targetMask;
         [SerializeField] protected LayerMask obstacleMask;
         [SerializeField] protected float detectionInterval = .1f;
 
-        public Action<Transform> _onPlayerSpotted;
-        public Action<Transform> _onPlayerLost;
+        public event Action<Transform> _onPlayerSpotted;
+        public event Action<Transform> _onPlayerLost;
+
+        protected void InvokePlayerSpotted(Transform target) => _onPlayerSpotted?.Invoke(target);
+        protected void InvokePlayerLost(Transform target) => _onPlayerLost?.Invoke(target);
 
         protected Transform currentTarget;
 
@@ -36,10 +39,7 @@ namespace HuntingGame.AI
             }
         }
 
-        protected virtual void Detect()
-		{
-
-		}
+        protected abstract void Detect();
 
     }
 }

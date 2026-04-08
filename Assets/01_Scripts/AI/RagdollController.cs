@@ -13,6 +13,9 @@ namespace HuntingGame.AI
 
         [Header("Ragdoll Bones")]
         public List<Rigidbody> ragdollBodies = new List<Rigidbody>();
+        private List<CapsuleCollider> ragdollColliders = new List<CapsuleCollider>();
+
+        [Space]
 
         [Header("Ragdoll Grabbing Control")]
         [SerializeField] private RagdollSize _ragdollSize;
@@ -33,6 +36,12 @@ namespace HuntingGame.AI
             animator = GetComponentInChildren<Animator>();
             ragdollWeight = rootBone.mass * 1.5f;
 
+			foreach (Rigidbody rb in ragdollBodies)
+			{
+                if (rb == null) continue;
+                ragdollColliders.Add(rb.GetComponent<CapsuleCollider>());
+			}
+
             ToggleRagdoll(false);
         }
 
@@ -51,12 +60,13 @@ namespace HuntingGame.AI
             if (animator != null)
                 animator.enabled = !enable;
 
-            foreach (Rigidbody rb in ragdollBodies)
-            {
-                if (rb == null) continue;
-                rb.GetComponent<CapsuleCollider>().enabled = enable;
-                rb.isKinematic = !enable;
-                rb.interpolation = enable ? RigidbodyInterpolation.Interpolate : RigidbodyInterpolation.None;
+			for (int i = 0; i < ragdollBodies.Count; i++)
+			{
+                if (ragdollBodies[i] == null) continue;
+
+                ragdollColliders[i].enabled = enable;
+                ragdollBodies[i].isKinematic = !enable;
+                ragdollBodies[i].interpolation = enable ? RigidbodyInterpolation.Interpolate : RigidbodyInterpolation.None;
             }
 
             if (enable)
@@ -100,9 +110,8 @@ namespace HuntingGame.AI
 
         private void ToggleRagdollCollision(bool value)
         {
-            foreach (Rigidbody rb in ragdollBodies)
+            foreach (CapsuleCollider col in ragdollColliders)
             {
-                Collider col = rb.transform.GetComponent<Collider>();
                 if (col == null) continue;
                 col.isTrigger = !value;
             }

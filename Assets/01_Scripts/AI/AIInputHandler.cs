@@ -15,6 +15,8 @@ namespace HuntingGame.AI
 		[SerializeField] protected float stoppingDistance = 2;
 		[SerializeField] protected float turningSpeed = 4;
 
+		protected Vector3 targetPosition => targetTransform != null ? targetTransform.position : target;
+
 		protected NavMeshAgent agent;
 		protected CharacterMovement movementController;
 		protected CharacterController characterController;
@@ -28,25 +30,20 @@ namespace HuntingGame.AI
 
 		protected virtual void Awake()
 		{
-			//Set character movement if not already set
-			if (movementController == null)
-				movementController = GetComponent<CharacterMovement>();
+			//Set character movement
+			movementController = GetComponent<CharacterMovement>();
 
-			//Set agent if not already set
-			if (agent == null)
-				agent = GetComponent<NavMeshAgent>();
+			//Set agent
+			agent = GetComponent<NavMeshAgent>();
 
-			//Set character controller if not already set
-			if (characterController == null)
-				characterController = GetComponent<CharacterController>();
+			//Set character controller
+			characterController = GetComponent<CharacterController>();
 
-			//Set ragdoll controller if not already set
-			if (ragdollController == null)
-				ragdollController = GetComponent<RagdollController>();
+			//Set ragdoll controller
+			ragdollController = GetComponent<RagdollController>();
 
-			//Set health if not already set
-			if (health == null)
-				health = GetComponent<Health>();
+			//Set health
+			health = GetComponent<Health>();
 
 			//Toggle ragdoll collider off at start
 			ragdollCollider.enabled = false;
@@ -57,13 +54,13 @@ namespace HuntingGame.AI
 			agent.updateUpAxis = false;
 		}
 
-		private void OnEnable()
+		protected virtual void OnEnable()
 		{
 			if (health != null)
 				health._onDeath += Death;
 		}
 
-		private void OnDisable()
+		protected virtual void OnDisable()
 		{
 			if (health != null)
 				health._onDeath -= Death;
@@ -116,7 +113,7 @@ namespace HuntingGame.AI
 		}
 		protected virtual void MoveTowardsTarget()
 		{
-			MoveTowardsSetTarget(targetTransform == null ? target : targetTransform.position);
+			MoveTowardsSetTarget(targetPosition);
 		}
 
 		protected virtual void FaceMovementDirection()
@@ -144,8 +141,6 @@ namespace HuntingGame.AI
 		{
 			//Check if agent is enabled and on mesh, if not, return
 			if (!agent.enabled || !agent.isOnNavMesh) return;
-
-			Vector3 targetPosition = targetTransform == null ? target : targetTransform.position;
 
 			//Calculate the movement direction toward target
 			Vector3 direction = (targetPosition - transform.position);

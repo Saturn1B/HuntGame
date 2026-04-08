@@ -36,22 +36,22 @@ namespace HuntingGame.AI
             if(currentTarget == null && bestCandidate != null)
 			{
                 currentTarget = bestCandidate;
-                _onPlayerSpotted?.Invoke(currentTarget);
+                InvokePlayerSpotted(currentTarget);
 			}
             //Loose Target
             else if(currentTarget != null && bestCandidate == null)
 			{
                 Transform lostTarget = currentTarget;
                 currentTarget = null;
-                _onPlayerLost?.Invoke(lostTarget);
+                InvokePlayerLost(lostTarget);
 			}
             //Switch target
             else if(currentTarget != null && bestCandidate != currentTarget)
 			{
                 Transform lostTarget = currentTarget;
                 currentTarget = bestCandidate;
-                _onPlayerLost?.Invoke(lostTarget);
-                _onPlayerSpotted?.Invoke(currentTarget);
+                InvokePlayerLost(lostTarget);
+                InvokePlayerSpotted(currentTarget);
             }
         }
 

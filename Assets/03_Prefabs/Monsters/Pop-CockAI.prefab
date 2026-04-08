@@ -23,7 +23,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6536602735323448716
 Transform:
   m_ObjectHideFlags: 0
@@ -192,7 +192,7 @@ MonoBehaviour:
   - {fileID: 7180203323756728277}
   - {fileID: 8477738058627509973}
   - {fileID: 1971318348340629069}
-  _ragdollSize: 0
+  _ragdollSize: 1
   rootBone: {fileID: 7943540685152812683}
 --- !u!135 &5499757653299860764
 SphereCollider:
@@ -606,7 +606,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2162589928610897437}
   serializedVersion: 5
-  m_Mass: 3
+  m_Mass: 10
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}

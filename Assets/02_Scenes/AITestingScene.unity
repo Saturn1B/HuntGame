@@ -843,6 +843,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SimplePlayerInteractor
   viewCamera: {fileID: 1637976406}
   rayDistance: 3
+--- !u!4 &1485643505 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5529568125609801427, guid: 8a3dbe6c9b734944abd621efab6ae197, type: 3}
+  m_PrefabInstance: {fileID: 1485643494}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1501418916 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6451769286289163658, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
+  m_PrefabInstance: {fileID: 8088764809769545322}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1501418926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1501418916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f482e6e334ac0438ba7dfd4f3d744e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.AI.WanderingBehaviour
+  debugWanderingRange: 0
+  minWalkingRange: 3
+  maxWalkingRange: 10
+  rangeAroundPoint: 0
+  rangeCenterPoint: {x: 0, y: 0, z: 0}
 --- !u!1 &1604090704
 GameObject:
   m_ObjectHideFlags: 0
@@ -858,6 +885,7 @@ GameObject:
   - component: {fileID: 1604090711}
   - component: {fileID: 1604090710}
   - component: {fileID: 1604090713}
+  - component: {fileID: 1604090714}
   m_Layer: 0
   m_Name: AI
   m_TagString: Untagged
@@ -1018,14 +1046,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CeilingAI
   target: {x: 0, y: 0, z: 0}
-  targetTransform: {fileID: 0}
+  targetTransform: {fileID: 1485643505}
   stoppingDistance: 2
   turningSpeed: 4
-  ragdollCollider: {fileID: 0}
+  ragdollCollider: {fileID: 1604090714}
   groundAreaName: Ground
   ceilingAreaName: Ceiling
   switchToGroundDistance: 10
   surfaceCheckDistance: 10
+--- !u!135 &1604090714
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604090704}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!20 &1637976406 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 1020143624784532481, guid: 8a3dbe6c9b734944abd621efab6ae197, type: 3}
@@ -1211,6 +1260,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boil-BackAI
       objectReference: {fileID: 0}
+    - target: {fileID: 4123868978342659880, guid: f71acb63f4a2fd441ba611e94fda54c2, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1227,6 +1280,10 @@ PrefabInstance:
     - target: {fileID: 6451769286289163658, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
       propertyPath: m_Name
       value: Pop-CockAI
+      objectReference: {fileID: 0}
+    - target: {fileID: 6451769286289163658, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6536602735323448716, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1271,7 +1328,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6451769286289163658, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
+      insertIndex: 5
+      addedObject: {fileID: 1501418926}
   m_SourcePrefab: {fileID: 100100000, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

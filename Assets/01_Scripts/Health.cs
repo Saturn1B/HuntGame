@@ -8,8 +8,8 @@ namespace HuntingGame
         [SerializeField, Range(1, 20)] private int healthPoint;
          private int currentHealthPoint;
 
-        public Action<int> _onChangeHealthValue;
-        public Action _onDeath;
+        public event Action<int> _onChangeHealthValue;
+        public event Action _onDeath;
 
 		private void Start()
 		{

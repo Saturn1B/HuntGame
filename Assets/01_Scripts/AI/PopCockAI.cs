@@ -22,15 +22,6 @@ namespace HuntingGame.AI
 
 		[Space]
 
-		[Header("AI Wandering Settings")]
-		[SerializeField] private bool debugWanderingRange;
-		[SerializeField] private float minWalkingRange;
-		[SerializeField] private float maxWalkingRange;
-		[SerializeField] private bool rangeAroundPoint;
-		[SerializeField, ShowIf("rangeAroundPoint")] private Vector3 rangeCenterPoint;
-
-		[Space]
-
 		[Header("AI Chasing Settings")]
 		[SerializeField] private bool debugChasingRange;
 		[SerializeField] private float loosingPlayerRange;
@@ -45,21 +36,39 @@ namespace HuntingGame.AI
 
 		private Animator animator;
 		private Detector detector;
+		private WanderingBehaviour wanderingBehaviour;
 
 		private State _state;
 		private float timer;
+		private float distancePadding = .5f;
 		private bool explosionTriggered;
 
-		private void OnEnable()
+		protected override void OnEnable()
 		{
+			base.OnEnable();
+
 			if (detector != null)
 				detector._onPlayerSpotted += SpotPlayer;
+
+			if (wanderingBehaviour != null)
+			{
+				wanderingBehaviour._onMovingChanged += OnWanderingMovingChanged;
+				wanderingBehaviour._onTargetChanged += OnWanderingTargetChanged;
+			}
 		}
 
-		private void OnDisable()
+		protected override void OnDisable()
 		{
+			base.OnDisable();
+
 			if (detector != null)
 				detector._onPlayerSpotted -= SpotPlayer;
+
+			if (wanderingBehaviour != null)
+			{
+				wanderingBehaviour._onMovingChanged -= OnWanderingMovingChanged;
+				wanderingBehaviour._onTargetChanged -= OnWanderingTargetChanged;
+			}
 		}
 
 		protected override void Awake()
@@ -70,6 +79,8 @@ namespace HuntingGame.AI
 			animator = GetComponentInChildren<Animator>();
 			//Set detector
 			detector = GetComponent<Detector>();
+			//Set wandering behaviour
+			wanderingBehaviour = GetComponent<WanderingBehaviour>();
 
 			//Set starting state to IDLE and start timer
 			ChangeState(State.IDLE);
@@ -98,13 +109,13 @@ namespace HuntingGame.AI
 				case State.WANDERING:
 					if (animator.GetBool("isMoving"))
 					{
-						if (Vector3.Distance(transform.position, target) <= stoppingDistance)
+						if (Vector3.Distance(transform.position, target) <= stoppingDistance + distancePadding)
 						{
-							StopAllCoroutines();
-							StartCoroutine(FindNewWanderingTarget());
+							wanderingBehaviour.StopWandering();
+							wanderingBehaviour.StartWandering();
 							break;
 						}
-
+						target = wanderingBehaviour.currentTarget;
 						base.Update();
 					}
 					break;
@@ -116,6 +127,7 @@ namespace HuntingGame.AI
 						{
 							SetTarget(null);
 							ToggleSprint(false);
+							movementController.SetMovementInput(Vector2.zero);
 							ChangeState(State.IDLE);
 							break;
 						}
@@ -143,54 +155,20 @@ namespace HuntingGame.AI
 			switch (_state)
 			{
 				case State.IDLE:
-					StopAllCoroutines();
-					animator.SetBool("isMoving", false);
-					movementController.SetMovementInput(Vector2.zero);
+					Debug.Log("Change to iddle");
+					ToggleSprint(false);
+					wanderingBehaviour.StopWandering();
 					break;
 				case State.WANDERING:
 					timer += 2;
-					StartCoroutine(FindNewWanderingTarget());
+					wanderingBehaviour.StopWandering();
+					wanderingBehaviour.StartWandering();
 					break;
 				case State.CHASING:
-					StopAllCoroutines();
+					wanderingBehaviour.StopWandering(true);
 					ToggleSprint(true);
 					break;
 			}
-		}
-
-		private IEnumerator FindNewWanderingTarget()
-		{
-			animator.SetBool("isMoving", false);
-			movementController.SetMovementInput(Vector2.zero);
-
-			float waitTime = Random.Range(1, 3);
-
-			yield return new WaitForSeconds(waitTime);
-
-			Vector3 newTarget = Random.insideUnitSphere * maxWalkingRange;
-			newTarget = KeepTargetInRange(newTarget);
-			newTarget = rangeAroundPoint ? rangeCenterPoint + newTarget : transform.position + newTarget;
-			newTarget.y = 0;
-			target = newTarget;
-
-			animator.SetBool("isMoving", true);
-		}
-
-		private Vector3 KeepTargetInRange(Vector3 newTarget)
-		{
-			if (Mathf.Abs(newTarget.x) < minWalkingRange)
-			{
-				if (newTarget.x < 0) newTarget.x = -minWalkingRange;
-				else if (newTarget.x >= 0) newTarget.x = minWalkingRange;
-			}
-
-			if (Mathf.Abs(newTarget.z) < minWalkingRange)
-			{
-				if (newTarget.z < 0) newTarget.z = -minWalkingRange;
-				else if (newTarget.z >= 0) newTarget.z = minWalkingRange;
-			}
-
-			return newTarget;
 		}
 
 		private void SpotPlayer(Transform player)
@@ -199,10 +177,22 @@ namespace HuntingGame.AI
 
 			SetTarget(player);
 			ChangeState(State.CHASING);
-			StartCoroutine(Detect());
+			StartCoroutine(DetectPlayer());
 		}
 
-		private IEnumerator Detect()
+		private void OnWanderingMovingChanged(bool isMoving)
+		{
+			Debug.Log("Change is moving");
+
+			animator.SetBool("isMoving", isMoving);
+
+			if (!isMoving)
+				movementController.SetMovementInput(Vector2.zero);
+		}
+
+		private void OnWanderingTargetChanged(Vector3 currentTarget) => target = currentTarget;
+
+		private IEnumerator DetectPlayer()
 		{
 			animator.SetBool("isMoving", false);
 
@@ -232,19 +222,6 @@ namespace HuntingGame.AI
 
 		private void OnDrawGizmosSelected()
 		{
-			Vector3 rangeCenter = transform.position;
-
-			if (rangeAroundPoint) rangeCenter = rangeCenterPoint;
-
-			if (debugWanderingRange)
-			{
-				Gizmos.color = Color.red;
-				Gizmos.DrawWireSphere(rangeCenter, minWalkingRange);
-
-				Gizmos.color = Color.cyan;
-				Gizmos.DrawWireSphere(rangeCenter, maxWalkingRange);
-			}
-
 			if (debugChasingRange)
 			{
 				Gizmos.color = Color.red;
