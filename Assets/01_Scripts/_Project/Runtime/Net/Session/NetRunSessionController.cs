@@ -27,8 +27,6 @@ namespace DungeonSteakhouse.Net.Session
     [DisallowMultipleComponent]
     public sealed class NetRunSessionController : MonoBehaviour
     {
-        public static NetRunSessionController Instance { get; private set; }
-
         [Header("References")]
         [SerializeField] private NetGameRoot netGameRoot;
         [SerializeField] private NetReadyPlatformGate startGate;
@@ -58,19 +56,11 @@ namespace DungeonSteakhouse.Net.Session
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-
             if (netGameRoot == null)
                 netGameRoot = NetGameRoot.Instance;
 
             if (netGameRoot != null && netGameRoot.Config != null)
-                _dungeonSceneName = netGameRoot.Config.dungeonSceneName;
+                _dungeonSceneName = netGameRoot.Config.DungeonSceneName;
 
             if (string.IsNullOrWhiteSpace(_dungeonSceneName))
                 _dungeonSceneName = "Dungeon";
@@ -92,9 +82,6 @@ namespace DungeonSteakhouse.Net.Session
 
         private void OnDestroy()
         {
-            if (Instance == this)
-                Instance = null;
-
             UnsubscribeSceneCallbacks();
         }
 

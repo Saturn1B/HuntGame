@@ -2,11 +2,12 @@
 using System.Collections;
 using UnityEngine;
 using Steamworks;
+using DungeonSteakhouse.Net.Core;
 
 namespace DungeonSteakhouse.Net.Steam
 {
     [DefaultExecutionOrder(-1000)]
-    public sealed class SteamBootstrap : MonoBehaviour
+    public sealed class SteamBootstrap : MonoBehaviour, INetBootstrapper
     {
         public static bool Ready { get; private set; }
         public static event Action<bool> ReadyChanged;
@@ -79,6 +80,20 @@ namespace DungeonSteakhouse.Net.Steam
         {
             yield return new WaitUntil(() => SteamClient.IsValid);
             SetReady(true);
+        }
+
+        // INetBootstrapper
+        bool INetBootstrapper.IsReady => Ready;
+        void INetBootstrapper.Initialize() { /* Steam init is handled in Awake via WaitForSteamValid */ }
+        void INetBootstrapper.Shutdown()
+        {
+            if (_ownsSteamClient && SteamClient.IsValid)
+            {
+                try { SteamClient.Shutdown(); }
+                catch (Exception ex) { Debug.LogException(ex); }
+                _ownsSteamClient = false;
+            }
+            SetReady(false);
         }
 
         private static void SetReady(bool ready)

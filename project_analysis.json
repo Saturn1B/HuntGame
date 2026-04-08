@@ -1,0 +1,1354 @@
+{
+  "meta": {
+    "project": "HuntTheKiwi - HuntGame",
+    "generated_at": "2026-04-06",
+    "total_scripts": 37,
+    "analyzer": "Claude Code (claude-sonnet-4-6)"
+  },
+  "scripts": [
+    {
+      "file_path": "Assets/01_Scripts/CharacterMovement.cs",
+      "namespace": null,
+      "class_name": "CharacterMovement",
+      "base_class": "MonoBehaviour",
+      "interfaces": ["IControlable"],
+      "attributes": ["RequireComponent(typeof(CharacterController))"],
+      "fields": [
+        { "name": "moveSpeed",             "type": "float",              "access": "private", "attributes": ["Header(Movement Speed)", "SerializeField"], "default": "10f" },
+        { "name": "sprintSpeed",           "type": "float",              "access": "private", "attributes": ["SerializeField"],                           "default": "20f" },
+        { "name": "crouchSpeed",           "type": "float",              "access": "private", "attributes": ["SerializeField"],                           "default": "2f" },
+        { "name": "jumpHeight",            "type": "float",              "access": "private", "attributes": ["SerializeField"],                           "default": "3f" },
+        { "name": "standingHeight",        "type": "float",              "access": "private", "attributes": ["Header(Crouch Settings)", "SerializeField"], "default": "2f" },
+        { "name": "crouchingHeight",       "type": "float",              "access": "private", "attributes": ["SerializeField"],                           "default": "0.3f" },
+        { "name": "crouchTransitionSpeed", "type": "float",              "access": "private", "attributes": ["SerializeField"],                           "default": "0.1f" },
+        { "name": "gravity",               "type": "float",              "access": "private", "attributes": ["Header(Physics)", "SerializeField"],        "default": "9.81f" },
+        { "name": "characterController",   "type": "CharacterController","access": "private", "attributes": [] },
+        { "name": "velocity",              "type": "Vector3",            "access": "private", "attributes": [],                                           "default": "Vector3.zero" },
+        { "name": "currentMovementInput",  "type": "Vector2",            "access": "private", "attributes": [] },
+        { "name": "isCrouching",           "type": "bool",               "access": "private", "attributes": [] },
+        { "name": "isSprinting",           "type": "bool",               "access": "private", "attributes": [] },
+        { "name": "canMove",               "type": "bool",               "access": "private", "attributes": [],                                           "default": "true" }
+      ],
+      "methods": [
+        { "name": "Awake",                  "access": "private",  "return_type": "void",       "parameters": [],                                  "is_lifecycle": true  },
+        { "name": "Update",                 "access": "private",  "return_type": "void",       "parameters": [],                                  "is_lifecycle": true  },
+        { "name": "SetMovementInput",       "access": "public",   "return_type": "void",       "parameters": ["Vector2 movementInput"],            "is_lifecycle": false },
+        { "name": "SetLookInput",           "access": "public",   "return_type": "void",       "parameters": ["Vector2 lookInput"],                "is_lifecycle": false },
+        { "name": "SetSprinting",           "access": "public",   "return_type": "void",       "parameters": ["bool sprinting"],                  "is_lifecycle": false },
+        { "name": "SetCrouching",           "access": "public",   "return_type": "void",       "parameters": ["bool crouching"],                  "is_lifecycle": false },
+        { "name": "Jump",                   "access": "public",   "return_type": "void",       "parameters": [],                                  "is_lifecycle": false },
+        { "name": "HandleMovement",         "access": "private",  "return_type": "void",       "parameters": [],                                  "is_lifecycle": false },
+        { "name": "ApplyGravity",           "access": "private",  "return_type": "void",       "parameters": [],                                  "is_lifecycle": false },
+        { "name": "GetCurrentSpeed",        "access": "private",  "return_type": "float",      "parameters": [],                                  "is_lifecycle": false },
+        { "name": "CrouchStandTransition",  "access": "private",  "return_type": "IEnumerator","parameters": [],                                  "is_lifecycle": false },
+        { "name": "SetCanMove",             "access": "public",   "return_type": "void",       "parameters": ["bool canMove"],                    "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "Update"],
+      "dependencies": ["UnityEngine", "IControlable", "CharacterController"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/FirstPersonCamera.cs",
+      "namespace": null,
+      "class_name": "FirstPersonCamera",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "lookSensitivity",    "type": "float",     "access": "private", "attributes": ["Header(Look Settings)", "SerializeField"], "default": "2f" },
+        { "name": "minPitch",           "type": "float",     "access": "private", "attributes": ["SerializeField"],                          "default": "-90f" },
+        { "name": "maxPitch",           "type": "float",     "access": "private", "attributes": ["SerializeField"],                          "default": "90f"  },
+        { "name": "cameraTransform",    "type": "Transform", "access": "private", "attributes": ["Header(References)", "SerializeField"]     },
+        { "name": "yaw",                "type": "float",     "access": "private", "attributes": []                                           },
+        { "name": "pitch",              "type": "float",     "access": "private", "attributes": []                                           },
+        { "name": "currentLookInput",   "type": "Vector2",   "access": "private", "attributes": []                                           }
+      ],
+      "methods": [
+        { "name": "Start",                  "access": "private",  "return_type": "void",  "parameters": [],                     "is_lifecycle": true  },
+        { "name": "LateUpdate",             "access": "private",  "return_type": "void",  "parameters": [],                     "is_lifecycle": true  },
+        { "name": "SetLookInput",           "access": "public",   "return_type": "void",  "parameters": ["Vector2 lookInput"],  "is_lifecycle": false },
+        { "name": "HandleCameraRotation",   "access": "private",  "return_type": "void",  "parameters": [],                     "is_lifecycle": false },
+        { "name": "ClampAngle",             "access": "private",  "return_type": "float", "parameters": ["float angle", "float min", "float max"], "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Start", "LateUpdate"],
+      "dependencies": ["UnityEngine"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/HeadBobbing.cs",
+      "namespace": null,
+      "class_name": "HeadBobbing",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "enableBobbing",       "type": "bool",              "access": "public",  "attributes": ["SerializeField"],                      "default": "true" },
+        { "name": "amplitude",           "type": "float",             "access": "private", "attributes": ["SerializeField", "Range(0, 0.1f)"],    "default": "0.015f" },
+        { "name": "frequency",           "type": "float",             "access": "private", "attributes": ["SerializeField", "Range(0, 30)"],      "default": "10f" },
+        { "name": "cam",                 "type": "Transform",         "access": "private", "attributes": ["SerializeField"]                       },
+        { "name": "camHolder",           "type": "Transform",         "access": "private", "attributes": ["SerializeField"]                       },
+        { "name": "toggleSpeed",         "type": "float",             "access": "private", "attributes": [],                                      "default": "1.5f" },
+        { "name": "startPos",            "type": "Vector3",           "access": "private", "attributes": []                                       },
+        { "name": "characterController", "type": "CharacterController","access": "private", "attributes": []                                      }
+      ],
+      "methods": [
+        { "name": "Awake",            "access": "private", "return_type": "void",    "parameters": [],               "is_lifecycle": true  },
+        { "name": "FootStepMotion",   "access": "private", "return_type": "Vector3", "parameters": ["float speed"],  "is_lifecycle": false },
+        { "name": "CheckMotion",      "access": "private", "return_type": "void",    "parameters": [],               "is_lifecycle": false },
+        { "name": "ResetPosition",    "access": "private", "return_type": "void",    "parameters": [],               "is_lifecycle": false },
+        { "name": "Update",           "access": "private", "return_type": "void",    "parameters": [],               "is_lifecycle": true  },
+        { "name": "FocusTarget",      "access": "private", "return_type": "Vector3", "parameters": [],               "is_lifecycle": false },
+        { "name": "PlayMotion",       "access": "private", "return_type": "void",    "parameters": ["Vector3 motion"],"is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "Update"],
+      "dependencies": ["UnityEngine", "CharacterController"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/PlayerInputHandler.cs",
+      "namespace": null,
+      "class_name": "PlayerInputHandler",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": ["RequireComponent(typeof(PlayerInput))"],
+      "fields": [
+        { "name": "movementController", "type": "CharacterMovement",  "access": "private", "attributes": ["SerializeField"] },
+        { "name": "cameraController",   "type": "FirstPersonCamera",  "access": "private", "attributes": ["SerializeField"] }
+      ],
+      "methods": [
+        { "name": "Awake",      "access": "private", "return_type": "void", "parameters": [],                       "is_lifecycle": true  },
+        { "name": "OnMove",     "access": "public",  "return_type": "void", "parameters": ["InputValue value"],     "is_lifecycle": false },
+        { "name": "OnCamera",   "access": "public",  "return_type": "void", "parameters": ["InputValue value"],     "is_lifecycle": false },
+        { "name": "OnSprint",   "access": "public",  "return_type": "void", "parameters": ["InputValue value"],     "is_lifecycle": false },
+        { "name": "OnCrouch",   "access": "public",  "return_type": "void", "parameters": ["InputValue value"],     "is_lifecycle": false },
+        { "name": "OnJump",     "access": "public",  "return_type": "void", "parameters": ["InputValue value"],     "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake"],
+      "dependencies": ["UnityEngine", "UnityEngine.InputSystem", "CharacterMovement", "FirstPersonCamera"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/Interfaces/IControlable.cs",
+      "namespace": null,
+      "class_name": "IControlable",
+      "kind": "interface",
+      "base_class": null,
+      "interfaces": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        { "name": "SetMovementInput", "return_type": "void", "parameters": ["Vector2 movementInput"] },
+        { "name": "SetLookInput",     "return_type": "void", "parameters": ["Vector2 lookInput"]     },
+        { "name": "SetSprinting",     "return_type": "void", "parameters": ["bool isSprinting"]      },
+        { "name": "SetCrouching",     "return_type": "void", "parameters": ["bool isCrouching"]      },
+        { "name": "Jump",             "return_type": "void", "parameters": []                        }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": ["UnityEngine"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Core/INetIdentityProvider.cs",
+      "namespace": "DungeonSteakhouse.Net.Core",
+      "class_name": "INetIdentityProvider",
+      "kind": "interface",
+      "base_class": null,
+      "interfaces": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        { "name": "TryGetLocalIdentity", "return_type": "bool", "parameters": ["out NetLocalIdentity identity"] }
+      ],
+      "nested_types": [
+        {
+          "name": "NetLocalIdentity",
+          "kind": "struct",
+          "fields": [
+            { "name": "PlatformUserId", "type": "ulong",  "access": "public", "attributes": ["readonly"] },
+            { "name": "DisplayName",    "type": "string", "access": "public", "attributes": ["readonly"] }
+          ]
+        }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": []
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Steam/SteamIdentityProvider.cs",
+      "namespace": "DungeonSteakhouse.Net.Steam",
+      "class_name": "SteamIdentityProvider",
+      "base_class": "MonoBehaviour",
+      "interfaces": ["INetIdentityProvider"],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        { "name": "TryGetLocalIdentity", "access": "public", "return_type": "bool", "parameters": ["out NetLocalIdentity identity"], "is_lifecycle": false }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": ["UnityEngine", "Steamworks", "DungeonSteakhouse.Net.Core"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Steam/SteamBootstrap.cs",
+      "namespace": "DungeonSteakhouse.Net.Steam",
+      "class_name": "SteamBootstrap",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": ["DefaultExecutionOrder(-1000)"],
+      "fields": [
+        { "name": "initializeSteamClient", "type": "bool",   "access": "private", "attributes": ["Header(Steam Ownership)", "SerializeField"], "default": "false" },
+        { "name": "steamAppId",            "type": "uint",   "access": "private", "attributes": ["SerializeField"],                             "default": "480"   },
+        { "name": "runCallbacks",          "type": "bool",   "access": "private", "attributes": ["SerializeField"],                             "default": "false" },
+        { "name": "shutdownOnDestroy",     "type": "bool",   "access": "private", "attributes": ["SerializeField"],                             "default": "false" },
+        { "name": "_ownsSteamClient",      "type": "bool",   "access": "private", "attributes": []                                              }
+      ],
+      "properties": [
+        { "name": "Ready",        "type": "bool", "access": "public static", "setter_access": "private" }
+      ],
+      "events": [
+        { "name": "ReadyChanged", "type": "Action<bool>", "access": "public static" }
+      ],
+      "methods": [
+        { "name": "Awake",               "access": "private",         "return_type": "void",       "parameters": [],             "is_lifecycle": true  },
+        { "name": "Update",              "access": "private",         "return_type": "void",       "parameters": [],             "is_lifecycle": true  },
+        { "name": "OnDestroy",           "access": "private",         "return_type": "void",       "parameters": [],             "is_lifecycle": true  },
+        { "name": "WaitForSteamValid",   "access": "private",         "return_type": "IEnumerator","parameters": [],             "is_lifecycle": false },
+        { "name": "SetReady",            "access": "private static",  "return_type": "void",       "parameters": ["bool ready"], "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "Update", "OnDestroy"],
+      "dependencies": ["UnityEngine", "Steamworks", "System"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Steam/SteamLobbyNetcode.cs",
+      "namespace": "DungeonSteakhouse.Net.Steam",
+      "class_name": "SteamLobbyNetcode",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "config",               "type": "NetGameConfig",      "access": "private", "attributes": ["Header(Config)", "SerializeField"]          },
+        { "name": "fallbackMaxMembers",   "type": "int",                "access": "private", "attributes": ["Header(Fallback values)", "SerializeField"], "default": "4"         },
+        { "name": "fallbackBuildVersion", "type": "string",             "access": "private", "attributes": ["SerializeField"],                            "default": "0.1.0-dev" },
+        { "name": "networkManager",       "type": "NetworkManager",     "access": "private", "attributes": ["Header(Netcode)", "SerializeField"]          },
+        { "name": "transport",            "type": "FacepunchTransport", "access": "private", "attributes": ["SerializeField"]                             },
+        { "name": "_currentLobby",        "type": "Lobby?",             "access": "private", "attributes": []                                             },
+        { "name": "_isCreatingLobby",     "type": "bool",               "access": "private", "attributes": []                                             },
+        { "name": "_sessionId",           "type": "string",             "access": "private", "attributes": []                                             }
+      ],
+      "methods": [
+        { "name": "TryGetSessionId",          "access": "public",  "return_type": "bool",   "parameters": ["out string sessionId"],       "is_lifecycle": false },
+        { "name": "Awake",                    "access": "private", "return_type": "void",   "parameters": [],                            "is_lifecycle": true  },
+        { "name": "OnEnable",                 "access": "private", "return_type": "void",   "parameters": [],                            "is_lifecycle": true  },
+        { "name": "OnDisable",                "access": "private", "return_type": "void",   "parameters": [],                            "is_lifecycle": true  },
+        { "name": "Host",                     "access": "public",  "return_type": "void",   "parameters": [],                            "is_lifecycle": false },
+        { "name": "HostAsync",                "access": "private", "return_type": "Task",   "parameters": [],                            "is_lifecycle": false },
+        { "name": "OnGameLobbyJoinRequested", "access": "private", "return_type": "void",   "parameters": ["Lobby lobby", "SteamId friend"], "is_lifecycle": false },
+        { "name": "JoinLobbyAsync",           "access": "private", "return_type": "Task",   "parameters": ["SteamId lobbyId"],           "is_lifecycle": false },
+        { "name": "OnLobbyEntered",           "access": "private", "return_type": "void",   "parameters": ["Lobby lobby"],               "is_lifecycle": false },
+        { "name": "LeaveLobby",               "access": "public",  "return_type": "void",   "parameters": [],                            "is_lifecycle": false },
+        { "name": "ApplyConnectionPayload",   "access": "private", "return_type": "void",   "parameters": [],                            "is_lifecycle": false },
+        { "name": "GetMaxPlayers",            "access": "private", "return_type": "int",    "parameters": [],                            "is_lifecycle": false },
+        { "name": "GetBuildVersion",          "access": "private", "return_type": "string", "parameters": [],                            "is_lifecycle": false },
+        { "name": "ResolveConfigIfMissing",   "access": "private", "return_type": "void",   "parameters": [],                            "is_lifecycle": false },
+        { "name": "ValidateReferences",       "access": "private", "return_type": "void",   "parameters": [],                            "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "OnEnable", "OnDisable"],
+      "dependencies": ["UnityEngine", "Unity.Netcode", "Steamworks", "Netcode.Transports.Facepunch", "DungeonSteakhouse.Net", "DungeonSteakhouse.Net.Connection"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Connection/NetConnectionPayload.cs",
+      "namespace": "DungeonSteakhouse.Net.Connection",
+      "class_name": "NetConnectionPayload",
+      "kind": "struct",
+      "base_class": null,
+      "interfaces": [],
+      "attributes": ["Serializable"],
+      "fields": [
+        { "name": "buildVersion",   "type": "string", "access": "public", "attributes": [] },
+        { "name": "platformUserId", "type": "ulong",  "access": "public", "attributes": [] },
+        { "name": "displayName",    "type": "string", "access": "public", "attributes": [] }
+      ],
+      "nested_types": [
+        {
+          "name": "NetConnectionPayloadCodec",
+          "kind": "static class",
+          "methods": [
+            { "name": "Encode",     "access": "public static", "return_type": "byte[]", "parameters": ["NetConnectionPayload payload"]                            },
+            { "name": "TryDecode",  "access": "public static", "return_type": "bool",   "parameters": ["byte[] data", "out NetConnectionPayload payload"] }
+          ]
+        }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": ["System"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Connection/NetConnectionApproval.cs",
+      "namespace": "DungeonSteakhouse.Net.Connection",
+      "class_name": "NetConnectionApproval",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "config",         "type": "NetGameConfig",  "access": "private", "attributes": ["Header(Config)", "SerializeField"]      },
+        { "name": "networkManager", "type": "NetworkManager", "access": "private", "attributes": ["Header(References)", "SerializeField"]  },
+        { "name": "sceneFlow",      "type": "NetSceneFlow",   "access": "private", "attributes": ["SerializeField"]                        }
+      ],
+      "methods": [
+        { "name": "Awake",           "access": "private", "return_type": "void", "parameters": [],                                                                                                    "is_lifecycle": true  },
+        { "name": "OnEnable",        "access": "private", "return_type": "void", "parameters": [],                                                                                                    "is_lifecycle": true  },
+        { "name": "OnDisable",       "access": "private", "return_type": "void", "parameters": [],                                                                                                    "is_lifecycle": true  },
+        { "name": "ApprovalCheck",   "access": "private", "return_type": "void", "parameters": ["NetworkManager.ConnectionApprovalRequest request", "NetworkManager.ConnectionApprovalResponse response"], "is_lifecycle": false },
+        { "name": "ValidateReferences", "access": "private", "return_type": "void", "parameters": [],                                                                                                 "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "OnEnable", "OnDisable"],
+      "dependencies": ["UnityEngine", "Unity.Netcode", "DungeonSteakhouse.Net.Flow"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/NetGameRoot.cs",
+      "namespace": "DungeonSteakhouse.Net",
+      "class_name": "NetGameRoot",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "config",                   "type": "NetGameConfig",           "access": "private", "attributes": ["Header(Config)", "SerializeField"]                     },
+        { "name": "networkManager",           "type": "NetworkManager",          "access": "private", "attributes": ["Header(Scene References)", "SerializeField"]           },
+        { "name": "transport",                "type": "FacepunchTransport",      "access": "private", "attributes": ["SerializeField"]                                       },
+        { "name": "identityProviderBehaviour","type": "MonoBehaviour",           "access": "private", "attributes": ["Header(Services)", "SerializeField"]                   },
+        { "name": "playerRegistry",           "type": "NetPlayerRegistry",       "access": "private", "attributes": ["SerializeField"]                                       },
+        { "name": "sceneFlow",                "type": "NetSceneFlow",            "access": "private", "attributes": ["SerializeField"]                                       },
+        { "name": "steamBootstrap",           "type": "MonoBehaviour",           "access": "private", "attributes": ["Header(Existing Implementation)", "SerializeField"]    },
+        { "name": "steamLobbyNetcode",        "type": "MonoBehaviour",           "access": "private", "attributes": ["SerializeField"]                                       },
+        { "name": "_state",                   "type": "NetGameState",            "access": "private", "attributes": [],                                                       "default": "NetGameState.Offline" },
+        { "name": "_hostRequestInFlight",     "type": "bool",                   "access": "private", "attributes": []                                                       }
+      ],
+      "properties": [
+        { "name": "Instance",         "type": "NetGameRoot",           "access": "public static", "setter_access": "private" },
+        { "name": "State",            "type": "NetGameState",          "access": "public",         "getter_body": "_state"   },
+        { "name": "Config",           "type": "NetGameConfig",         "access": "public",         "getter_body": "config"   },
+        { "name": "PlayerRegistry",   "type": "NetPlayerRegistry",     "access": "public",         "getter_body": "playerRegistry" },
+        { "name": "SceneFlow",        "type": "NetSceneFlow",          "access": "public",         "getter_body": "sceneFlow" },
+        { "name": "IdentityProvider", "type": "INetIdentityProvider",  "access": "public",         "getter_body": "identityProviderBehaviour as INetIdentityProvider" }
+      ],
+      "events": [
+        { "name": "StateChanged", "type": "Action<NetGameState>", "access": "public" }
+      ],
+      "methods": [
+        { "name": "Awake",                  "access": "private", "return_type": "void",   "parameters": [],                                                  "is_lifecycle": true  },
+        { "name": "OnDestroy",              "access": "private", "return_type": "void",   "parameters": [],                                                  "is_lifecycle": true  },
+        { "name": "Host",                   "access": "public",  "return_type": "void",   "parameters": [],                                                  "is_lifecycle": false },
+        { "name": "Shutdown",               "access": "public",  "return_type": "void",   "parameters": [],                                                  "is_lifecycle": false },
+        { "name": "GetDebugStatus",         "access": "public",  "return_type": "string", "parameters": [],                                                  "is_lifecycle": false },
+        { "name": "HookNetcodeCallbacks",   "access": "private", "return_type": "void",   "parameters": [],                                                  "is_lifecycle": false },
+        { "name": "UnhookNetcodeCallbacks", "access": "private", "return_type": "void",   "parameters": [],                                                  "is_lifecycle": false },
+        { "name": "OnServerStarted",        "access": "private", "return_type": "void",   "parameters": [],                                                  "is_lifecycle": false },
+        { "name": "OnClientConnected",      "access": "private", "return_type": "void",   "parameters": ["ulong clientId"],                                  "is_lifecycle": false },
+        { "name": "OnClientDisconnected",   "access": "private", "return_type": "void",   "parameters": ["ulong clientId"],                                  "is_lifecycle": false },
+        { "name": "SetState",               "access": "private", "return_type": "void",   "parameters": ["NetGameState newState"],                           "is_lifecycle": false },
+        { "name": "TryInvokeInstanceMethod","access": "private", "return_type": "bool",   "parameters": ["MonoBehaviour target", "string methodName"],       "is_lifecycle": false },
+        { "name": "ValidateReferences",     "access": "private", "return_type": "void",   "parameters": [],                                                  "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "OnDestroy"],
+      "dependencies": ["UnityEngine", "Unity.Netcode", "Netcode.Transports.Facepunch", "DungeonSteakhouse.Net.Core", "DungeonSteakhouse.Net.Players", "DungeonSteakhouse.Net.Flow", "System.Reflection"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Config/NetGameConfig.cs",
+      "namespace": "DungeonSteakhouse.Net",
+      "class_name": "NetGameConfig",
+      "base_class": "ScriptableObject",
+      "interfaces": [],
+      "attributes": ["CreateAssetMenu(menuName = \"DungeonSteakhouse/Net/Net Game Config\", fileName = \"NetGameConfig\")"],
+      "fields": [
+        { "name": "maxPlayers",        "type": "int",    "access": "public", "attributes": ["Header(Lobby)", "Min(1)"],       "default": "4"         },
+        { "name": "buildVersion",      "type": "string", "access": "public", "attributes": [],                                "default": "0.1.0-dev" },
+        { "name": "allowLateJoin",     "type": "bool",   "access": "public", "attributes": ["Header(Flow)"],                 "default": "false"     },
+        { "name": "dontDestroyOnLoad", "type": "bool",   "access": "public", "attributes": [],                                "default": "true"      },
+        { "name": "syncActiveScene",   "type": "bool",   "access": "public", "attributes": [],                                "default": "false"     },
+        { "name": "tavernSceneName",   "type": "string", "access": "public", "attributes": ["Header(Scenes)"],               "default": "Tavern"    },
+        { "name": "dungeonSceneName",  "type": "string", "access": "public", "attributes": [],                                "default": "Dungeon"   }
+      ],
+      "methods": [],
+      "lifecycle_methods": [],
+      "dependencies": ["UnityEngine"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/NetPlayerRegistry.cs",
+      "namespace": "DungeonSteakhouse.Net.Players",
+      "class_name": "NetPlayerRegistry",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "_players", "type": "List<NetPlayer>", "access": "private", "attributes": ["readonly"] }
+      ],
+      "properties": [
+        { "name": "Players",      "type": "IReadOnlyList<NetPlayer>", "access": "public" },
+        { "name": "AreAllReady",  "type": "bool",                    "access": "public" }
+      ],
+      "events": [
+        { "name": "PlayerAdded",   "type": "Action<NetPlayer>", "access": "public" },
+        { "name": "PlayerRemoved", "type": "Action<NetPlayer>", "access": "public" },
+        { "name": "PlayerUpdated", "type": "Action<NetPlayer>", "access": "public" }
+      ],
+      "methods": [
+        { "name": "Register",             "access": "public", "return_type": "void", "parameters": ["NetPlayer player"], "is_lifecycle": false },
+        { "name": "Unregister",           "access": "public", "return_type": "void", "parameters": ["NetPlayer player"], "is_lifecycle": false },
+        { "name": "NotifyPlayerUpdated",  "access": "public", "return_type": "void", "parameters": ["NetPlayer player"], "is_lifecycle": false }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": ["UnityEngine", "System.Collections.Generic", "System.Linq"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/NetPlayer.cs",
+      "namespace": "DungeonSteakhouse.Net.Players",
+      "class_name": "NetPlayer",
+      "base_class": "NetworkBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "_platformUserId", "type": "NetworkVariable<ulong>",          "access": "private", "attributes": ["readonly"], "permissions": "ReadPermission=Everyone, WritePermission=Server" },
+        { "name": "_displayName",    "type": "NetworkVariable<FixedString64Bytes>","access": "private","attributes": ["readonly"], "permissions": "ReadPermission=Everyone, WritePermission=Server" },
+        { "name": "_isReady",        "type": "NetworkVariable<bool>",           "access": "private", "attributes": ["readonly"], "permissions": "ReadPermission=Everyone, WritePermission=Server" }
+      ],
+      "properties": [
+        { "name": "PlatformUserId", "type": "ulong",  "access": "public" },
+        { "name": "DisplayName",    "type": "string", "access": "public" },
+        { "name": "IsReady",        "type": "bool",   "access": "public" }
+      ],
+      "methods": [
+        { "name": "OnNetworkSpawn",          "access": "public override",  "return_type": "void", "parameters": [],                                          "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "OnNetworkDespawn",        "access": "public override",  "return_type": "void", "parameters": [],                                          "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "ToggleReady",             "access": "public",           "return_type": "void", "parameters": [],                                          "is_lifecycle": false },
+        { "name": "ServerSetReady",          "access": "public",           "return_type": "void", "parameters": ["bool ready"],                              "is_lifecycle": false },
+        { "name": "TrySubmitLocalIdentity",  "access": "private",          "return_type": "void", "parameters": [],                                          "is_lifecycle": false },
+        { "name": "SubmitIdentityServerRpc", "access": "private",          "return_type": "void", "parameters": ["ulong platformUserId", "string displayName"], "is_lifecycle": false, "rpc_attribute": "ServerRpc" },
+        { "name": "SetReadyServerRpc",       "access": "private",          "return_type": "void", "parameters": ["bool ready"],                              "is_lifecycle": false, "rpc_attribute": "ServerRpc" },
+        { "name": "OnAnyValueChanged",       "access": "private",          "return_type": "void", "parameters": ["T previousValue", "T newValue"],            "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["OnNetworkSpawn", "OnNetworkDespawn"],
+      "dependencies": ["Unity.Collections", "Unity.Netcode", "UnityEngine", "DungeonSteakhouse.Net.Core"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/NetFpsPlayerAdapter.cs",
+      "namespace": "DungeonSteakhouse.Net.Players",
+      "class_name": "NetFpsPlayerAdapter",
+      "base_class": "NetworkBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "playerInput",                              "type": "PlayerInput",         "access": "private", "attributes": ["Header(Local-only Components)", "SerializeField"] },
+        { "name": "inputHandler",                             "type": "PlayerInputHandler",  "access": "private", "attributes": ["SerializeField"]                                  },
+        { "name": "characterMovement",                        "type": "CharacterMovement",   "access": "private", "attributes": ["SerializeField"]                                  },
+        { "name": "firstPersonCamera",                        "type": "FirstPersonCamera",   "access": "private", "attributes": ["SerializeField"]                                  },
+        { "name": "headBobbing",                              "type": "HeadBobbing",         "access": "private", "attributes": ["SerializeField"]                                  },
+        { "name": "playerCamera",                             "type": "Camera",              "access": "private", "attributes": ["Header(Local Camera)", "SerializeField"]          },
+        { "name": "playerAudioListener",                      "type": "AudioListener",       "access": "private", "attributes": ["SerializeField"]                                  },
+        { "name": "disableOtherSceneCamerasOnOwnerSpawn",     "type": "bool",                "access": "private", "attributes": ["Header(Optional Scene Camera Handling)", "SerializeField"], "default": "true" },
+        { "name": "disableOtherAudioListenersOnOwnerSpawn",   "type": "bool",                "access": "private", "attributes": ["SerializeField"],                                 "default": "true" }
+      ],
+      "methods": [
+        { "name": "OnNetworkSpawn",              "access": "public override",  "return_type": "void", "parameters": [], "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "OnGainedOwnership",           "access": "public override",  "return_type": "void", "parameters": [], "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "OnLostOwnership",             "access": "public override",  "return_type": "void", "parameters": [], "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "OnNetworkDespawn",            "access": "public override",  "return_type": "void", "parameters": [], "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "ResolveReferencesIfNeeded",   "access": "private",          "return_type": "void", "parameters": [], "is_lifecycle": false  },
+        { "name": "ApplyLocalState",             "access": "private",          "return_type": "void", "parameters": ["bool isOwner"], "is_lifecycle": false },
+        { "name": "DisableOtherEnabledCameras",  "access": "private",          "return_type": "void", "parameters": [], "is_lifecycle": false  },
+        { "name": "DisableOtherAudioListeners",  "access": "private",          "return_type": "void", "parameters": [], "is_lifecycle": false  },
+        { "name": "SetEnabled",                  "access": "private static",   "return_type": "void", "parameters": ["Behaviour behaviour", "bool enabled"], "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["OnNetworkSpawn", "OnGainedOwnership", "OnLostOwnership", "OnNetworkDespawn"],
+      "dependencies": ["Unity.Netcode", "UnityEngine", "UnityEngine.InputSystem"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/NetLocalCameraEnforcer.cs",
+      "namespace": "DungeonSteakhouse.Net.Players",
+      "class_name": "NetLocalCameraEnforcer",
+      "base_class": "NetworkBehaviour",
+      "interfaces": [],
+      "attributes": ["DisallowMultipleComponent"],
+      "fields": [
+        { "name": "ownerCamera",                    "type": "Camera",        "access": "private", "attributes": ["Header(Owner Camera)", "SerializeField"]   },
+        { "name": "ownerAudioListener",             "type": "AudioListener", "access": "private", "attributes": ["SerializeField"]                           },
+        { "name": "forceMainCameraTag",             "type": "bool",          "access": "private", "attributes": ["Header(Behavior)", "SerializeField"],      "default": "true"  },
+        { "name": "disableOtherCameras",            "type": "bool",          "access": "private", "attributes": ["SerializeField"],                          "default": "true"  },
+        { "name": "disableOtherAudioListeners",     "type": "bool",          "access": "private", "attributes": ["SerializeField"],                          "default": "true"  },
+        { "name": "enforceForSecondsAfterSceneLoad","type": "float",         "access": "private", "attributes": ["Header(Robustness)", "Range(0f,5f)", "SerializeField"], "default": "1.0f" },
+        { "name": "logDebug",                       "type": "bool",          "access": "private", "attributes": ["Header(Debug)", "SerializeField"],         "default": "false" },
+        { "name": "_enforceUntilTime",              "type": "float",         "access": "private", "attributes": []                                           }
+      ],
+      "methods": [
+        { "name": "OnNetworkSpawn",                "access": "public override", "return_type": "void", "parameters": [],                                          "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "OnNetworkDespawn",              "access": "public override", "return_type": "void", "parameters": [],                                          "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "LateUpdate",                    "access": "private",         "return_type": "void", "parameters": [],                                          "is_lifecycle": true   },
+        { "name": "OnSceneLoaded",                 "access": "private",         "return_type": "void", "parameters": ["Scene scene", "LoadSceneMode mode"],       "is_lifecycle": false  },
+        { "name": "OnActiveSceneChanged",          "access": "private",         "return_type": "void", "parameters": ["Scene oldScene", "Scene newScene"],        "is_lifecycle": false  },
+        { "name": "ResolveOwnerRig",               "access": "private",         "return_type": "void", "parameters": [],                                          "is_lifecycle": false  },
+        { "name": "DisableOwnerRig",               "access": "private",         "return_type": "void", "parameters": [],                                          "is_lifecycle": false  },
+        { "name": "EnforceNow",                    "access": "private",         "return_type": "void", "parameters": ["string reason"],                           "is_lifecycle": false  },
+        { "name": "DisableNonOwnerCameras",        "access": "private",         "return_type": "void", "parameters": [],                                          "is_lifecycle": false  },
+        { "name": "DisableNonOwnerAudioListeners", "access": "private",         "return_type": "void", "parameters": [],                                          "is_lifecycle": false  }
+      ],
+      "lifecycle_methods": ["OnNetworkSpawn", "OnNetworkDespawn", "LateUpdate"],
+      "dependencies": ["Unity.Netcode", "UnityEngine", "UnityEngine.SceneManagement"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetGameSession.cs",
+      "namespace": null,
+      "class_name": "NetGameSession",
+      "base_class": "NetworkBehaviour",
+      "interfaces": [],
+      "attributes": ["DisallowMultipleComponent"],
+      "enums": [
+        {
+          "name": "NetSessionPhase",
+          "values": ["Lobby = 0", "LoadingRun = 1", "InRun = 2", "ReturningToLobby = 3"]
+        }
+      ],
+      "fields": [
+        { "name": "config",                    "type": "NetGameConfig",              "access": "private", "attributes": ["Header(Config)", "SerializeField"]                          },
+        { "name": "lobbySceneName",            "type": "string",                     "access": "private", "attributes": ["Header(Scene Names)", "SerializeField"],  "default": "Tavern"   },
+        { "name": "runSceneName",              "type": "string",                     "access": "private", "attributes": ["SerializeField"],                         "default": "Dungeon"  },
+        { "name": "onlyHostCanControlSession", "type": "bool",                       "access": "private", "attributes": ["Header(Authority)", "SerializeField"],    "default": "true"     },
+        { "name": "useNetworkSceneManagement", "type": "bool",                       "access": "private", "attributes": ["Header(Scene Management)", "SerializeField"], "default": "true" },
+        { "name": "useSpawnPointGroups",       "type": "bool",                       "access": "private", "attributes": ["Header(Spawning)", "SerializeField"],     "default": "true"     },
+        { "name": "teleportRetryFrames",       "type": "int",                        "access": "private", "attributes": ["Range(0,10)", "SerializeField"],           "default": "2"        },
+        { "name": "verboseLogs",               "type": "bool",                       "access": "private", "attributes": ["Header(Debug)", "SerializeField"],        "default": "true"     },
+        { "name": "_phase",                    "type": "NetworkVariable<NetSessionPhase>", "access": "private", "attributes": ["readonly"],                         "default": "NetSessionPhase.Lobby" },
+        { "name": "_sceneEventsHooked",        "type": "bool",                       "access": "private", "attributes": []                                          },
+        { "name": "_sceneOpInProgress",        "type": "bool",                       "access": "private", "attributes": []                                          }
+      ],
+      "properties": [
+        { "name": "Instance", "type": "NetGameSession",  "access": "public static", "setter_access": "private" },
+        { "name": "Phase",    "type": "NetSessionPhase", "access": "public",        "getter_body": "_phase.Value" }
+      ],
+      "events": [
+        { "name": "PhaseChanged", "type": "Action<NetSessionPhase, NetSessionPhase>", "access": "public" }
+      ],
+      "methods": [
+        { "name": "Awake",                         "access": "private",          "return_type": "void",        "parameters": [],                                      "is_lifecycle": true,  "is_netcode_lifecycle": false },
+        { "name": "OnNetworkSpawn",                "access": "public override",  "return_type": "void",        "parameters": [],                                      "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "OnNetworkDespawn",              "access": "public override",  "return_type": "void",        "parameters": [],                                      "is_lifecycle": true,  "is_netcode_lifecycle": true  },
+        { "name": "OnPhaseChangedInternal",        "access": "private",          "return_type": "void",        "parameters": ["NetSessionPhase previous", "NetSessionPhase current"], "is_lifecycle": false },
+        { "name": "RequestStartRun",               "access": "public",           "return_type": "void",        "parameters": ["ulong senderClientId"],                 "is_lifecycle": false },
+        { "name": "ReturnToLobby",                 "access": "public",           "return_type": "void",        "parameters": ["ulong senderClientId"],                 "is_lifecycle": false },
+        { "name": "CanStartRun",                   "access": "public",           "return_type": "bool",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "CanStartRun",                   "access": "public",           "return_type": "bool",        "parameters": ["ulong requesterClientId"],              "is_lifecycle": false },
+        { "name": "CanReturnToLobby",              "access": "public",           "return_type": "bool",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "CanReturnToLobby",              "access": "public",           "return_type": "bool",        "parameters": ["ulong requesterClientId"],              "is_lifecycle": false },
+        { "name": "ServerTryStartRun",             "access": "public",           "return_type": "bool",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "ServerTryReturnToLobby",        "access": "public",           "return_type": "bool",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "RequestStartRun",               "access": "public",           "return_type": "void",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "RequestReturnToLobby",          "access": "public",           "return_type": "void",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "ReturnToLobby",                 "access": "public",           "return_type": "void",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "RequestStartRunServerRpc",      "access": "private",          "return_type": "void",        "parameters": ["ServerRpcParams rpcParams = default"], "is_lifecycle": false, "rpc_attribute": "ServerRpc(RequireOwnership = false)" },
+        { "name": "RequestReturnToLobbyServerRpc", "access": "private",          "return_type": "void",        "parameters": ["ServerRpcParams rpcParams = default"], "is_lifecycle": false, "rpc_attribute": "ServerRpc(RequireOwnership = false)" },
+        { "name": "StartRunServer",                "access": "private",          "return_type": "void",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "ReturnToLobbyServer",           "access": "private",          "return_type": "void",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "HookSceneEventsIfNeeded",       "access": "private",          "return_type": "void",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "UnhookSceneEventsIfNeeded",     "access": "private",          "return_type": "void",        "parameters": [],                                      "is_lifecycle": false },
+        { "name": "OnSceneEvent",                  "access": "private",          "return_type": "void",        "parameters": ["SceneEvent sceneEvent"],               "is_lifecycle": false },
+        { "name": "OnClientConnectedServer",       "access": "private",          "return_type": "void",        "parameters": ["ulong clientId"],                      "is_lifecycle": false },
+        { "name": "ServerDeferredTeleportClient",  "access": "private",          "return_type": "IEnumerator", "parameters": ["ulong clientId"],                      "is_lifecycle": false },
+        { "name": "TryTeleportClientNow",          "access": "private",          "return_type": "bool",        "parameters": ["ulong clientId"],                      "is_lifecycle": false },
+        { "name": "ServerTeleportAllPlayers",      "access": "private",          "return_type": "void",        "parameters": ["NetSpawnContext context"],              "is_lifecycle": false },
+        { "name": "TryGetSpawnPoint",              "access": "private",          "return_type": "bool",        "parameters": ["NetSpawnContext context", "ulong clientId", "out Vector3 pos", "out Quaternion rot"], "is_lifecycle": false },
+        { "name": "TryGetSceneManager",            "access": "private",          "return_type": "bool",        "parameters": ["out NetworkSceneManager sceneManager"], "is_lifecycle": false },
+        { "name": "SafeSetPhaseServer",            "access": "private",          "return_type": "void",        "parameters": ["NetSessionPhase newPhase"],             "is_lifecycle": false },
+        { "name": "GetLocalClientIdSafe",          "access": "private",          "return_type": "ulong",       "parameters": [],                                      "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "OnNetworkSpawn", "OnNetworkDespawn"],
+      "dependencies": ["UnityEngine", "Unity.Netcode", "UnityEngine.SceneManagement", "DungeonSteakhouse.Net", "DungeonSteakhouse.Net.Session", "System"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetRunSessionController.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "class_name": "NetRunSessionController",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": ["DisallowMultipleComponent"],
+      "enums": [
+        {
+          "name": "NetSessionAutoCommand",
+          "values": ["Auto = 0", "StartRun = 1", "ReturnToHub = 2"]
+        }
+      ],
+      "fields": [
+        { "name": "netGameRoot",          "type": "NetGameRoot",             "access": "private", "attributes": ["Header(References)", "SerializeField"] },
+        { "name": "startGate",            "type": "NetReadyPlatformGate",    "access": "private", "attributes": ["SerializeField"]                       },
+        { "name": "returnGate",           "type": "NetReadyPlatformGate",    "access": "private", "attributes": ["SerializeField"]                       },
+        { "name": "elevator",             "type": "NetElevatorDescentController","access": "private","attributes": ["SerializeField"]                    },
+        { "name": "downDistance",         "type": "float",                   "access": "private", "attributes": ["Header(Elevator Travel)", "SerializeField"], "default": "12f" },
+        { "name": "downDuration",         "type": "float",                   "access": "private", "attributes": ["SerializeField"],                       "default": "6f"  },
+        { "name": "upDistance",           "type": "float",                   "access": "private", "attributes": ["SerializeField"],                       "default": "0f"  },
+        { "name": "upDuration",           "type": "float",                   "access": "private", "attributes": ["SerializeField"],                       "default": "6f"  },
+        { "name": "logDebug",             "type": "bool",                    "access": "private", "attributes": ["Header(Debug)", "SerializeField"],      "default": "true" },
+        { "name": "_busy",                "type": "bool",                    "access": "private", "attributes": []                                        },
+        { "name": "_loadEventCompleted",  "type": "bool",                    "access": "private", "attributes": []                                        },
+        { "name": "_unloadEventCompleted","type": "bool",                    "access": "private", "attributes": []                                        },
+        { "name": "_dungeonSceneName",    "type": "string",                  "access": "private", "attributes": []                                        },
+        { "name": "_sequenceRoutine",     "type": "Coroutine",               "access": "private", "attributes": []                                        }
+      ],
+      "properties": [
+        { "name": "Instance", "type": "NetRunSessionController", "access": "public static", "setter_access": "private" },
+        { "name": "IsBusy",   "type": "bool",                    "access": "public",         "getter_body": "_busy"    }
+      ],
+      "methods": [
+        { "name": "Awake",                     "access": "private",        "return_type": "void",        "parameters": [],                                             "is_lifecycle": true  },
+        { "name": "OnDestroy",                 "access": "private",        "return_type": "void",        "parameters": [],                                             "is_lifecycle": true  },
+        { "name": "CanExecuteServerCommand",   "access": "public",         "return_type": "bool",        "parameters": ["NetSessionAutoCommand command", "out string reason"], "is_lifecycle": false },
+        { "name": "ServerExecuteCommand",      "access": "public",         "return_type": "void",        "parameters": ["ulong senderClientId", "NetSessionAutoCommand command"], "is_lifecycle": false },
+        { "name": "CanStartRunServer",         "access": "public",         "return_type": "bool",        "parameters": ["out string reason"],                          "is_lifecycle": false },
+        { "name": "CanReturnToHubServer",      "access": "public",         "return_type": "bool",        "parameters": ["out string reason"],                          "is_lifecycle": false },
+        { "name": "ServerRequestStartRun",     "access": "public",         "return_type": "void",        "parameters": ["ulong senderClientId"],                       "is_lifecycle": false },
+        { "name": "ServerRequestReturnToHub",  "access": "public",         "return_type": "void",        "parameters": ["ulong senderClientId"],                       "is_lifecycle": false },
+        { "name": "StartFinalizeRoutine",      "access": "private",        "return_type": "IEnumerator", "parameters": [],                                             "is_lifecycle": false },
+        { "name": "ReturnFinalizeRoutine",     "access": "private",        "return_type": "IEnumerator", "parameters": [],                                             "is_lifecycle": false },
+        { "name": "SubscribeSceneCallbacks",   "access": "private",        "return_type": "void",        "parameters": [],                                             "is_lifecycle": false },
+        { "name": "UnsubscribeSceneCallbacks", "access": "private",        "return_type": "void",        "parameters": [],                                             "is_lifecycle": false },
+        { "name": "OnSceneEvent",              "access": "private",        "return_type": "void",        "parameters": ["SceneEvent sceneEvent"],                      "is_lifecycle": false },
+        { "name": "GetAutoCommandFromPhase",   "access": "private",        "return_type": "NetSessionAutoCommand", "parameters": [],                                   "is_lifecycle": false },
+        { "name": "IsInHubPhase",              "access": "private",        "return_type": "bool",        "parameters": [],                                             "is_lifecycle": false },
+        { "name": "IsInRunPhase",              "access": "private",        "return_type": "bool",        "parameters": [],                                             "is_lifecycle": false },
+        { "name": "IsDungeonLoaded",           "access": "private",        "return_type": "bool",        "parameters": [],                                             "is_lifecycle": false },
+        { "name": "IsServer",                  "access": "private static", "return_type": "bool",        "parameters": [],                                             "is_lifecycle": false },
+        { "name": "FindGate",                  "access": "private static", "return_type": "NetReadyPlatformGate", "parameters": ["NetReadyPlatformGate[] gates", "NetReadyGateMode expectedMode"], "is_lifecycle": false },
+        { "name": "RestartRoutine",            "access": "private",        "return_type": "void",        "parameters": ["IEnumerator routine"],                        "is_lifecycle": false },
+        { "name": "FinishSequence",            "access": "private",        "return_type": "void",        "parameters": [],                                             "is_lifecycle": false },
+        { "name": "AbortSequence",             "access": "private",        "return_type": "void",        "parameters": [],                                             "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "OnDestroy"],
+      "dependencies": ["UnityEngine", "Unity.Netcode", "UnityEngine.SceneManagement", "DungeonSteakhouse.Net", "DungeonSteakhouse.Net.Flow", "System.Collections"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Flow/NetSceneFlow.cs",
+      "namespace": "DungeonSteakhouse.Net.Flow",
+      "class_name": "NetSceneFlow",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "enums": [
+        {
+          "name": "NetRunPhase",
+          "values": ["Hub = 0", "InRun = 10"]
+        }
+      ],
+      "fields": [
+        { "name": "config",                 "type": "NetGameConfig",  "access": "private", "attributes": ["Header(Config)", "SerializeField"]      },
+        { "name": "networkManager",         "type": "NetworkManager", "access": "private", "attributes": ["Header(References)", "SerializeField"]  },
+        { "name": "_tavernScene",           "type": "Scene",          "access": "private", "attributes": []                                        },
+        { "name": "_dungeonScene",          "type": "Scene",          "access": "private", "attributes": []                                        },
+        { "name": "_sceneManagerConfigured","type": "bool",           "access": "private", "attributes": []                                        },
+        { "name": "_phase",                 "type": "NetRunPhase",    "access": "private", "attributes": [],                                        "default": "NetRunPhase.Hub" }
+      ],
+      "properties": [
+        { "name": "Phase", "type": "NetRunPhase", "access": "public", "getter_body": "_phase" }
+      ],
+      "events": [
+        { "name": "PhaseChanged", "type": "Action<NetRunPhase>", "access": "public" }
+      ],
+      "methods": [
+        { "name": "Awake",                       "access": "private", "return_type": "void", "parameters": [],                                              "is_lifecycle": true  },
+        { "name": "OnDestroy",                   "access": "private", "return_type": "void", "parameters": [],                                              "is_lifecycle": true  },
+        { "name": "TryStartRun",                 "access": "public",  "return_type": "bool", "parameters": [],                                              "is_lifecycle": false },
+        { "name": "TryReturnToHub",              "access": "public",  "return_type": "bool", "parameters": [],                                              "is_lifecycle": false },
+        { "name": "SetPhase",                    "access": "private", "return_type": "void", "parameters": ["NetRunPhase phase"],                           "is_lifecycle": false },
+        { "name": "OnServerStarted",             "access": "private", "return_type": "void", "parameters": [],                                              "is_lifecycle": false },
+        { "name": "ConfigureSceneManagerOnce",   "access": "private", "return_type": "void", "parameters": [],                                              "is_lifecycle": false },
+        { "name": "VerifySceneBeforeLoading",    "access": "private", "return_type": "bool", "parameters": ["int sceneIndex", "string sceneName", "LoadSceneMode loadSceneMode"], "is_lifecycle": false },
+        { "name": "OnSceneEvent",                "access": "private", "return_type": "void", "parameters": ["SceneEvent sceneEvent"],                       "is_lifecycle": false },
+        { "name": "IsHostReadyForSceneOps",      "access": "private", "return_type": "bool", "parameters": ["out NetworkSceneManager sceneManager"],        "is_lifecycle": false },
+        { "name": "ValidateReferences",          "access": "private", "return_type": "void", "parameters": [],                                              "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "OnDestroy"],
+      "dependencies": ["UnityEngine", "UnityEngine.SceneManagement", "Unity.Netcode", "System"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetSpawnPointGroup.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "class_name": "NetSpawnPointGroup",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "enums": [
+        {
+          "name": "NetSpawnContext",
+          "values": ["Lobby = 0", "Run = 10"]
+        }
+      ],
+      "fields": [
+        { "name": "context", "type": "NetSpawnContext", "access": "private", "attributes": ["Header(Context)", "SerializeField"], "default": "NetSpawnContext.Lobby" },
+        { "name": "points",  "type": "Transform[]",     "access": "private", "attributes": ["Header(Spawn Points)", "SerializeField"]                               }
+      ],
+      "properties": [
+        { "name": "Context", "type": "NetSpawnContext", "access": "public", "getter_body": "context" }
+      ],
+      "methods": [
+        { "name": "TryGetSpawnPoint",       "access": "public",  "return_type": "bool", "parameters": ["ulong clientId", "out Vector3 position", "out Quaternion rotation"], "is_lifecycle": false },
+        { "name": "OnDrawGizmosSelected",   "access": "private", "return_type": "void", "parameters": [],                                                                    "is_lifecycle": false, "editor_only": true }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": ["UnityEngine"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/Elevator/NetElevatorDescentController.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "class_name": "NetElevatorDescentController",
+      "base_class": "NetworkBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "localAxis", "type": "Vector3",   "access": "private", "attributes": ["Header(Local Movement)", "SerializeField"], "default": "Vector3.down" },
+        { "name": "_routine",  "type": "Coroutine", "access": "private", "attributes": []                                            },
+        { "name": "_isMoving", "type": "bool",      "access": "private", "attributes": []                                            }
+      ],
+      "properties": [
+        { "name": "IsMoving", "type": "bool", "access": "public", "getter_body": "_isMoving" }
+      ],
+      "methods": [
+        { "name": "ServerMoveBy",   "access": "public",  "return_type": "void",        "parameters": ["float distance", "float duration"], "is_lifecycle": false },
+        { "name": "MoveRoutine",    "access": "private", "return_type": "IEnumerator", "parameters": ["float distance", "float duration"], "is_lifecycle": false }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": ["UnityEngine", "Unity.Netcode", "System.Collections"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Voice/NetSteamProximityVoiceChat.cs",
+      "namespace": "DungeonSteakhouse.Net.Voice",
+      "class_name": "NetSteamProximityVoiceChat",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": ["DisallowMultipleComponent"],
+      "fields": [
+        { "name": "MsgClientToServer",    "type": "string",         "access": "private const", "attributes": [],                                              "default": "SteamVoice_C2S"    },
+        { "name": "MsgServerToClients",   "type": "string",         "access": "private const", "attributes": [],                                              "default": "SteamVoice_S2C"    },
+        { "name": "alwaysTransmit",       "type": "bool",           "access": "private", "attributes": ["Header(Behavior)", "SerializeField"],                "default": "true"              },
+        { "name": "delivery",             "type": "NetworkDelivery","access": "private", "attributes": ["Header(Networking)", "SerializeField"],               "default": "UnreliableSequenced"},
+        { "name": "decodeDistanceMax",    "type": "float",          "access": "private", "attributes": ["Header(Performance)", "SerializeField"],             "default": "25f"               },
+        { "name": "logOnce",              "type": "bool",           "access": "private", "attributes": ["Header(Debug)", "SerializeField"],                   "default": "true"              },
+        { "name": "logErrors",            "type": "bool",           "access": "private", "attributes": ["SerializeField"],                                    "default": "false"             },
+        { "name": "_voiceCompressed",     "type": "MemoryStream",   "access": "private", "attributes": ["readonly"]                                           },
+        { "name": "_voiceIn",             "type": "MemoryStream",   "access": "private", "attributes": ["readonly"]                                           },
+        { "name": "_voiceOut",            "type": "MemoryStream",   "access": "private", "attributes": ["readonly"]                                           },
+        { "name": "_txBuffer",            "type": "byte[]",         "access": "private", "attributes": []                                                     },
+        { "name": "_rxBuffer",            "type": "byte[]",         "access": "private", "attributes": []                                                     },
+        { "name": "_skipBuffer",          "type": "byte[]",         "access": "private", "attributes": []                                                     },
+        { "name": "_floatBuffer",         "type": "float[]",        "access": "private", "attributes": []                                                     },
+        { "name": "_sampleRate",          "type": "int",            "access": "private", "attributes": [],                                                    "default": "24000"             }
+      ],
+      "properties": [
+        { "name": "Instance", "type": "NetSteamProximityVoiceChat", "access": "public static", "setter_access": "private" }
+      ],
+      "methods": [
+        { "name": "Awake",                 "access": "private",        "return_type": "void",      "parameters": [],                                              "is_lifecycle": true  },
+        { "name": "OnEnable",              "access": "private",        "return_type": "void",      "parameters": [],                                              "is_lifecycle": true  },
+        { "name": "OnDisable",             "access": "private",        "return_type": "void",      "parameters": [],                                              "is_lifecycle": true  },
+        { "name": "Update",                "access": "private",        "return_type": "void",      "parameters": [],                                              "is_lifecycle": true  },
+        { "name": "TryRegisterHandlers",   "access": "private",        "return_type": "void",      "parameters": [],                                              "is_lifecycle": false },
+        { "name": "OnVoiceFromClient",     "access": "private",        "return_type": "void",      "parameters": ["ulong senderClientId", "FastBufferReader reader"], "is_lifecycle": false },
+        { "name": "OnVoiceFromServer",     "access": "private",        "return_type": "void",      "parameters": ["ulong serverClientId", "FastBufferReader reader"], "is_lifecycle": false },
+        { "name": "TryFindPlayerObject",   "access": "private static", "return_type": "bool",      "parameters": ["NetworkManager nm", "ulong clientId", "out NetworkObject playerObj"], "is_lifecycle": false },
+        { "name": "SkipBytes",             "access": "private",        "return_type": "void",      "parameters": ["FastBufferReader reader", "int count"],        "is_lifecycle": false },
+        { "name": "EnsureByteBuffer",      "access": "private static", "return_type": "void",      "parameters": ["ref byte[] buffer", "int needed"],             "is_lifecycle": false },
+        { "name": "EnsureFloatBuffer",     "access": "private",        "return_type": "void",      "parameters": ["int neededSamples"],                           "is_lifecycle": false },
+        { "name": "StopRecordingSafe",     "access": "private",        "return_type": "void",      "parameters": [],                                              "is_lifecycle": false },
+        { "name": "ResolveListenerTransform","access": "private",      "return_type": "Transform", "parameters": [],                                              "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "OnEnable", "OnDisable", "Update"],
+      "dependencies": ["UnityEngine", "Unity.Collections", "Unity.Netcode", "Steamworks", "System", "System.IO"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Voice/VoiceTalkIndicator.cs",
+      "namespace": "DungeonSteakhouse.Net.Voice",
+      "class_name": "VoiceTalkIndicator",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "mouthRenderer",  "type": "SpriteRenderer", "access": "private", "attributes": ["Header(Renderer)", "SerializeField"]    },
+        { "name": "mouthClosed",    "type": "Sprite",         "access": "private", "attributes": ["Header(Sprites)", "SerializeField"]     },
+        { "name": "mouthOpen",      "type": "Sprite",         "access": "private", "attributes": ["SerializeField"]                        },
+        { "name": "holdSeconds",    "type": "float",          "access": "private", "attributes": ["Header(Timing)", "Range(0.05f,1f)", "SerializeField"], "default": "0.20f" },
+        { "name": "_lastPingTime",  "type": "float",          "access": "private", "attributes": []                                        },
+        { "name": "_isOpen",        "type": "bool",           "access": "private", "attributes": []                                        }
+      ],
+      "methods": [
+        { "name": "Awake",        "access": "private", "return_type": "void", "parameters": [],  "is_lifecycle": true  },
+        { "name": "Update",       "access": "private", "return_type": "void", "parameters": [],  "is_lifecycle": true  },
+        { "name": "PingTalking",  "access": "public",  "return_type": "void", "parameters": [],  "is_lifecycle": false },
+        { "name": "SetOpen",      "access": "private", "return_type": "void", "parameters": [],  "is_lifecycle": false },
+        { "name": "SetClosed",    "access": "private", "return_type": "void", "parameters": [],  "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "Update"],
+      "dependencies": ["UnityEngine"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Voice/SteamVoiceSpeaker.cs",
+      "namespace": "DungeonSteakhouse.Net.Voice",
+      "class_name": "SteamVoiceSpeaker",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": ["DisallowMultipleComponent"],
+      "fields": [
+        { "name": "audioSource",            "type": "AudioSource",              "access": "private", "attributes": ["Header(Optional)", "SerializeField"]                         },
+        { "name": "minDistance",            "type": "float",                    "access": "private", "attributes": ["Header(3D Proximity Settings)", "SerializeField"], "default": "1.5f"  },
+        { "name": "maxDistance",            "type": "float",                    "access": "private", "attributes": ["SerializeField"],                                  "default": "15f"   },
+        { "name": "bufferSeconds",          "type": "float",                    "access": "private", "attributes": ["Header(Streaming Buffer)", "SerializeField"],      "default": "0.35f" },
+        { "name": "talkIndicator",          "type": "VoiceTalkIndicator",       "access": "private", "attributes": ["Header(Talking Indicator)", "SerializeField"]      },
+        { "name": "mouthBlendshapeAnimator","type": "MouthBlendshapeTalkAnimator","access":"private", "attributes": ["Header(Mouth Blendshape)", "SerializeField"]      },
+        { "name": "_clip",                  "type": "AudioClip",                "access": "private", "attributes": []                                                   },
+        { "name": "_ring",                  "type": "float[]",                  "access": "private", "attributes": []                                                   },
+        { "name": "_ringWrite",             "type": "int",                      "access": "private", "attributes": []                                                   },
+        { "name": "_ringRead",              "type": "int",                      "access": "private", "attributes": []                                                   },
+        { "name": "_ringCount",             "type": "int",                      "access": "private", "attributes": []                                                   },
+        { "name": "_lock",                  "type": "object",                   "access": "private", "attributes": ["readonly"]                                          }
+      ],
+      "properties": [
+        { "name": "MaxDistance", "type": "float", "access": "public", "getter_body": "maxDistance" }
+      ],
+      "methods": [
+        { "name": "EnsureInitialized", "access": "public",  "return_type": "void", "parameters": ["int sampleRate"],                     "is_lifecycle": false },
+        { "name": "PushSamples",       "access": "public",  "return_type": "void", "parameters": ["float[] samples", "int sampleCount"], "is_lifecycle": false },
+        { "name": "OnAudioRead",       "access": "private", "return_type": "void", "parameters": ["float[] data"],                       "is_lifecycle": false }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": ["UnityEngine"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Voice/MouthBlendshapeTalkAnimator.cs",
+      "namespace": null,
+      "class_name": "MouthBlendshapeTalkAnimator",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": ["DisallowMultipleComponent"],
+      "fields": [
+        { "name": "skinnedMeshRenderer",       "type": "SkinnedMeshRenderer", "access": "private", "attributes": ["Header(Renderer)", "SerializeField"]                           },
+        { "name": "mouthCloseBlendShapeName",  "type": "string",              "access": "private", "attributes": ["Header(Blend Shape Names)", "SerializeField"], "default": "mouth_close.didy1" },
+        { "name": "mouthOpenBlendShapeName",   "type": "string",              "access": "private", "attributes": ["SerializeField"],                              "default": "mouth_open.body2"  },
+        { "name": "silentCloseWeight",         "type": "float",               "access": "private", "attributes": ["Header(Silent Weights)", "SerializeField", "Range(0f,100f)"], "default": "100f" },
+        { "name": "silentOpenWeight",          "type": "float",               "access": "private", "attributes": ["SerializeField", "Range(0f,100f)"],            "default": "0f"   },
+        { "name": "talkingCloseWeight",        "type": "float",               "access": "private", "attributes": ["Header(Talking Weights)", "SerializeField", "Range(0f,100f)"], "default": "0f" },
+        { "name": "talkingOpenWeight",         "type": "float",               "access": "private", "attributes": ["SerializeField", "Range(0f,100f)"],            "default": "100f" },
+        { "name": "animateWhileTalking",       "type": "bool",                "access": "private", "attributes": ["Header(Talking Animation)", "SerializeField"], "default": "true" },
+        { "name": "talkOpenMin",               "type": "float",               "access": "private", "attributes": ["SerializeField", "Range(0f,100f)"],            "default": "25f"  },
+        { "name": "talkOpenMax",               "type": "float",               "access": "private", "attributes": ["SerializeField", "Range(0f,100f)"],            "default": "100f" },
+        { "name": "talkFrequencyHz",           "type": "float",               "access": "private", "attributes": ["SerializeField", "Range(0.1f,20f)"],           "default": "7f"   },
+        { "name": "pingHoldSeconds",           "type": "float",               "access": "private", "attributes": ["Header(Ping Talking)", "SerializeField", "Range(0.05f,1f)"], "default": "0.20f" },
+        { "name": "smoothSpeed",               "type": "float",               "access": "private", "attributes": ["Header(Smoothing)", "SerializeField", "Range(1f,60f)"],       "default": "18f"   }
+      ],
+      "methods": [
+        { "name": "Reset",          "access": "private", "return_type": "void",  "parameters": [],                        "is_lifecycle": false },
+        { "name": "Awake",          "access": "private", "return_type": "void",  "parameters": [],                        "is_lifecycle": true  },
+        { "name": "Update",         "access": "private", "return_type": "void",  "parameters": [],                        "is_lifecycle": true  },
+        { "name": "ComputeOpenness01","access": "private","return_type": "float", "parameters": [],                       "is_lifecycle": false },
+        { "name": "ApplyWeights",   "access": "private", "return_type": "void",  "parameters": ["float closeWeight", "float openWeight"], "is_lifecycle": false },
+        { "name": "PingTalking",    "access": "public",  "return_type": "void",  "parameters": [],                        "is_lifecycle": false },
+        { "name": "SetTalking",     "access": "public",  "return_type": "void",  "parameters": ["bool isTalking"],         "is_lifecycle": false },
+        { "name": "SetTalkLevel01", "access": "public",  "return_type": "void",  "parameters": ["float level01"],          "is_lifecycle": false },
+        { "name": "OnValidate",     "access": "private", "return_type": "void",  "parameters": [],                        "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "Update"],
+      "dependencies": ["UnityEngine"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/UI/NetDemoUI.cs",
+      "namespace": "DungeonSteakhouse.Net",
+      "class_name": "NetDemoUI",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "netGameRoot",  "type": "NetGameRoot",       "access": "private", "attributes": ["Header(Scene References)", "SerializeField"] },
+        { "name": "hostButton",   "type": "Button",            "access": "private", "attributes": ["Header(UI)", "SerializeField"]               },
+        { "name": "joinButton",   "type": "Button",            "access": "private", "attributes": ["SerializeField"]                             },
+        { "name": "statusText",   "type": "TextMeshProUGUI",   "access": "private", "attributes": ["SerializeField"]                             }
+      ],
+      "methods": [
+        { "name": "Awake",          "access": "private", "return_type": "void", "parameters": [],  "is_lifecycle": true  },
+        { "name": "OnDestroy",      "access": "private", "return_type": "void", "parameters": [],  "is_lifecycle": true  },
+        { "name": "Update",         "access": "private", "return_type": "void", "parameters": [],  "is_lifecycle": true  },
+        { "name": "OnHostClicked",  "access": "private", "return_type": "void", "parameters": [],  "is_lifecycle": false },
+        { "name": "OnJoinClicked",  "access": "private", "return_type": "void", "parameters": [],  "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "OnDestroy", "Update"],
+      "dependencies": ["UnityEngine", "UnityEngine.UI", "TMPro"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/UI/NetLobbyRosterTMP.cs",
+      "namespace": "DungeonSteakhouse.Net.UI",
+      "class_name": "NetLobbyRosterTMP",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "netGameRoot",         "type": "NetGameRoot",     "access": "private", "attributes": ["Header(References)", "SerializeField"]   },
+        { "name": "sceneFlow",           "type": "NetSceneFlow",    "access": "private", "attributes": ["SerializeField"]                         },
+        { "name": "gameSession",         "type": "NetGameSession",  "access": "private", "attributes": ["SerializeField"]                         },
+        { "name": "enableDebugButtons",  "type": "bool",            "access": "private", "attributes": ["Header(Debug UI)", "SerializeField"],    "default": "true" },
+        { "name": "rosterText",          "type": "TMP_Text",        "access": "private", "attributes": ["Header(UI (TMP))", "SerializeField"]     },
+        { "name": "readyButton",         "type": "Button",          "access": "private", "attributes": ["SerializeField"]                         },
+        { "name": "readyButtonLabel",    "type": "TMP_Text",        "access": "private", "attributes": ["SerializeField"]                         },
+        { "name": "startButton",         "type": "Button",          "access": "private", "attributes": ["SerializeField"]                         },
+        { "name": "startButtonLabel",    "type": "TMP_Text",        "access": "private", "attributes": ["SerializeField"]                         }
+      ],
+      "methods": [
+        { "name": "Awake",               "access": "private",        "return_type": "void",      "parameters": [],                 "is_lifecycle": true  },
+        { "name": "OnEnable",            "access": "private",        "return_type": "void",      "parameters": [],                 "is_lifecycle": true  },
+        { "name": "OnDisable",           "access": "private",        "return_type": "void",      "parameters": [],                 "is_lifecycle": true  },
+        { "name": "ApplyButtonVisibility","access": "private",       "return_type": "void",      "parameters": [],                 "is_lifecycle": false },
+        { "name": "OnRegistryChanged",   "access": "private",        "return_type": "void",      "parameters": ["NetPlayer _"],    "is_lifecycle": false },
+        { "name": "Refresh",             "access": "private",        "return_type": "void",      "parameters": [],                 "is_lifecycle": false },
+        { "name": "OnReadyClicked",      "access": "private",        "return_type": "void",      "parameters": [],                 "is_lifecycle": false },
+        { "name": "OnStartClicked",      "access": "private",        "return_type": "void",      "parameters": [],                 "is_lifecycle": false },
+        { "name": "GetLocalPlayer",      "access": "private static", "return_type": "NetPlayer", "parameters": [],                 "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "OnEnable", "OnDisable"],
+      "dependencies": ["UnityEngine", "UnityEngine.UI", "TMPro", "Unity.Netcode", "DungeonSteakhouse.Net.Players", "DungeonSteakhouse.Net.Flow", "DungeonSteakhouse.Net.Session", "System.Text"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Config/NetSteamVoiceConfig.cs",
+      "namespace": "DungeonSteakhouse.Net.Voice",
+      "class_name": "NetSteamVoiceConfig",
+      "base_class": "ScriptableObject",
+      "interfaces": [],
+      "attributes": ["CreateAssetMenu(menuName = \"DungeonSteakhouse/Net/Net Steam Voice Config\", fileName = \"NetSteamVoiceConfig\")"],
+      "fields": [
+        { "name": "enableVoice",                  "type": "bool",   "access": "public", "attributes": ["Header(General)"],                         "default": "true"   },
+        { "name": "sendIntervalSeconds",           "type": "float",  "access": "public", "attributes": ["Range(0.02f, 0.2f)"],                      "default": "0.05f"  },
+        { "name": "maxChunkBytes",                 "type": "int",    "access": "public", "attributes": ["Header(Networking)", "Range(256, 4096)"],   "default": "1024"   },
+        { "name": "chunkAssemblyTimeoutSeconds",   "type": "float",  "access": "public", "attributes": ["Range(0.2f, 2f)"],                         "default": "0.75f"  },
+        { "name": "bufferSeconds",                 "type": "float",  "access": "public", "attributes": ["Header(Audio)", "Range(0.2f, 3f)"],        "default": "1.0f"   },
+        { "name": "prefillSeconds",                "type": "float",  "access": "public", "attributes": ["Range(0f, 0.5f)"],                         "default": "0.08f"  },
+        { "name": "talkerActiveSeconds",           "type": "float",  "access": "public", "attributes": ["Range(0.05f, 2f)"],                        "default": "0.35f"  },
+        { "name": "fadeInSeconds",                 "type": "float",  "access": "public", "attributes": ["Range(0f, 0.1f)"],                         "default": "0.02f"  },
+        { "name": "fadeOutSeconds",                "type": "float",  "access": "public", "attributes": ["Range(0f, 0.2f)"],                         "default": "0.05f"  },
+        { "name": "rebufferOnUnderrun",            "type": "bool",   "access": "public", "attributes": [],                                          "default": "true"   },
+        { "name": "hubSpatialBlend",               "type": "float",  "access": "public", "attributes": ["Header(Spatialization)", "Range(0f, 1f)"], "default": "0f"     },
+        { "name": "runSpatialBlend",               "type": "float",  "access": "public", "attributes": ["Range(0f, 1f)"],                           "default": "1f"     },
+        { "name": "runMaxDistance",                "type": "float",  "access": "public", "attributes": ["Min(1f)"],                                 "default": "25f"    },
+        { "name": "runMinDistance",                "type": "float",  "access": "public", "attributes": ["Min(0f)"],                                 "default": "1f"     }
+      ],
+      "methods": [],
+      "lifecycle_methods": [],
+      "dependencies": ["UnityEngine"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/IInteractable.cs",
+      "namespace": "HuntGame.Interactions",
+      "class_name": "IInteractable",
+      "kind": "interface",
+      "base_class": null,
+      "interfaces": [],
+      "attributes": [],
+      "fields": [],
+      "methods": [
+        { "name": "CanInteract", "return_type": "bool", "parameters": ["in InteractionContext context"] },
+        { "name": "Interact",    "return_type": "void", "parameters": ["in InteractionContext context"] }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": []
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/InteractionContext.cs",
+      "namespace": "HuntGame.Interactions",
+      "class_name": "InteractionContext",
+      "kind": "struct",
+      "base_class": null,
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "Interactor",        "type": "Transform",        "access": "public", "attributes": ["readonly"] },
+        { "name": "Verb",              "type": "InteractionVerb",  "access": "public", "attributes": ["readonly"] },
+        { "name": "IsMultiplayer",     "type": "bool",             "access": "public", "attributes": ["readonly"] },
+        { "name": "IsServer",          "type": "bool",             "access": "public", "attributes": ["readonly"] },
+        { "name": "InteractorClientId","type": "ulong",            "access": "public", "attributes": ["readonly"] }
+      ],
+      "methods": [
+        { "name": "Local",  "access": "public static", "return_type": "InteractionContext", "parameters": ["Transform interactor", "InteractionVerb verb"]               },
+        { "name": "Server", "access": "public static", "return_type": "InteractionContext", "parameters": ["Transform interactor", "InteractionVerb verb", "ulong clientId"] }
+      ],
+      "lifecycle_methods": [],
+      "dependencies": ["UnityEngine"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/InteractionVerb.cs",
+      "namespace": "HuntGame.Interactions",
+      "class_name": "InteractionVerb",
+      "kind": "enum",
+      "values": ["Use = 0", "Open = 1", "Close = 2"],
+      "lifecycle_methods": [],
+      "dependencies": []
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/PlayerInteractor.cs",
+      "namespace": "HuntGame.Interactions",
+      "class_name": "PlayerInteractor",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": [],
+      "fields": [
+        { "name": "_viewCamera",       "type": "Camera",    "access": "private", "attributes": ["SerializeField"]                           },
+        { "name": "_rayDistance",      "type": "float",     "access": "private", "attributes": ["SerializeField"],    "default": "3f"       },
+        { "name": "_interactableMask", "type": "LayerMask", "access": "private", "attributes": ["SerializeField"],    "default": "~0"       },
+        { "name": "_useKey",           "type": "Key",       "access": "private", "attributes": ["SerializeField"],    "default": "Key.E"    },
+        { "name": "_debugLogs",        "type": "bool",      "access": "private", "attributes": ["SerializeField"]                           }
+      ],
+      "methods": [
+        { "name": "Update",       "access": "private", "return_type": "void", "parameters": [],                        "is_lifecycle": true  },
+        { "name": "TryInteract",  "access": "private", "return_type": "void", "parameters": ["InteractionVerb verb"],   "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Update"],
+      "dependencies": ["UnityEngine", "UnityEngine.InputSystem", "Unity.Netcode", "HuntGame.Interactions"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Interactions/NetcodeInteractableObject.cs",
+      "namespace": "HuntGame.Interactions",
+      "class_name": "NetcodeInteractableObject",
+      "base_class": "NetworkBehaviour",
+      "interfaces": [],
+      "attributes": ["RequireComponent(typeof(NetworkObject))"],
+      "fields": [
+        { "name": "_debugLogs",    "type": "bool",         "access": "private", "attributes": ["SerializeField"] },
+        { "name": "_interactable", "type": "IInteractable","access": "private", "attributes": []                 }
+      ],
+      "methods": [
+        { "name": "Awake",                        "access": "private", "return_type": "void", "parameters": [],                                                        "is_lifecycle": true  },
+        { "name": "RequestInteractFromClient",    "access": "public",  "return_type": "void", "parameters": ["InteractionVerb verb", "NetworkObject playerNetworkObject"], "is_lifecycle": false },
+        { "name": "RequestInteractServerRpc",     "access": "private", "return_type": "void", "parameters": ["InteractionVerb verb", "ulong playerNetworkObjectId", "ServerRpcParams rpcParams = default"], "is_lifecycle": false, "rpc_attribute": "ServerRpc(RequireOwnership = false)" },
+        { "name": "BroadcastInteractClientRpc",   "access": "private", "return_type": "void", "parameters": ["InteractionVerb verb", "ulong playerNetworkObjectId", "ClientRpcParams clientRpcParams = default"], "is_lifecycle": false, "rpc_attribute": "ClientRpc" }
+      ],
+      "lifecycle_methods": ["Awake"],
+      "dependencies": ["Unity.Collections", "Unity.Netcode", "UnityEngine", "System.Collections.Generic"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/Examples/DoorInteractable.cs",
+      "namespace": "HuntGame.Interactions",
+      "class_name": "DoorInteractable",
+      "base_class": "MonoBehaviour",
+      "interfaces": ["IInteractable"],
+      "attributes": ["DisallowMultipleComponent"],
+      "fields": [
+        { "name": "_doorPivot",          "type": "Transform", "access": "private", "attributes": ["SerializeField"]                              },
+        { "name": "_openAngle",          "type": "float",     "access": "private", "attributes": ["SerializeField"],  "default": "90f"           },
+        { "name": "_openCloseTime",      "type": "float",     "access": "private", "attributes": ["SerializeField"],  "default": "0.5f"          },
+        { "name": "_maxUseDistance",     "type": "float",     "access": "private", "attributes": ["SerializeField"],  "default": "3f"            },
+        { "name": "_useCooldownSeconds", "type": "float",     "access": "private", "attributes": ["SerializeField"],  "default": "0.1f"          },
+        { "name": "_debugLogs",          "type": "bool",      "access": "private", "attributes": ["SerializeField"]                              },
+        { "name": "_isOpen",             "type": "bool",      "access": "private", "attributes": []                                              },
+        { "name": "_isAnimating",        "type": "bool",      "access": "private", "attributes": []                                              },
+        { "name": "_lastUseTime",        "type": "float",     "access": "private", "attributes": []                                              },
+        { "name": "_closedRotation",     "type": "Quaternion","access": "private", "attributes": []                                              },
+        { "name": "_openRotation",       "type": "Quaternion","access": "private", "attributes": []                                              }
+      ],
+      "methods": [
+        { "name": "Awake",         "access": "private", "return_type": "void",        "parameters": [],                       "is_lifecycle": true  },
+        { "name": "CanInteract",   "access": "public",  "return_type": "bool",        "parameters": ["in InteractionContext context"], "is_lifecycle": false },
+        { "name": "Interact",      "access": "public",  "return_type": "void",        "parameters": ["in InteractionContext context"], "is_lifecycle": false },
+        { "name": "SetState",      "access": "public",  "return_type": "void",        "parameters": ["bool open"],            "is_lifecycle": false },
+        { "name": "AnimateDoor",   "access": "private", "return_type": "IEnumerator", "parameters": ["Quaternion targetRotation"], "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake"],
+      "dependencies": ["UnityEngine", "System.Collections"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetLobbyReadyPlatform.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "class_name": "NetLobbyReadyPlatform",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": ["DisallowMultipleComponent"],
+      "fields": [
+        { "name": "netGameRoot",              "type": "NetGameRoot",               "access": "private", "attributes": ["Header(References)", "SerializeField"]     },
+        { "name": "confirmCountdownSeconds",  "type": "float",                     "access": "private", "attributes": ["Header(Countdown)", "Range(0.0f,10f)", "SerializeField"], "default": "1.0f" },
+        { "name": "logDebug",                 "type": "bool",                      "access": "private", "attributes": ["Header(Debug)", "SerializeField"],         "default": "true"  },
+        { "name": "_overlapCounts",           "type": "Dictionary<ulong, int>",    "access": "private", "attributes": ["readonly"]                                 },
+        { "name": "_countdownActive",         "type": "bool",                      "access": "private", "attributes": []                                           },
+        { "name": "_countdownEndTime",        "type": "float",                     "access": "private", "attributes": []                                           },
+        { "name": "_allReadyConfirmedServer", "type": "bool",                      "access": "private", "attributes": []                                           }
+      ],
+      "properties": [
+        { "name": "AllReadyConfirmedServer", "type": "bool", "access": "public", "getter_body": "_allReadyConfirmedServer" }
+      ],
+      "methods": [
+        { "name": "Awake",                          "access": "private", "return_type": "void", "parameters": [],                                       "is_lifecycle": true  },
+        { "name": "Update",                         "access": "private", "return_type": "void", "parameters": [],                                       "is_lifecycle": true  },
+        { "name": "OnTriggerEnter",                 "access": "private", "return_type": "void", "parameters": ["Collider other"],                       "is_lifecycle": true  },
+        { "name": "OnTriggerExit",                  "access": "private", "return_type": "void", "parameters": ["Collider other"],                       "is_lifecycle": true  },
+        { "name": "IsServerActiveInLobby",          "access": "private", "return_type": "bool", "parameters": [],                                       "is_lifecycle": false },
+        { "name": "TryGetPlayerFromCollider",       "access": "private", "return_type": "bool", "parameters": ["Collider other", "out NetPlayer player"], "is_lifecycle": false },
+        { "name": "AreAllPlayersOnPlatform",        "access": "private", "return_type": "bool", "parameters": [],                                       "is_lifecycle": false },
+        { "name": "TryStartConfirmCountdownIfReady","access": "private", "return_type": "void", "parameters": [],                                       "is_lifecycle": false },
+        { "name": "CancelCountdown",                "access": "private", "return_type": "void", "parameters": ["string reason"],                        "is_lifecycle": false },
+        { "name": "SetAllReadyConfirmed",           "access": "private", "return_type": "void", "parameters": ["bool value", "string reason"],          "is_lifecycle": false },
+        { "name": "ServerClearConfirmedReady",      "access": "public",  "return_type": "void", "parameters": [],                                       "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "Update", "OnTriggerEnter", "OnTriggerExit"],
+      "dependencies": ["UnityEngine", "Unity.Netcode", "System.Collections.Generic", "DungeonSteakhouse.Net", "DungeonSteakhouse.Net.Players", "DungeonSteakhouse.Net.Flow"]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetReadyPlatformGate.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "class_name": "NetReadyPlatformGate",
+      "base_class": "MonoBehaviour",
+      "interfaces": [],
+      "attributes": ["DisallowMultipleComponent", "RequireComponent(typeof(Collider))"],
+      "enums": [
+        {
+          "name": "NetReadyGateMode",
+          "values": ["HubOnly = 0", "InRunOnly = 1", "HubAndRun = 2"]
+        }
+      ],
+      "fields": [
+        { "name": "mode",                     "type": "NetReadyGateMode",          "access": "private", "attributes": ["Header(Mode)", "SerializeField"],            "default": "NetReadyGateMode.HubOnly" },
+        { "name": "netGameRoot",              "type": "NetGameRoot",               "access": "private", "attributes": ["Header(References)", "SerializeField"]      },
+        { "name": "confirmCountdownSeconds",  "type": "float",                     "access": "private", "attributes": ["Header(Countdown)", "Range(0.0f,10f)", "SerializeField"], "default": "1.0f" },
+        { "name": "logDebug",                 "type": "bool",                      "access": "private", "attributes": ["Header(Debug)", "SerializeField"],           "default": "true"  },
+        { "name": "_overlapCounts",           "type": "Dictionary<ulong, int>",    "access": "private", "attributes": ["readonly"]                                   },
+        { "name": "_countdownActive",         "type": "bool",                      "access": "private", "attributes": []                                             },
+        { "name": "_countdownEndTime",        "type": "float",                     "access": "private", "attributes": []                                             },
+        { "name": "_allReadyConfirmedServer", "type": "bool",                      "access": "private", "attributes": []                                             }
+      ],
+      "properties": [
+        { "name": "Mode",                   "type": "NetReadyGateMode", "access": "public", "getter_body": "mode"                    },
+        { "name": "AllReadyConfirmedServer","type": "bool",             "access": "public", "getter_body": "_allReadyConfirmedServer" }
+      ],
+      "methods": [
+        { "name": "Awake",                          "access": "private", "return_type": "void", "parameters": [],                                                                "is_lifecycle": true  },
+        { "name": "Update",                         "access": "private", "return_type": "void", "parameters": [],                                                                "is_lifecycle": true  },
+        { "name": "OnTriggerEnter",                 "access": "private", "return_type": "void", "parameters": ["Collider other"],                                                "is_lifecycle": true  },
+        { "name": "OnTriggerExit",                  "access": "private", "return_type": "void", "parameters": ["Collider other"],                                                "is_lifecycle": true  },
+        { "name": "ServerClearConfirmedReady",      "access": "public",  "return_type": "void", "parameters": [],                                                                "is_lifecycle": false },
+        { "name": "IsActiveOnServer",               "access": "private", "return_type": "bool", "parameters": [],                                                                "is_lifecycle": false },
+        { "name": "TryGetPlayerClientId",           "access": "private", "return_type": "bool", "parameters": ["Collider other", "out ulong clientId", "out string displayName"], "is_lifecycle": false },
+        { "name": "AreAllPlayersOnPlatform",        "access": "private", "return_type": "bool", "parameters": [],                                                                "is_lifecycle": false },
+        { "name": "TryStartConfirmCountdownIfReady","access": "private", "return_type": "void", "parameters": [],                                                                "is_lifecycle": false },
+        { "name": "CancelCountdown",                "access": "private", "return_type": "void", "parameters": ["string reason"],                                                  "is_lifecycle": false },
+        { "name": "SetAllReadyConfirmed",           "access": "private", "return_type": "void", "parameters": ["bool value", "string reason"],                                   "is_lifecycle": false }
+      ],
+      "lifecycle_methods": ["Awake", "Update", "OnTriggerEnter", "OnTriggerExit"],
+      "dependencies": ["UnityEngine", "Unity.Netcode", "System.Collections.Generic", "DungeonSteakhouse.Net", "DungeonSteakhouse.Net.Flow", "DungeonSteakhouse.Net.Players"]
+    }
+  ],
+
+  "dependencies": {
+    "CharacterMovement":              { "used_by": ["PlayerInputHandler", "NetFpsPlayerAdapter"], "uses": ["CharacterController", "IControlable"] },
+    "FirstPersonCamera":              { "used_by": ["PlayerInputHandler", "NetFpsPlayerAdapter"], "uses": [] },
+    "HeadBobbing":                    { "used_by": ["NetFpsPlayerAdapter"], "uses": ["CharacterController"] },
+    "PlayerInputHandler":             { "used_by": ["NetFpsPlayerAdapter"], "uses": ["CharacterMovement", "FirstPersonCamera", "PlayerInput"] },
+    "IControlable":                   { "implemented_by": ["CharacterMovement"], "used_by": [] },
+    "INetIdentityProvider":           { "implemented_by": ["SteamIdentityProvider"], "used_by": ["NetGameRoot", "NetPlayer"] },
+    "SteamIdentityProvider":          { "used_by": ["NetGameRoot"], "uses": ["INetIdentityProvider"] },
+    "SteamBootstrap":                 { "used_by": ["NetGameRoot"], "uses": ["Steamworks"] },
+    "SteamLobbyNetcode":              { "used_by": ["NetGameRoot"], "uses": ["NetworkManager", "FacepunchTransport", "NetGameConfig", "NetConnectionPayload"] },
+    "NetConnectionPayload":           { "used_by": ["SteamLobbyNetcode", "NetConnectionApproval"], "uses": [] },
+    "NetConnectionApproval":          { "used_by": [], "uses": ["NetworkManager", "NetGameConfig", "NetSceneFlow"] },
+    "NetGameRoot":                    { "used_by": ["NetDemoUI", "NetLobbyRosterTMP", "NetRunSessionController", "NetLobbyReadyPlatform", "NetReadyPlatformGate"], "uses": ["NetworkManager", "FacepunchTransport", "NetGameConfig", "NetPlayerRegistry", "NetSceneFlow", "INetIdentityProvider", "System.Reflection"] },
+    "NetGameConfig":                  { "used_by": ["NetGameRoot", "SteamLobbyNetcode", "NetConnectionApproval", "NetSceneFlow", "NetGameSession"], "uses": [] },
+    "NetPlayerRegistry":              { "used_by": ["NetGameRoot", "NetLobbyRosterTMP"], "uses": ["NetPlayer"] },
+    "NetPlayer":                      { "used_by": ["NetPlayerRegistry", "NetLobbyRosterTMP", "NetLobbyReadyPlatform"], "uses": ["INetIdentityProvider", "NetworkVariable", "ServerRpc"] },
+    "NetFpsPlayerAdapter":            { "used_by": [], "uses": ["PlayerInput", "PlayerInputHandler", "CharacterMovement", "FirstPersonCamera", "HeadBobbing", "Camera", "AudioListener"] },
+    "NetLocalCameraEnforcer":         { "used_by": [], "uses": ["Camera", "AudioListener", "SceneManager"] },
+    "NetGameSession":                 { "used_by": ["NetLobbyRosterTMP", "NetRunSessionController"], "uses": ["NetGameConfig", "NetworkSceneManager", "NetSpawnPointGroup", "NetSpawnContext"] },
+    "NetRunSessionController":        { "used_by": [], "uses": ["NetGameRoot", "NetReadyPlatformGate", "NetElevatorDescentController", "NetGameSession"] },
+    "NetSceneFlow":                   { "used_by": ["NetGameRoot", "NetConnectionApproval", "NetLobbyRosterTMP"], "uses": ["NetworkManager", "NetGameConfig"] },
+    "NetSpawnPointGroup":             { "used_by": ["NetGameSession"], "uses": [] },
+    "NetElevatorDescentController":   { "used_by": ["NetRunSessionController"], "uses": [] },
+    "NetSteamProximityVoiceChat":     { "used_by": [], "uses": ["Steamworks", "NetworkManager", "SteamVoiceSpeaker"] },
+    "VoiceTalkIndicator":             { "used_by": ["SteamVoiceSpeaker"], "uses": [] },
+    "SteamVoiceSpeaker":              { "used_by": ["NetSteamProximityVoiceChat"], "uses": ["VoiceTalkIndicator", "MouthBlendshapeTalkAnimator", "AudioSource"] },
+    "MouthBlendshapeTalkAnimator":    { "used_by": ["SteamVoiceSpeaker"], "uses": ["SkinnedMeshRenderer"] },
+    "NetDemoUI":                      { "used_by": [], "uses": ["NetGameRoot", "Button", "TextMeshProUGUI"] },
+    "NetLobbyRosterTMP":              { "used_by": [], "uses": ["NetGameRoot", "NetSceneFlow", "NetGameSession", "NetPlayerRegistry", "NetPlayer"] },
+    "NetSteamVoiceConfig":            { "used_by": [], "uses": [] },
+    "IInteractable":                  { "implemented_by": ["DoorInteractable"], "used_by": ["NetcodeInteractableObject", "PlayerInteractor"] },
+    "InteractionContext":             { "used_by": ["IInteractable", "DoorInteractable", "PlayerInteractor", "NetcodeInteractableObject"], "uses": [] },
+    "InteractionVerb":                { "used_by": ["InteractionContext", "PlayerInteractor", "NetcodeInteractableObject", "DoorInteractable"], "uses": [] },
+    "PlayerInteractor":               { "used_by": [], "uses": ["Camera", "IInteractable", "NetcodeInteractableObject", "InteractionVerb"] },
+    "NetcodeInteractableObject":      { "used_by": ["PlayerInteractor"], "uses": ["IInteractable", "InteractionContext", "NetworkObject"] },
+    "DoorInteractable":               { "used_by": [], "uses": ["IInteractable", "InteractionContext"] },
+    "NetLobbyReadyPlatform":          { "used_by": [], "uses": ["NetGameRoot", "NetPlayer", "NetworkManager"] },
+    "NetReadyPlatformGate":           { "used_by": ["NetRunSessionController"], "uses": ["NetGameRoot", "NetworkManager", "NetPlayer"] }
+  },
+
+  "srp_violations": [
+    {
+      "class": "NetGameRoot",
+      "severity": "high",
+      "description": "Acts as service locator, singleton, state machine, and netcode event dispatcher simultaneously. Manages bootstrapping via reflection (TryInvokeInstanceMethod) to call SteamBootstrap and SteamLobbyNetcode, coupling it tightly to Steam-specific lifecycle.",
+      "evidence": ["Holds Instance singleton", "Manages NetGameState FSM", "Hooks/unhooks all NetworkManager callbacks", "Calls methods on other MonoBehaviours by name via reflection", "Exposes multiple services (Config, PlayerRegistry, SceneFlow, IdentityProvider)"]
+    },
+    {
+      "class": "NetGameSession",
+      "severity": "high",
+      "description": "Combines session phase state machine, network scene loading orchestration, player teleportation logic, and spawn point resolution into a single NetworkBehaviour.",
+      "evidence": ["Manages NetSessionPhase FSM", "Handles scene loading via NetworkSceneManager", "Teleports players via ServerDeferredTeleportClient coroutine", "Finds and resolves NetSpawnPointGroup components at runtime", "Exposes duplicate overloads for same operations (CanStartRun, ReturnToLobby)"]
+    },
+    {
+      "class": "NetRunSessionController",
+      "severity": "medium",
+      "description": "Orchestrates high-level game flow (start run / return to hub) but also directly controls elevator, scene callback subscription, and coroutine sequencing.",
+      "evidence": ["Controls NetElevatorDescentController directly", "Subscribes/unsubscribes NetworkManager scene events", "Manages coroutine sequences internally", "Queries NetReadyPlatformGate state"]
+    },
+    {
+      "class": "NetSteamProximityVoiceChat",
+      "severity": "medium",
+      "description": "Handles voice capture, encoding, network transport (send/receive), buffer management, and player lookup all in one MonoBehaviour.",
+      "evidence": ["Captures Steamworks voice data", "Manages multiple byte and float buffers inline", "Relays voice data on server via named-message handlers", "Finds player objects by clientId at runtime"]
+    },
+    {
+      "class": "CharacterMovement",
+      "severity": "low",
+      "description": "Handles both movement logic (walk, sprint, crouch) and physics (gravity application) and crouching animation via coroutine. Implements IControlable, making it both a data receiver and a physics actor.",
+      "evidence": ["HandleMovement + ApplyGravity + CrouchStandTransition all in one class", "Stores both input state and physics state (velocity)"]
+    }
+  ],
+
+  "code_smells": [
+    {
+      "type": "duplicate_code",
+      "severity": "high",
+      "description": "NetLobbyReadyPlatform and NetReadyPlatformGate are nearly identical: both manage overlap counting (Dictionary<ulong, int>), countdown logic, and AllReadyConfirmedServer state. One appears to be a copy-paste of the other with minor differences.",
+      "affected_classes": ["NetLobbyReadyPlatform", "NetReadyPlatformGate"],
+      "suggestion": "Merge into a single configurable component or extract shared logic into a base class / helper."
+    },
+    {
+      "type": "reflection_for_loose_coupling",
+      "severity": "high",
+      "description": "NetGameRoot uses System.Reflection (TryInvokeInstanceMethod) to invoke methods on SteamBootstrap and SteamLobbyNetcode by string name. This is fragile, bypasses type safety, and makes refactoring dangerous.",
+      "affected_classes": ["NetGameRoot"],
+      "suggestion": "Define interfaces (e.g., INetBootstrapper, INetLobbyController) and have SteamBootstrap/SteamLobbyNetcode implement them. Inject via typed fields."
+    },
+    {
+      "type": "god_class",
+      "severity": "high",
+      "description": "NetGameSession has 30+ methods, manages multiple state machines, and handles scene loading, player teleportation, and spawn point resolution. It is the largest and most complex class in the project.",
+      "affected_classes": ["NetGameSession"],
+      "suggestion": "Extract teleportation logic into NetPlayerTeleporter, spawn point resolution into NetSpawnResolver, and keep NetGameSession as a thin orchestrator."
+    },
+    {
+      "type": "magic_strings",
+      "severity": "medium",
+      "description": "Scene names (Tavern, Dungeon) appear both as [SerializeField] defaults on NetGameSession AND in NetGameConfig. There is risk of divergence and no single source of truth.",
+      "affected_classes": ["NetGameSession", "NetGameConfig"],
+      "suggestion": "Remove scene name fields from NetGameSession and always read from NetGameConfig. Or use SceneReference assets."
+    },
+    {
+      "type": "magic_numbers",
+      "severity": "low",
+      "description": "Default buffer sizes in NetSteamProximityVoiceChat are hardcoded inline (8192, 16384, 24000) rather than named constants or config values.",
+      "affected_classes": ["NetSteamProximityVoiceChat"],
+      "suggestion": "Extract to private const or move to NetSteamVoiceConfig."
+    },
+    {
+      "type": "tight_coupling",
+      "severity": "medium",
+      "description": "NetFpsPlayerAdapter and NetLocalCameraEnforcer overlap in responsibility: both disable other cameras on network spawn. This split ownership makes behaviour hard to predict.",
+      "affected_classes": ["NetFpsPlayerAdapter", "NetLocalCameraEnforcer"],
+      "suggestion": "Decide on a single authoritative component for camera ownership enforcement and remove the duplicate logic from the other."
+    },
+    {
+      "type": "singleton_overuse",
+      "severity": "medium",
+      "description": "Multiple classes expose static Instance singletons (NetGameRoot, NetGameSession, NetRunSessionController, NetSteamProximityVoiceChat). In a networked game this risks stale references across scene loads.",
+      "affected_classes": ["NetGameRoot", "NetGameSession", "NetRunSessionController", "NetSteamProximityVoiceChat"],
+      "suggestion": "Prefer dependency injection via serialized references or a lightweight service locator scoped to the network session lifetime."
+    },
+    {
+      "type": "missing_namespace",
+      "severity": "low",
+      "description": "Several scripts are in the global namespace instead of a project namespace: CharacterMovement, FirstPersonCamera, HeadBobbing, PlayerInputHandler, IControlable, NetGameSession, MouthBlendshapeTalkAnimator.",
+      "affected_classes": ["CharacterMovement", "FirstPersonCamera", "HeadBobbing", "PlayerInputHandler", "IControlable", "NetGameSession", "MouthBlendshapeTalkAnimator"],
+      "suggestion": "Move all scripts under a consistent namespace (e.g., HuntGame or DungeonSteakhouse)."
+    },
+    {
+      "type": "public_field_on_scriptable_object",
+      "severity": "low",
+      "description": "NetGameConfig and NetSteamVoiceConfig expose all fields as public instead of using [SerializeField] private with properties. This allows any code to mutate config at runtime.",
+      "affected_classes": ["NetGameConfig", "NetSteamVoiceConfig"],
+      "suggestion": "Use [field: SerializeField] with auto-properties, or private fields with [SerializeField] and public read-only properties."
+    },
+    {
+      "type": "unused_interface_method",
+      "severity": "low",
+      "description": "CharacterMovement implements IControlable.SetLookInput but CharacterMovement itself does not perform camera rotation — that is handled by FirstPersonCamera. The method body likely does nothing or is unused.",
+      "affected_classes": ["CharacterMovement", "IControlable"],
+      "suggestion": "Either remove SetLookInput from IControlable or split IControlable into IMovable and ILookable."
+    }
+  ],
+
+  "refactoring_suggestions": [
+    {
+      "priority": 1,
+      "title": "Replace reflection in NetGameRoot with typed interfaces",
+      "effort": "low",
+      "impact": "high",
+      "description": "TryInvokeInstanceMethod uses string-based reflection to call Host/LeaveLobby on SteamBootstrap and SteamLobbyNetcode. This is the most fragile pattern in the codebase. Define INetBootstrapper { void Initialize(); void Shutdown(); } and INetLobbyController { void Host(); void LeaveLobby(); } and inject typed references.",
+      "files_affected": ["NetGameRoot.cs", "SteamBootstrap.cs", "SteamLobbyNetcode.cs"]
+    },
+    {
+      "priority": 2,
+      "title": "Merge NetLobbyReadyPlatform into NetReadyPlatformGate",
+      "effort": "low",
+      "impact": "high",
+      "description": "Both classes are near-identical. NetLobbyReadyPlatform adds no significant differentiation over NetReadyPlatformGate. Remove NetLobbyReadyPlatform entirely and replace all usages with NetReadyPlatformGate configured to HubOnly mode.",
+      "files_affected": ["NetLobbyReadyPlatform.cs", "NetReadyPlatformGate.cs"]
+    },
+    {
+      "priority": 3,
+      "title": "Decompose NetGameSession — extract teleportation and spawn resolution",
+      "effort": "medium",
+      "impact": "high",
+      "description": "Create NetPlayerSpawnResolver (finds NetSpawnPointGroup, returns position/rotation for a clientId) and NetPlayerTeleporter (executes deferred teleport coroutines). NetGameSession becomes a thin FSM that delegates to these.",
+      "files_affected": ["NetGameSession.cs"]
+    },
+    {
+      "priority": 4,
+      "title": "Establish a single source of truth for scene names",
+      "effort": "low",
+      "impact": "medium",
+      "description": "Remove lobbySceneName / runSceneName from NetGameSession. Always read from NetGameConfig. Optionally replace string scene names with SceneReference assets (Addressables) to get compile-time safety.",
+      "files_affected": ["NetGameSession.cs", "NetGameConfig.cs", "NetSceneFlow.cs"]
+    },
+    {
+      "priority": 5,
+      "title": "Decide camera enforcement authority: remove overlap between NetFpsPlayerAdapter and NetLocalCameraEnforcer",
+      "effort": "low",
+      "impact": "medium",
+      "description": "Both components disable other cameras on spawn. Pick one as the canonical camera enforcer (NetLocalCameraEnforcer is more robust with its scene-load re-enforcement) and remove DisableOtherEnabledCameras / DisableOtherAudioListeners from NetFpsPlayerAdapter.",
+      "files_affected": ["NetFpsPlayerAdapter.cs", "NetLocalCameraEnforcer.cs"]
+    },
+    {
+      "priority": 6,
+      "title": "Move global-namespace scripts into project namespaces",
+      "effort": "low",
+      "impact": "low",
+      "description": "CharacterMovement, FirstPersonCamera, HeadBobbing, PlayerInputHandler, IControlable, NetGameSession, and MouthBlendshapeTalkAnimator all lack a namespace. Add HuntGame or HuntGame.Player namespaces to prevent future name collisions.",
+      "files_affected": ["CharacterMovement.cs", "FirstPersonCamera.cs", "HeadBobbing.cs", "PlayerInputHandler.cs", "IControlable.cs", "NetGameSession.cs", "MouthBlendshapeTalkAnimator.cs"]
+    },
+    {
+      "priority": 7,
+      "title": "Split IControlable into IMovable and ILookable",
+      "effort": "low",
+      "impact": "low",
+      "description": "CharacterMovement implements SetLookInput despite not doing camera rotation. Separating the interface removes a misleading contract and allows future controllers that only need movement or only need look.",
+      "files_affected": ["IControlable.cs", "CharacterMovement.cs", "PlayerInputHandler.cs"]
+    },
+    {
+      "priority": 8,
+      "title": "Extract voice buffer constants into NetSteamVoiceConfig",
+      "effort": "low",
+      "impact": "low",
+      "description": "Magic numbers 8192, 16384, and 24000 in NetSteamProximityVoiceChat should be named constants or driven by NetSteamVoiceConfig to allow tuning without code changes.",
+      "files_affected": ["NetSteamProximityVoiceChat.cs", "NetSteamVoiceConfig.cs"]
+    },
+    {
+      "priority": 9,
+      "title": "Make NetGameConfig and NetSteamVoiceConfig fields read-only from outside",
+      "effort": "low",
+      "impact": "low",
+      "description": "All public fields on these ScriptableObjects are writable at runtime, risking accidental mutation. Change to private [SerializeField] fields exposed through read-only properties.",
+      "files_affected": ["NetGameConfig.cs", "NetSteamVoiceConfig.cs"]
+    },
+    {
+      "priority": 10,
+      "title": "Audit and reduce singleton usage",
+      "effort": "medium",
+      "impact": "medium",
+      "description": "NetGameRoot, NetGameSession, NetRunSessionController, and NetSteamProximityVoiceChat all use static Instance. In multiplayer with scene reloads this is error-prone. Consider a session-scoped service container (plain C# class registered in Awake) or Unity's new dependency injection patterns.",
+      "files_affected": ["NetGameRoot.cs", "NetGameSession.cs", "NetRunSessionController.cs", "NetSteamProximityVoiceChat.cs"]
+    }
+  ]
+}

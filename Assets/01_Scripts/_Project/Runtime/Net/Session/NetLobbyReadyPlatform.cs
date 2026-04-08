@@ -8,11 +8,14 @@ using DungeonSteakhouse.Net.Flow;
 namespace DungeonSteakhouse.Net.Session
 {
     /// <summary>
-    /// Platform-based ready system (server-authoritative):
-    /// - Players are "ready" when inside this trigger.
-    /// - When ALL players are on the platform, a short countdown starts.
-    /// - If the condition stays true until countdown ends, AllReadyConfirmed becomes true.
-    /// - NO automatic start run here (button will handle it).
+    /// [DEPRECATED] Platform-based ready system. Use <see cref="NetReadyPlatformGate"/> with mode=HubOnly instead.
+    ///
+    /// Cannot be deleted until the following scenes replace this component manually in the Unity Editor:
+    ///   - Assets/02_Scenes/Tavern.unity
+    ///   - Assets/_Recovery/0.unity
+    /// Action: In each scene, replace NetLobbyReadyPlatform with NetReadyPlatformGate (mode = HubOnly).
+    /// NOTE: NetReadyPlatformGate does NOT call player.ServerSetReady(true/false) on trigger enter/exit.
+    /// If that behaviour is required, keep it in the new component or handle it separately.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class NetLobbyReadyPlatform : MonoBehaviour

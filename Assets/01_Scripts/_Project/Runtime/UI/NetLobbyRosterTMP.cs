@@ -47,7 +47,7 @@ namespace DungeonSteakhouse.Net.UI
             }
 
             if (gameSession == null)
-                gameSession = NetGameSession.Instance;
+                Debug.LogWarning("[NetLobbyRosterTMP] gameSession is not assigned in the Inspector.");
 
             ApplyButtonVisibility();
             Refresh();
@@ -135,9 +135,6 @@ namespace DungeonSteakhouse.Net.UI
         {
             if (!enableDebugButtons)
                 return;
-
-            if (gameSession == null)
-                gameSession = NetGameSession.Instance;
 
             if (gameSession != null)
             {

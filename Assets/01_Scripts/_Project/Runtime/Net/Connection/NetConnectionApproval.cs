@@ -56,18 +56,18 @@ namespace DungeonSteakhouse.Net.Connection
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(config.buildVersion) &&
+            if (!string.IsNullOrWhiteSpace(config.BuildVersion) &&
                 !string.IsNullOrWhiteSpace(payload.buildVersion) &&
-                payload.buildVersion != config.buildVersion)
+                payload.buildVersion != config.BuildVersion)
             {
-                response.Reason = $"Build mismatch (server={config.buildVersion}, client={payload.buildVersion}).";
+                response.Reason = $"Build mismatch (server={config.BuildVersion}, client={payload.buildVersion}).";
                 return;
             }
 
             // 2) Max players gate (ConnectedClientsIds includes server)
             if (networkManager != null && networkManager.ConnectedClientsIds != null)
             {
-                if (networkManager.ConnectedClientsIds.Count >= config.maxPlayers)
+                if (networkManager.ConnectedClientsIds.Count >= config.MaxPlayers)
                 {
                     response.Reason = "Lobby is full.";
                     return;
@@ -76,7 +76,7 @@ namespace DungeonSteakhouse.Net.Connection
 
             // 3) No late-join (unless explicitly allowed)
             var inRun = (sceneFlow != null && sceneFlow.Phase == NetRunPhase.InRun);
-            if (inRun && !config.allowLateJoin)
+            if (inRun && !config.AllowLateJoin)
             {
                 response.Reason = "Run already started (no late join).";
                 return;

@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using HuntGame.Player;
 
 namespace DungeonSteakhouse.Net.Players
 {
@@ -8,6 +9,7 @@ namespace DungeonSteakhouse.Net.Players
     /// Makes a single-player FPS controller work in multiplayer WITHOUT modifying the original FPS scripts.
     /// - Enables input + camera + movement only for the owning client.
     /// - Disables local-only components on non-owners (no cursor lock, no extra AudioListener, etc.).
+    /// - Camera ownership across scenes is handled exclusively by NetLocalCameraEnforcer.
     /// </summary>
     public sealed class NetFpsPlayerAdapter : NetworkBehaviour
     {
@@ -21,13 +23,6 @@ namespace DungeonSteakhouse.Net.Players
         [Header("Local Camera (enabled only for Owner)")]
         [SerializeField] private Camera playerCamera;
         [SerializeField] private AudioListener playerAudioListener;
-
-        [Header("Optional Scene Camera Handling")]
-        [Tooltip("If enabled, disables any other enabled camera in the scene when the local player spawns.")]
-        [SerializeField] private bool disableOtherSceneCamerasOnOwnerSpawn = true;
-
-        [Tooltip("If enabled, disables any other AudioListener in the scene when the local player spawns.")]
-        [SerializeField] private bool disableOtherAudioListenersOnOwnerSpawn = true;
 
         public override void OnNetworkSpawn()
         {
@@ -85,43 +80,6 @@ namespace DungeonSteakhouse.Net.Players
 
             if (playerCamera) playerCamera.enabled = isOwner;
             if (playerAudioListener) playerAudioListener.enabled = isOwner;
-
-            if (!isOwner)
-                return;
-
-            if (disableOtherSceneCamerasOnOwnerSpawn)
-                DisableOtherEnabledCameras();
-
-            if (disableOtherAudioListenersOnOwnerSpawn)
-                DisableOtherAudioListeners();
-        }
-
-        private void DisableOtherEnabledCameras()
-        {
-            var cams = Object.FindObjectsByType<Camera>(FindObjectsSortMode.None);
-            for (int i = 0; i < cams.Length; i++)
-            {
-                var cam = cams[i];
-                if (cam == null) continue;
-                if (playerCamera != null && cam == playerCamera) continue;
-
-                if (cam.enabled)
-                    cam.enabled = false;
-            }
-        }
-
-        private void DisableOtherAudioListeners()
-        {
-            var listeners = Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
-            for (int i = 0; i < listeners.Length; i++)
-            {
-                var l = listeners[i];
-                if (l == null) continue;
-                if (playerAudioListener != null && l == playerAudioListener) continue;
-
-                if (l.enabled)
-                    l.enabled = false;
-            }
         }
 
         private static void SetEnabled(Behaviour behaviour, bool enabled)

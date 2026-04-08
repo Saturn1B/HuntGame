@@ -13,7 +13,10 @@ namespace DungeonSteakhouse.Net.Voice
         private const string MsgClientToServer = "SteamVoice_C2S";
         private const string MsgServerToClients = "SteamVoice_S2C";
 
-        public static NetSteamProximityVoiceChat Instance { get; private set; }
+        private static NetSteamProximityVoiceChat _instance; // private — used only for duplicate prevention
+
+        [Header("Config")]
+        [SerializeField] private NetSteamVoiceConfig voiceConfig;
 
         [Header("Behavior")]
         [Tooltip("If enabled, Steam voice recording is always ON while connected as a client.")]
@@ -37,28 +40,43 @@ namespace DungeonSteakhouse.Net.Voice
         private bool _loggedRecv;
         private bool _loggedRelay;
 
-        private readonly MemoryStream _voiceCompressed = new MemoryStream(8192);
-        private readonly MemoryStream _voiceIn = new MemoryStream(8192);
-        private readonly MemoryStream _voiceOut = new MemoryStream(16384);
+        // Voice streams — initialized in Awake using voiceConfig values
+        private MemoryStream _voiceCompressed;
+        private MemoryStream _voiceIn;
+        private MemoryStream _voiceOut;
 
-        private byte[] _txBuffer = new byte[8192];
-        private byte[] _rxBuffer = new byte[8192];
-        private byte[] _skipBuffer = new byte[8192];
-        private float[] _floatBuffer = new float[8192];
+        private byte[] _txBuffer;
+        private byte[] _rxBuffer;
+        private byte[] _skipBuffer;
+        private float[] _floatBuffer;
 
-        private int _sampleRate = 24000;
+        private int _sampleRate;
 
         private void Awake()
         {
-            // Singleton to avoid multiple handler registrations / duplicated capture
-            if (Instance != null && Instance != this)
+            // Prevent multiple instances (handler registrations / duplicated capture)
+            if (_instance != null && _instance != this)
             {
+                Debug.LogError("[NetSteamProximityVoiceChat] Duplicate instance detected. Destroying new instance.");
                 Destroy(gameObject);
                 return;
             }
 
-            Instance = this;
+            _instance = this;
             DontDestroyOnLoad(gameObject);
+
+            int compressedBuf = voiceConfig != null ? voiceConfig.CompressedBufferBytes : 8192;
+            int rawBuf        = voiceConfig != null ? voiceConfig.RawBufferBytes        : 16384;
+            _sampleRate       = voiceConfig != null ? voiceConfig.SampleRate            : 24000;
+
+            _voiceCompressed = new MemoryStream(compressedBuf);
+            _voiceIn         = new MemoryStream(compressedBuf);
+            _voiceOut        = new MemoryStream(rawBuf);
+
+            _txBuffer    = new byte[compressedBuf];
+            _rxBuffer    = new byte[compressedBuf];
+            _skipBuffer  = new byte[compressedBuf];
+            _floatBuffer = new float[compressedBuf];
         }
 
         private void OnEnable()

@@ -201,6 +201,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3559126284466455040}
+  - component: {fileID: 5344876446322143210}
   m_Layer: 6
   m_Name: RightHand
   m_TagString: Untagged
@@ -224,6 +225,21 @@ Transform:
   - {fileID: 5949396218005390626}
   m_Father: {fileID: 1317272116756679194}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5344876446322143210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6186660228948567675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 664ce1d444b7e94489423b6d4630055b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntGame.Interactions.HeldItemSocket
+  holdPositionOffset: {x: 0.3, y: -0.2, z: 0.5}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
+  attachSpeed: 12
 --- !u!1 &6259170479508642812
 GameObject:
   m_ObjectHideFlags: 0
@@ -828,7 +844,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ffeecc689b29f042b8382a962626f3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputHandler
-  movementController: {fileID: 7753308724464867349}
   cameraController: {fileID: 4436954195002885481}
 --- !u!114 &6334023525698170745
 MonoBehaviour:
@@ -988,8 +1003,6 @@ MonoBehaviour:
   headBobbing: {fileID: 6334023525698170745}
   playerCamera: {fileID: 1020143624784532481}
   playerAudioListener: {fileID: 2745236767418296677}
-  disableOtherSceneCamerasOnOwnerSpawn: 1
-  disableOtherAudioListenersOnOwnerSpawn: 1
 --- !u!114 &5205995077333441403
 MonoBehaviour:
   m_ObjectHideFlags: 0

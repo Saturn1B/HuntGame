@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using UnityEngine;
 using Unity.Netcode;
 using Netcode.Transports.Facepunch;
@@ -36,8 +35,11 @@ namespace DungeonSteakhouse.Net
         [SerializeField] private NetSceneFlow sceneFlow;
 
         [Header("Existing Implementation (do not delete)")]
-        [SerializeField] private MonoBehaviour steamBootstrap;
-        [SerializeField] private MonoBehaviour steamLobbyNetcode;
+        [SerializeField] private MonoBehaviour steamBootstrapBehaviour;   // Must implement INetBootstrapper
+        [SerializeField] private MonoBehaviour steamLobbyNetcodeBehaviour; // Must implement INetLobbyController
+
+        private INetBootstrapper _bootstrapper;
+        private INetLobbyController _lobbyController;
 
         private NetGameState _state = NetGameState.Offline;
         private bool _hostRequestInFlight;
@@ -53,15 +55,19 @@ namespace DungeonSteakhouse.Net
         {
             if (Instance != null && Instance != this)
             {
+                Debug.LogError("[NetGameRoot] Duplicate singleton detected. Destroying new instance.");
                 Destroy(gameObject);
                 return;
             }
 
             Instance = this;
 
+            _bootstrapper    = steamBootstrapBehaviour    as INetBootstrapper;
+            _lobbyController = steamLobbyNetcodeBehaviour as INetLobbyController;
+
             ValidateReferences();
 
-            if (config != null && config.dontDestroyOnLoad)
+            if (config != null && config.DontDestroyOnLoad)
                 DontDestroyOnLoad(gameObject);
 
             HookNetcodeCallbacks();
@@ -89,22 +95,16 @@ namespace DungeonSteakhouse.Net
                 return;
             }
 
-            if (steamLobbyNetcode == null)
+            if (_lobbyController == null)
             {
-                Debug.LogError("[NetGameRoot] Missing SteamLobbyNetcode reference.");
+                Debug.LogError("[NetGameRoot] Missing SteamLobbyNetcode reference or it does not implement INetLobbyController.");
                 SetState(NetGameState.Offline);
                 return;
             }
 
             _hostRequestInFlight = true;
             SetState(NetGameState.Hosting);
-
-            if (!TryInvokeInstanceMethod(steamLobbyNetcode, "Host"))
-            {
-                Debug.LogError("[NetGameRoot] Failed to invoke SteamLobbyNetcode.Host().");
-                _hostRequestInFlight = false;
-                SetState(NetGameState.Offline);
-            }
+            _lobbyController.Host();
         }
 
         public void Shutdown()
@@ -178,33 +178,6 @@ namespace DungeonSteakhouse.Net
             StateChanged?.Invoke(_state);
         }
 
-        private bool TryInvokeInstanceMethod(MonoBehaviour target, string methodName)
-        {
-            if (target == null)
-                return false;
-
-            try
-            {
-                var type = target.GetType();
-                var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
-                var method = type.GetMethod(methodName, flags);
-                if (method == null)
-                {
-                    Debug.LogError($"[NetGameRoot] Method '{methodName}' not found on {type.Name}.");
-                    return false;
-                }
-
-                method.Invoke(target, null);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-                return false;
-            }
-        }
-
         private void ValidateReferences()
         {
             if (config == null)
@@ -220,16 +193,16 @@ namespace DungeonSteakhouse.Net
                 Debug.LogWarning("[NetGameRoot] NetPlayerRegistry reference is missing.");
 
             if (sceneFlow == null)
-                Debug.LogWarning("[NetGameRoot] NetSceneFlow reference is missing (Step 3 requires it).");
+                Debug.LogWarning("[NetGameRoot] NetSceneFlow reference is missing.");
 
             if (identityProviderBehaviour != null && identityProviderBehaviour is not INetIdentityProvider)
                 Debug.LogError("[NetGameRoot] IdentityProviderBehaviour does not implement INetIdentityProvider.");
 
-            if (steamBootstrap == null)
-                Debug.LogWarning("[NetGameRoot] SteamBootstrap reference is missing (not fatal if Steam is initialized elsewhere).");
+            if (_bootstrapper == null)
+                Debug.LogWarning("[NetGameRoot] steamBootstrapBehaviour is missing or does not implement INetBootstrapper.");
 
-            if (steamLobbyNetcode == null)
-                Debug.LogError("[NetGameRoot] SteamLobbyNetcode reference is missing (Host will not work).");
+            if (_lobbyController == null)
+                Debug.LogError("[NetGameRoot] steamLobbyNetcodeBehaviour is missing or does not implement INetLobbyController (Host will not work).");
         }
     }
 }

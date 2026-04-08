@@ -11,6 +11,9 @@ GameObject:
   - component: {fileID: 9057556278143393254}
   - component: {fileID: 7022680666180034338}
   - component: {fileID: 3795975915233860049}
+  - component: {fileID: 7770289281998358117}
+  - component: {fileID: 5706798831184191403}
+  - component: {fileID: 4138168614219419066}
   m_Layer: 6
   m_Name: NetPickupInteractable
   m_TagString: Untagged
@@ -105,6 +108,62 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!54 &7770289281998358117
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4309440355362582998}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &5706798831184191403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4309440355362582998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a76fe58b7ee4d7547903efeae599c44a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntGame.Interactions.PickupInteractable
+  maxPickupDistance: 3
+  canBeDropped: 1
+  debugLogs: 0
+--- !u!114 &4138168614219419066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4309440355362582998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d487de7145e9c447ae9c56482ee0dc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntGame.Interactions.NetcodeInteractableObject
+  ShowTopMostFoldoutHeaderGroup: 1
+  _debugLogs: 0
 --- !u!1 &7403876912597211689
 GameObject:
   m_ObjectHideFlags: 0

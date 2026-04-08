@@ -7,10 +7,11 @@ using Steamworks.Data;
 using Netcode.Transports.Facepunch;
 using DungeonSteakhouse.Net;
 using DungeonSteakhouse.Net.Connection;
+using DungeonSteakhouse.Net.Core;
 
 namespace DungeonSteakhouse.Net.Steam
 {
-    public sealed class SteamLobbyNetcode : MonoBehaviour
+    public sealed class SteamLobbyNetcode : MonoBehaviour, INetLobbyController
     {
         [Header("Config (single source of truth)")]
         [SerializeField] private NetGameConfig config;
@@ -218,16 +219,16 @@ namespace DungeonSteakhouse.Net.Steam
 
         private int GetMaxPlayers()
         {
-            if (config != null && config.maxPlayers > 0)
-                return config.maxPlayers;
+            if (config != null && config.MaxPlayers > 0)
+                return config.MaxPlayers;
 
             return Mathf.Max(1, fallbackMaxMembers);
         }
 
         private string GetBuildVersion()
         {
-            if (config != null && !string.IsNullOrWhiteSpace(config.buildVersion))
-                return config.buildVersion;
+            if (config != null && !string.IsNullOrWhiteSpace(config.BuildVersion))
+                return config.BuildVersion;
 
             return fallbackBuildVersion;
         }

@@ -59,16 +59,16 @@ namespace DungeonSteakhouse.Net.Flow
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(config.dungeonSceneName))
+            if (string.IsNullOrWhiteSpace(config.DungeonSceneName))
             {
                 Debug.LogError("[NetSceneFlow] Dungeon scene name is empty in NetGameConfig.");
                 return false;
             }
 
-            var status = sceneManager.LoadScene(config.dungeonSceneName, LoadSceneMode.Additive);
+            var status = sceneManager.LoadScene(config.DungeonSceneName, LoadSceneMode.Additive);
             if (status != SceneEventProgressStatus.Started)
             {
-                Debug.LogWarning($"[NetSceneFlow] Failed to load dungeon scene '{config.dungeonSceneName}' with status: {status}");
+                Debug.LogWarning($"[NetSceneFlow] Failed to load dungeon scene '{config.DungeonSceneName}' with status: {status}");
                 return false;
             }
 
@@ -134,7 +134,7 @@ namespace DungeonSteakhouse.Net.Flow
             sceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
 
             // You requested: don't force active scene changes by default.
-            sceneManager.ActiveSceneSynchronizationEnabled = (config != null && config.syncActiveScene);
+            sceneManager.ActiveSceneSynchronizationEnabled = (config != null && config.SyncActiveScene);
 
             sceneManager.VerifySceneBeforeLoading = VerifySceneBeforeLoading;
             sceneManager.OnSceneEvent += OnSceneEvent;
@@ -151,7 +151,7 @@ namespace DungeonSteakhouse.Net.Flow
             if (config == null)
                 return false;
 
-            return sceneName == config.tavernSceneName || sceneName == config.dungeonSceneName;
+            return sceneName == config.TavernSceneName || sceneName == config.DungeonSceneName;
         }
 
         private void OnSceneEvent(SceneEvent sceneEvent)
@@ -169,13 +169,13 @@ namespace DungeonSteakhouse.Net.Flow
             // Update local phase when THIS client finishes loading/unloading the dungeon scene.
             if (isLocalEvent)
             {
-                if (sceneEvent.SceneEventType == SceneEventType.LoadComplete && sceneEvent.SceneName == config.dungeonSceneName)
+                if (sceneEvent.SceneEventType == SceneEventType.LoadComplete && sceneEvent.SceneName == config.DungeonSceneName)
                     SetPhase(NetRunPhase.InRun);
 
-                if (sceneEvent.SceneEventType == SceneEventType.UnloadComplete && sceneEvent.SceneName == config.dungeonSceneName)
+                if (sceneEvent.SceneEventType == SceneEventType.UnloadComplete && sceneEvent.SceneName == config.DungeonSceneName)
                     SetPhase(NetRunPhase.Hub);
 
-                if (sceneEvent.SceneEventType == SceneEventType.LoadComplete && sceneEvent.SceneName == config.tavernSceneName)
+                if (sceneEvent.SceneEventType == SceneEventType.LoadComplete && sceneEvent.SceneName == config.TavernSceneName)
                     SetPhase(NetRunPhase.Hub);
             }
 
@@ -187,10 +187,10 @@ namespace DungeonSteakhouse.Net.Flow
             {
                 case SceneEventType.LoadComplete:
                     {
-                        if (sceneEvent.SceneName == config.tavernSceneName)
+                        if (sceneEvent.SceneName == config.TavernSceneName)
                             _tavernScene = sceneEvent.Scene;
 
-                        if (sceneEvent.SceneName == config.dungeonSceneName)
+                        if (sceneEvent.SceneName == config.DungeonSceneName)
                             _dungeonScene = sceneEvent.Scene;
 
                         break;
@@ -198,7 +198,7 @@ namespace DungeonSteakhouse.Net.Flow
 
                 case SceneEventType.UnloadComplete:
                     {
-                        if (sceneEvent.SceneName == config.dungeonSceneName)
+                        if (sceneEvent.SceneName == config.DungeonSceneName)
                             _dungeonScene = default;
 
                         break;
@@ -206,12 +206,12 @@ namespace DungeonSteakhouse.Net.Flow
 
                 case SceneEventType.LoadEventCompleted:
                     {
-                        if (config.syncActiveScene)
+                        if (config.SyncActiveScene)
                         {
-                            if (sceneEvent.SceneName == config.dungeonSceneName && _dungeonScene.IsValid() && _dungeonScene.isLoaded)
+                            if (sceneEvent.SceneName == config.DungeonSceneName && _dungeonScene.IsValid() && _dungeonScene.isLoaded)
                                 SceneManager.SetActiveScene(_dungeonScene);
 
-                            if (sceneEvent.SceneName == config.tavernSceneName && _tavernScene.IsValid() && _tavernScene.isLoaded)
+                            if (sceneEvent.SceneName == config.TavernSceneName && _tavernScene.IsValid() && _tavernScene.isLoaded)
                                 SceneManager.SetActiveScene(_tavernScene);
                         }
 
