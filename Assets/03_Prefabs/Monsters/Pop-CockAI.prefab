@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2809610277746130335}
   - component: {fileID: 2235682090246751004}
   - component: {fileID: 6343219175549357665}
+  - component: {fileID: 6210677331891046879}
   - component: {fileID: 5896534189328686879}
   - component: {fileID: 9214421097063546760}
   - component: {fileID: 231603712897779870}
@@ -127,11 +128,6 @@ MonoBehaviour:
   ragdollCollider: {fileID: 5499757653299860764}
   timeMinLimit: 5
   timeMaxLimit: 10
-  debugWanderingRange: 0
-  minWalkingRange: 3
-  maxWalkingRange: 10
-  rangeAroundPoint: 0
-  rangeCenterPoint: {x: 0, y: 0, z: 0}
   debugChasingRange: 1
   loosingPlayerRange: 20
   explosionTriggerRange: 3
@@ -139,6 +135,23 @@ MonoBehaviour:
   explosionVfxPrefab: {fileID: 4483439250218314614, guid: 54122ac63ec6a58489af5931ace8d651, type: 3}
   smokeVfx: {fileID: 6119153413722335387}
   alertVfx: {fileID: 5449810323216113524}
+--- !u!114 &6210677331891046879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6451769286289163658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f482e6e334ac0438ba7dfd4f3d744e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.AI.WanderingBehaviour
+  debugWanderingRange: 0
+  minWalkingRange: 3
+  maxWalkingRange: 10
+  rangeAroundPoint: 0
+  rangeCenterPoint: {x: 0, y: 0, z: 0}
 --- !u!114 &5896534189328686879
 MonoBehaviour:
   m_ObjectHideFlags: 0
