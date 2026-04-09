@@ -1031,6 +1031,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boil-BackAI
       objectReference: {fileID: 0}
+    - target: {fileID: 4123868978342659880, guid: f71acb63f4a2fd441ba611e94fda54c2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1050,7 +1054,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6451769286289163658, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6536602735323448716, guid: f4a81ebbd1da78540afe2136fc12e4e0, type: 3}
       propertyPath: m_LocalPosition.x

@@ -132,7 +132,7 @@ namespace HuntingGame.AI
 							break;
 						}
 
-						if(distanceToTarget <= explosionTriggerRange)
+						if(distanceToTarget <= explosionTriggerRange && !explosionTriggered)
 						{
 							animator.SetBool("isMoving", false);
 							movementController.SetMovementInput(Vector2.zero);
@@ -155,7 +155,6 @@ namespace HuntingGame.AI
 			switch (_state)
 			{
 				case State.IDLE:
-					Debug.Log("Change to iddle");
 					ToggleSprint(false);
 					wanderingBehaviour.StopWandering();
 					break;
@@ -182,8 +181,6 @@ namespace HuntingGame.AI
 
 		private void OnWanderingMovingChanged(bool isMoving)
 		{
-			Debug.Log("Change is moving");
-
 			animator.SetBool("isMoving", isMoving);
 
 			if (!isMoving)
