@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3947796598659783878}
   - component: {fileID: 2775046799967601749}
   - component: {fileID: 7948493956454011260}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9141769057137681427}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Pivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 2929910073681680156}
   - component: {fileID: 2214781367895185891}
   - component: {fileID: 1247166020436475297}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}

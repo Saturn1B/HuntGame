@@ -20,17 +20,22 @@ namespace HuntGame.Player
         [Header("Physics")]
         [SerializeField] private float gravity = 9.81f;
 
+        [Header("References")]
+        [SerializeField] private FirstPersonCamera firstPersonCamera;
+
         private CharacterController characterController;
         private Vector3 velocity = Vector3.zero;
-
         private Vector2 currentMovementInput;
         private bool isCrouching;
         private bool isSprinting;
         private bool canMove = true;
 
-    	private void Awake()
-    	{
+        private void Awake()
+        {
             characterController = GetComponent<CharacterController>();
+
+            if (firstPersonCamera == null)
+                firstPersonCamera = GetComponentInChildren<FirstPersonCamera>();
         }
 
         private void Update()
@@ -45,57 +50,60 @@ namespace HuntGame.Player
             HandleMovement();
         }
 
-        public void SetMovementInput(Vector2 movementInput) { currentMovementInput = movementInput; }
-        public void SetSprinting(bool sprinting) { isSprinting = sprinting; }
+        public void SetMovementInput(Vector2 movementInput) => currentMovementInput = movementInput;
+        public void SetSprinting(bool sprinting) => isSprinting = sprinting;
         public void SetCrouching(bool crouching)
-    	{
-            if(isCrouching != crouching)
-    		{
+        {
+            if (isCrouching != crouching)
+            {
                 StopAllCoroutines();
                 StartCoroutine(CrouchStandTransition());
-    		}
-    	}
+            }
+        }
+
         public void Jump()
-    	{
+        {
             if (characterController.isGrounded)
                 velocity.y = Mathf.Sqrt(jumpHeight * 2f * gravity);
-    	}
+        }
 
         private void HandleMovement()
         {
-            //Check speed
             float currentSpeed = GetCurrentSpeed();
 
-            //Calculate movement
             float horizontal = currentMovementInput.x * currentSpeed;
             float vertical = currentMovementInput.y * currentSpeed;
 
             Vector3 moveDirection = new Vector3(horizontal, 0f, vertical);
-            moveDirection = transform.rotation * moveDirection;
+
+            // Déplacement relatif au yaw caméra, pas au root
+            float cameraYaw = firstPersonCamera != null
+                ? firstPersonCamera.CameraYaw
+                : transform.eulerAngles.y;
+
+            moveDirection = Quaternion.Euler(0f, cameraYaw, 0f) * moveDirection;
 
             velocity.x = moveDirection.x;
             velocity.z = moveDirection.z;
 
             ApplyGravity();
-
-            //Apply movement
             characterController.Move(velocity * Time.deltaTime);
         }
 
         private void ApplyGravity()
-    	{
+        {
             if (!characterController.isGrounded)
                 velocity.y -= gravity * Time.deltaTime;
             else if (velocity.y < 0)
                 velocity.y = -2f;
-    	}
+        }
 
         private float GetCurrentSpeed()
-    	{
+        {
             if (isCrouching) return crouchSpeed;
             if (isSprinting) return sprintSpeed;
             return moveSpeed;
-    	}
+        }
 
         private IEnumerator CrouchStandTransition()
         {

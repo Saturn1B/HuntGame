@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7770289281998358117}
   - component: {fileID: 5706798831184191403}
   - component: {fileID: 4138168614219419066}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: NetPickupInteractable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   - component: {fileID: 3100440729471282929}
   - component: {fileID: 579957055487139381}
   - component: {fileID: 1838508083493862139}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}

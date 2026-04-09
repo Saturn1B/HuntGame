@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4824406011530103181}
   - component: {fileID: 8755523232087139279}
   - component: {fileID: 1264765689808339982}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Lever
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,7 +111,7 @@ GameObject:
   - component: {fileID: 4442400296173805040}
   - component: {fileID: 7620040375779192662}
   - component: {fileID: 6142924749002994374}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 8883251542215842981}
   - component: {fileID: 7115608085429407245}
   - component: {fileID: 4817372415235588154}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Levier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
