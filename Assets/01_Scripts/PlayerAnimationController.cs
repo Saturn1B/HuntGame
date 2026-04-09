@@ -83,6 +83,8 @@ namespace HuntGame.Player
             }
             else
             {
+                if (headIK != null) headIK.SetRemote();
+
                 _netVelocityX.OnValueChanged += OnVelocityChanged;
                 _netVelocityZ.OnValueChanged += OnVelocityChanged;
                 _netIsGrounded.OnValueChanged += OnGroundedChanged;
@@ -115,7 +117,7 @@ namespace HuntGame.Player
         {
             if (!IsOwner || !IsSpawned) return;
 
-            // Vélocité en espace local du body
+            // Vélocité locale
             Vector3 worldVel = characterController != null
                 ? new Vector3(characterController.velocity.x, 0f, characterController.velocity.z)
                 : Vector3.zero;
@@ -139,7 +141,6 @@ namespace HuntGame.Player
             _netIsGrounded.Value = grounded;
             _netBodyYaw.Value = bodyYaw;
 
-            // Sync tête
             if (headIK != null)
             {
                 _netHeadYaw.Value = headIK.CurrentHeadYaw;
@@ -169,7 +170,7 @@ namespace HuntGame.Player
         private void ApplyRemoteHead()
         {
             if (headIK != null)
-                headIK.ApplyRemote(_netHeadYaw.Value, _netHeadPitch.Value);
+                headIK.SetRemoteTarget(_netHeadYaw.Value, _netHeadPitch.Value);
         }
 
         private void DriveAnimator(float velX, float velZ, bool grounded)
