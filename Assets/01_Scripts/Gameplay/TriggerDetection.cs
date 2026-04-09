@@ -1,10 +1,13 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace HuntingGame.Gameplay
 {
     public class TriggerDetection : MonoBehaviour
     {
+		[SerializeField] private string[] tags;
+
 		private int playerInDetection = 0;
 
 		public event Action _onTriggerEnter;
@@ -12,7 +15,7 @@ namespace HuntingGame.Gameplay
 
 		private void OnTriggerEnter(Collider other)
 		{
-			if (other.CompareTag("Player"))
+			if (tags.Contains(other.tag))
 				playerInDetection++;
 
 			if (playerInDetection > 0)
@@ -21,7 +24,7 @@ namespace HuntingGame.Gameplay
 
 		private void OnTriggerExit(Collider other)
 		{
-			if (other.CompareTag("Player"))
+			if (tags.Contains(other.tag))
 				playerInDetection--;
 
 			if (playerInDetection <= 0)

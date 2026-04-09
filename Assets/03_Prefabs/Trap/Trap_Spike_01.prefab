@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42286b3c9e0b4bb4e9699faccf565b6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Gameplay.TriggerDetection
+  tags:
+  - Player
 --- !u!114 &4180735659668669823
 MonoBehaviour:
   m_ObjectHideFlags: 0
