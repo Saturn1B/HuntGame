@@ -226,7 +226,6 @@ namespace HuntingGame.ProceduralGeneration
 
 						//Pre calculate world pose for entire loop and check overlaps
 						List<Pose> worldPoses = new List<Pose>();
-						List<Vector2[]> loopFootprints = new List<Vector2[]>();
 						bool anyOverlap = false;
 
 						for (int j = 0; j < loop.roomLoop.Count; j++)
@@ -245,27 +244,15 @@ namespace HuntingGame.ProceduralGeneration
 							checkGhost.transform.position = worldPos;
 							checkGhost.transform.rotation = worldRot;
 
-							if (IsOverlapping(checkGhost, targetSocket))
+							Room ignoreTarget = (j == i) ? targetSocket.room : null;
+
+							if (IsOverlapping(checkGhost, ignoreTarget))
 							{
 								anyOverlap = true;
 								checkGhost.gameObject.SetActive(false);
 								break;
 							}
-
-							Vector2[] currentFootprint = GetWorldFootprint(checkGhost);
-							for (int k = 0; k < loopFootprints.Count; k++)
-							{
-								if(PolygonsOverlap(currentFootprint, loopFootprints[k]))
-								{
-									anyOverlap = true;
-									break;
-								}
-							}
-
-							loopFootprints.Add(currentFootprint);
 							checkGhost.gameObject.SetActive(false);
-
-							if (anyOverlap) break;
 						}
 
 						//Check if any overlap, skip to try a different anchor or loop
@@ -339,7 +326,7 @@ namespace HuntingGame.ProceduralGeneration
 						if(dist < .1f && angle < 1f)
 						{
 							//Check for room overlaping
-							if (!IsOverlapping(ghostRoom, socketA))
+							if (!IsOverlapping(ghostRoom, socketA.room))
 							{
 								//Bridge is valid, validate the room and socket
 
@@ -393,7 +380,7 @@ namespace HuntingGame.ProceduralGeneration
 				AlignRooms(targetSocket, incomingSocket, room.transform);
 
 				//Check for room overlaping
-				if (IsOverlapping(room, targetSocket)) continue;
+				if (IsOverlapping(room, targetSocket.room)) continue;
 
 				//If socket found return it
 				return incomingSocket;
@@ -445,17 +432,8 @@ namespace HuntingGame.ProceduralGeneration
 			roomTransform.position += positionOffset;
 		}
 
-		private bool IsOverlapping(Room room, Socket targetSocket)
+		private bool IsOverlapping(Room room, Room roomToIgnore)
 		{
-			//Physics.SyncTransforms();
-
-			//float padding = .05f;
-			//Get the bounds or our room
-			//Bounds b = room.boundCollider.bounds;
-
-			//Get all the object colliding with our room (added a small bit of padding for tolerance)
-			//Collider[] colliders = Physics.OverlapBox(b.center, (b.extents - Vector3.one * padding), room.transform.rotation, roomLayer);
-
 			Vector2[] incoming = GetWorldFootprint(room);
 
 			//Check on all the room colliding object found
@@ -470,10 +448,7 @@ namespace HuntingGame.ProceduralGeneration
 				if (hitRoom.gameObject == room.gameObject) continue;
 
 				//If it's the room we're buidling from, skip
-				if (hitRoom == targetSocket.room) continue;
-
-				//Else, we're colliding with another room, return overlapping to true
-				//return true;
+				if (hitRoom == roomToIgnore) continue;
 
 				Vector2[] placed = GetWorldFootprint(hitRoom);
 				if (PolygonsOverlap(incoming, placed)) return true;
