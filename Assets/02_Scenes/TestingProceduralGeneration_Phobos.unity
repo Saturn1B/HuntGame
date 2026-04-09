@@ -420,14 +420,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProceduralGeneration.DungeonGenerator
   roomLibrary:
-  - {fileID: 11400000, guid: fe0055e259c7e6440a669b2c750daa73, type: 2}
-  - {fileID: 11400000, guid: 5b3e9e390ce487e40892e96d9bf7660e, type: 2}
-  - {fileID: 11400000, guid: 9fb67da0ee599634b904e7941b5dc183, type: 2}
-  - {fileID: 11400000, guid: f4ae3cc0aa7ba4642912e2596eee5019, type: 2}
-  - {fileID: 11400000, guid: 5d14834cbeff3d24da22caed475ff458, type: 2}
-  - {fileID: 11400000, guid: 35b7942026731d748be1d2d80e98bff9, type: 2}
-  - {fileID: 11400000, guid: 311f55729b8800147ad9ad9a1e1ddd91, type: 2}
-  entrancePrefab: {fileID: 7716995156583959494, guid: e22f7d0a042386741b02a0dff195d8d9, type: 3}
+  - {fileID: 11400000, guid: a9a94b6e1feaad14ba1dedec6ec5222b, type: 2}
+  - {fileID: 11400000, guid: cff63a3385713e546bc91feb183ed141, type: 2}
+  - {fileID: 11400000, guid: 4e5c6acf4526c1b4086b39ab804cda21, type: 2}
+  - {fileID: 11400000, guid: 0a20adb8bacb6084ab9954a0c6120c45, type: 2}
+  - {fileID: 11400000, guid: e499732f29e3d6046878e8d1c4b9b2f6, type: 2}
+  - {fileID: 11400000, guid: e4c9975475cc91c4d9f1444b66a993c4, type: 2}
+  - {fileID: 11400000, guid: 02678a19b7b962e4a841b447e02c4218, type: 2}
+  - {fileID: 11400000, guid: 94d410beb2a2fd2489b2dc246e0028a7, type: 2}
+  - {fileID: 11400000, guid: 405f327f903fc4543a45e1535255240d, type: 2}
+  - {fileID: 11400000, guid: 93c2126b7b7d15f478b81089e865e2f3, type: 2}
+  - {fileID: 11400000, guid: 5ce8ae23ccb0ef94ba2eccd6ba9074e8, type: 2}
+  - {fileID: 11400000, guid: 6bca7e5d54f60da498204d007d1a97e4, type: 2}
+  - {fileID: 11400000, guid: e6f447b468f460e418e7d1b67abed449, type: 2}
+  - {fileID: 11400000, guid: e2a1cd8c9ed72ba44b3605b1ab9509ef, type: 2}
+  - {fileID: 11400000, guid: 9af2a466352a1274680df8190df26697, type: 2}
+  - {fileID: 11400000, guid: 5e3c3782af4701946b1812585529ee06, type: 2}
+  - {fileID: 11400000, guid: 9a2350336bdc23d45b3c1b048d8f3ac6, type: 2}
+  - {fileID: 11400000, guid: d7299c419d4d77b408cfb66d255b1a56, type: 2}
+  - {fileID: 11400000, guid: 2c2de92c100ee0d42bf14d1a45efe48c, type: 2}
+  - {fileID: 11400000, guid: 746330a327039bf4881aad93477c85ec, type: 2}
+  - {fileID: 11400000, guid: a100b6cff545dc243acfd48a66035e2e, type: 2}
+  - {fileID: 11400000, guid: baf2d03842879cc4aa331c8d633fab01, type: 2}
+  - {fileID: 11400000, guid: 8af73dc56030f704ab8ae5cbd8ae20d2, type: 2}
+  - {fileID: 11400000, guid: f4751ad601aa58c42a74020c2108b611, type: 2}
+  entrancePrefab: {fileID: 91355394788252633, guid: 07353f954e98d3c4ba19ffda2efb2aa8, type: 3}
   deepness: 50
   roomLayer:
     serializedVersion: 2
@@ -510,7 +527,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f30e75a13285161469121003f79e1b29, type: 2}
   - {fileID: 11400000, guid: 3f847e3fb752cae4e8bd4085614dd93a, type: 2}
   - {fileID: 11400000, guid: 9cb2b7888e05e4f439f2fec3682343c8, type: 2}
-  loopProbability: 0.1
+  loopProbability: 0
 --- !u!4 &536361917
 Transform:
   m_ObjectHideFlags: 0
