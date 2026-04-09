@@ -226,6 +226,7 @@ namespace HuntingGame.ProceduralGeneration
 
 						//Pre calculate world pose for entire loop and check overlaps
 						List<Pose> worldPoses = new List<Pose>();
+						List<Vector2[]> loopFootprints = new List<Vector2[]>();
 						bool anyOverlap = false;
 
 						for (int j = 0; j < loop.roomLoop.Count; j++)
@@ -250,7 +251,21 @@ namespace HuntingGame.ProceduralGeneration
 								checkGhost.gameObject.SetActive(false);
 								break;
 							}
+
+							Vector2[] currentFootprint = GetWorldFootprint(checkGhost);
+							for (int k = 0; k < loopFootprints.Count; k++)
+							{
+								if(PolygonsOverlap(currentFootprint, loopFootprints[k]))
+								{
+									anyOverlap = true;
+									break;
+								}
+							}
+
+							loopFootprints.Add(currentFootprint);
 							checkGhost.gameObject.SetActive(false);
+
+							if (anyOverlap) break;
 						}
 
 						//Check if any overlap, skip to try a different anchor or loop
@@ -476,6 +491,10 @@ namespace HuntingGame.ProceduralGeneration
 				{
 					Vector2 edge = poly[(i + 1) % poly.Length] - poly[i];
 					Vector2 axis = new Vector2(-edge.y, edge.x);
+
+					float magnitude = axis.magnitude;
+					if (magnitude < 0.0001f) continue; // ignore les arêtes dégénérées
+					axis /= magnitude;
 
 					Project(polyA, axis, out float minA, out float maxA);
 					Project(polyB, axis, out float minB, out float maxB);

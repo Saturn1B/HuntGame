@@ -365,6 +365,10 @@ namespace HuntingGame.ProceduralGeneration
 					Vector2 edge = poly[(i + 1) % poly.Length] - poly[i];
 					Vector2 axis = new Vector2(-edge.y, edge.x);
 
+					float magnitude = axis.magnitude;
+					if (magnitude < 0.0001f) continue; // ignore les arêtes dégénérées
+					axis /= magnitude;
+
 					Project(polyA, axis, out float minA, out float maxA);
 					Project(polyB, axis, out float minB, out float maxB);
 
