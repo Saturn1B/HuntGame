@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace ProceduralGeneration
+namespace HuntingGame.ProceduralGeneration
 {
 	[CreateAssetMenu(fileName = "RoomData", menuName = "Scriptable Objects/RoomData")]
 	public class RoomData : ScriptableObject

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-namespace ProceduralGeneration
+namespace HuntingGame.ProceduralGeneration
 {
 	public class LoopViewer : MonoBehaviour
 	{
