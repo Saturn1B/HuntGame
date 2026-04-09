@@ -485,6 +485,7 @@ GameObject:
   - component: {fileID: 6334023525698170745}
   - component: {fileID: 7864628736817495594}
   - component: {fileID: 8498255281906859732}
+  - component: {fileID: 1244805248305406079}
   m_Layer: 10
   m_Name: FPSPlayer
   m_TagString: Player
@@ -610,6 +611,9 @@ MonoBehaviour:
   crouchingHeight: 0.3
   crouchTransitionSpeed: 0.1
   gravity: 9.81
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 32768
 --- !u!114 &4436954195002885481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -722,6 +726,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SimplePlayerInteractor
   viewCamera: {fileID: 1020143624784532481}
   rayDistance: 3
+--- !u!114 &1244805248305406079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8342106431650556681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d53e3d8d37882624ebd280c5f0e7bfb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Health
+  healthPoint: 5
 --- !u!1 &8690847106272721590
 GameObject:
   m_ObjectHideFlags: 0

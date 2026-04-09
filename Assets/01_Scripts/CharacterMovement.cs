@@ -17,6 +17,7 @@ public class CharacterMovement : MonoBehaviour, IControlable
 
     [Header("Physics")]
     [SerializeField] private float gravity = 9.81f;
+    [SerializeField] private LayerMask groundLayer;
 
     private CharacterController characterController;
     private Vector3 velocity = Vector3.zero;
@@ -112,7 +113,7 @@ public class CharacterMovement : MonoBehaviour, IControlable
     public bool IsGroundedLocal()
     {
         float rayLength = (characterController.height / 2f) + 0.2f;
-        return Physics.Raycast(transform.position, -transform.up, rayLength);
+        return Physics.Raycast(transform.position, -transform.up, rayLength, groundLayer);
     }
 
     private float GetCurrentSpeed()
