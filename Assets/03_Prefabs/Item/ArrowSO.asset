@@ -10,8 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37a530b5cae8d7a4cb6061c15ce3f89b, type: 3}
-  m_Name: TestItem
-  m_EditorClassIdentifier: Assembly-CSharp::ItemScriptable
-  itemName: Test Bow
+  m_Name: ArrowSO
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Item.ItemScriptable
+  stackable: 1
+  itemName: Arrow
+  offset:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0, w: 0}
   itemSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  itemPrefab: {fileID: -927199367670048503, guid: babcae9b9a6d26d4e87588f2a91e9875, type: 3}
+  itemPrefab: {fileID: 992750840313922818, guid: 934aab8233adac2419ff5c7f80570b4f, type: 3}

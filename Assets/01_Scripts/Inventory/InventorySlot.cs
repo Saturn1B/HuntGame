@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using HuntingGame.Item;
 
 namespace HuntingGame.Inventory
 {
@@ -9,7 +10,7 @@ namespace HuntingGame.Inventory
 		[Header("Slot Setup")]
 		[SerializeField] private Image itemImage;
 		[SerializeField] private TMP_Text itemNumberText;
-		private int itemNumber;
+		[SerializeField] private int itemNumber;
 		public ItemScriptable currentItem;
 
 		private Camera playerCamera;
@@ -29,6 +30,9 @@ namespace HuntingGame.Inventory
 
 		private void RefreshItem()
 		{
+			if (itemNumber == 0)
+				currentItem = null;
+
 			if(currentItem == null)
 			{
 				itemImage.gameObject.SetActive(false);
@@ -45,6 +49,20 @@ namespace HuntingGame.Inventory
 			itemNumberText.text = itemNumber.ToString();
 			itemNumberText.gameObject.SetActive(itemNumber > 1);
 
+		}
+
+		public int GetItemNumber()
+		{
+			return itemNumber;
+		}
+
+		public void ChangeNumber(int value)
+		{
+			if (itemNumber + value > 1 && !currentItem.stackable) return;
+
+			itemNumber += value;
+
+			RefreshItem();
 		}
     }
 }

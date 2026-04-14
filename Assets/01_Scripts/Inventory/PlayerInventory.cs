@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections;
+using HuntingGame.Item;
 
 namespace HuntingGame.Inventory
 {
@@ -21,6 +22,8 @@ namespace HuntingGame.Inventory
 		private int slotIndex;
 
 		private GameObject objectInHand;
+
+		private SimplePlayerInteractor playerInteractor;
 
 		private void OnValidate()
 		{
@@ -47,11 +50,21 @@ namespace HuntingGame.Inventory
 #endif
 		}
 
+		private void Awake()
+		{
+			playerInteractor = GetComponent<SimplePlayerInteractor>();
+		}
+
 		private void Start()
 		{
 			if (inventorySlots != null && inventorySlots.Length == inventorySize && inventoryPanel.childCount > 0)
 			{
+#if UNITY_EDITOR
+				if(UnityEditor.EditorApplication.isPlaying)
+					SetSelectedSlot(slotIndex);
+#else
 				SetSelectedSlot(slotIndex);
+#endif
 				return;
 			}
 			InitializeInventory();
@@ -74,6 +87,8 @@ namespace HuntingGame.Inventory
 
 		public void ScrollSlot(int value)
 		{
+			if (value == 0) return;
+
 			if (value < 0)
 				value = value + inventorySlots.Length;
 			slotIndex = (slotIndex + value) % inventorySlots.Length;
@@ -82,6 +97,8 @@ namespace HuntingGame.Inventory
 
 		private void SetSelectedSlot(int slotIndex)
 		{
+			RemoveObjectInHand();
+
 			for (int i = 0; i < inventorySlots.Length; i++)
 			{
 				if (i == slotIndex)
@@ -98,11 +115,19 @@ namespace HuntingGame.Inventory
 				StartCoroutine(ShowItemName(selectedSlot.currentItem.itemName));
 				if (selectedSlot.currentItem.itemPrefab)
 				{
-					//ADD OBJECT IN HAND
+					//Add Item in hand
+					GameObject obj = Instantiate(selectedSlot.currentItem.itemPrefab, rightHand);
+					obj.transform.localPosition = selectedSlot.currentItem.offset.position;
+					obj.transform.localRotation = selectedSlot.currentItem.offset.rotation;
+
+					objectInHand = obj;
+					if (objectInHand.TryGetComponent(out ISimpleUseable useable))
+						playerInteractor.SetUseable(useable);
 				}
 				else
 				{
-					//REMOVE OBJECT IN HAND
+					//Remove Item from hand
+					RemoveObjectInHand();
 				}
 			}
 			else
@@ -111,7 +136,8 @@ namespace HuntingGame.Inventory
 				itemText.gameObject.SetActive(false);
 				itemText.color = Color.white - new Color(0, 0, 0, 1f);
 
-				//REMOVE OBJECT IN HAND
+				//Remove Item from hand
+				RemoveObjectInHand();
 			}
 		}
 
@@ -131,6 +157,33 @@ namespace HuntingGame.Inventory
 
 			itemText.gameObject.SetActive(false);
 			itemText.color = Color.white - new Color(0, 0, 0, 1f);
+		}
+
+		private void RemoveObjectInHand()
+		{
+			Destroy(objectInHand);
+			objectInHand = null;
+			playerInteractor.SetUseable(null);
+		}
+
+		public int GetNumberItemOfType(ItemScriptable itemType)
+		{
+			foreach (InventorySlot slot in inventorySlots)
+			{
+				if (slot.currentItem == itemType)
+					return slot.GetItemNumber();
+			}
+
+			return 0;
+		}
+
+		public void RemoveItemOfType(ItemScriptable itemType)
+		{
+			foreach (InventorySlot slot in inventorySlots)
+			{
+				if (slot.currentItem == itemType)
+					slot.ChangeNumber(-1);
+			}
 		}
 	}
 }

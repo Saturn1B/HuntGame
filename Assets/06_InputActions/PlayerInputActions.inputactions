@@ -61,6 +61,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Use",
+                    "type": "Button",
+                    "id": "4df7513b-d8d2-41a0-bcc3-a85c9c3d67b0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press(behavior=2)",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ScrollInventory",
                     "type": "Value",
                     "id": "8e90fdb5-4c97-47f1-90cf-10e0bd665538",
@@ -189,6 +198,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "63084068-b0e4-4972-bb08-3d16e28c9050",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Use",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
