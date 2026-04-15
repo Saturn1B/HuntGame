@@ -1,45 +1,48 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace HuntGame.Player
+[RequireComponent(typeof(PlayerInput))]
+public class PlayerInputHandler : MonoBehaviour
 {
-    [RequireComponent(typeof(PlayerInput))]
-    public class PlayerInputHandler : MonoBehaviour
-    {
-    	private IMovable movementController;
-    	[SerializeField] private FirstPersonCamera cameraController;
+	[SerializeField] private CharacterMovement movementController;
+	[SerializeField] private FirstPersonCamera cameraController;
+	[SerializeField] private SimplePlayerInteractor playerInteractor;
 
-    	private void Awake()
-    	{
-    		if (movementController == null)
-    			movementController = GetComponent<CharacterMovement>();
+	private void Awake()
+	{
+		if (movementController == null)
+			movementController = GetComponent<CharacterMovement>();
 
-    		if (cameraController == null)
-    			cameraController = GetComponent<FirstPersonCamera>();
-    	}
+		if (cameraController == null)
+			cameraController = GetComponent<FirstPersonCamera>();
 
-    	public void OnMove(InputValue value)
-    	{
-    		Vector2 movementInput = value.Get<Vector2>();
-    		movementController?.SetMovementInput(movementInput);
-    	}
+		if (playerInteractor == null)
+			playerInteractor = GetComponent<SimplePlayerInteractor>();
+	}
 
-    	public void OnCamera(InputValue value)
-    	{
-    		Vector2 lookInput = value.Get<Vector2>();
-    		cameraController?.SetLookInput(lookInput);
-    	}
+	public void OnMove(InputValue value)
+	{
+		Vector2 movementInput = value.Get<Vector2>();
+		movementController?.SetMovementInput(movementInput);
+	}
 
-    	public void OnSprint(InputValue value) { movementController?.SetSprinting(value.isPressed); }
+	public void OnCamera(InputValue value)
+	{
+		Vector2 lookInput = value.Get<Vector2>();
+		cameraController?.SetLookInput(lookInput);
+	}
 
-    	public void OnCrouch(InputValue value)
-    	{
-    		if (value.isPressed)
-    			movementController?.SetCrouching(true);
-    		else
-    			movementController?.SetCrouching(false);
-    	}
+	public void OnSprint(InputValue value) { movementController?.SetSprinting(value.isPressed); }
 
-    	public void OnJump(InputValue value) { movementController?.Jump(); }
-    }
+	public void OnCrouch(InputValue value)
+	{
+		if (value.isPressed)
+			movementController?.SetCrouching(true);
+		else
+			movementController?.SetCrouching(false);
+	}
+
+	public void OnJump(InputValue value) { movementController?.Jump(); }
+
+	public void OnInteract(InputValue value) { playerInteractor.TryInteract(value.isPressed);  }
 }

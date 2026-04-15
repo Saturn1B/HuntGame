@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ProceduralGeneration
+namespace HuntingGame.ProceduralGeneration
 {
 	public enum SocketType
 	{

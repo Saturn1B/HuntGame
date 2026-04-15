@@ -1,8 +1,9 @@
 {
   "dependencies": {
     "com.community.netcode.transport.facepunch": "https://github.com/Unity-Technologies/multiplayer-community-contributions.git?path=/Transports/com.community.netcode.transport.facepunch",
-    "com.unity.2d.sprite": "1.0.0",
+    "com.gamelovers.mcp-unity": "https://github.com/CoderGamester/mcp-unity.git",
     "com.unity.ai.navigation": "2.0.10",
+    "com.unity.animation.rigging": "1.4.1",
     "com.unity.cinemachine": "3.1.5",
     "com.unity.collab-proxy": "2.11.3",
     "com.unity.formats.fbx": "5.1.5",
@@ -15,7 +16,6 @@
     "com.unity.probuilder": "6.0.9",
     "com.unity.recorder": "5.1.5",
     "com.unity.render-pipelines.universal": "17.3.0",
-    "com.unity.services.authentication": "3.6.0",
     "com.unity.test-framework": "1.6.0",
     "com.unity.timeline": "1.8.10",
     "com.unity.ugui": "2.0.0",

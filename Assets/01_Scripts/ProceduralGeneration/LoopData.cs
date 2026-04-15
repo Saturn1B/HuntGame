@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 
-namespace ProceduralGeneration
+namespace HuntingGame.ProceduralGeneration
 {
 	[CreateAssetMenu(fileName = "LoopData", menuName = "Scriptable Objects/LoopData")]
 	public class LoopData : ScriptableObject

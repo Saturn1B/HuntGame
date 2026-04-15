@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace ProceduralGeneration
+namespace HuntingGame.ProceduralGeneration
 {
 	public class Room : MonoBehaviour
 	{
