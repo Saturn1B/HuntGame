@@ -4,7 +4,6 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using DungeonSteakhouse.Net.Players;
-using DungeonSteakhouse.Net.Flow;
 using DungeonSteakhouse.Net.Session;
 
 namespace DungeonSteakhouse.Net.UI
@@ -13,8 +12,6 @@ namespace DungeonSteakhouse.Net.UI
     {
         [Header("References")]
         [SerializeField] private NetGameRoot netGameRoot;
-        [SerializeField] private NetSceneFlow sceneFlow;
-        [SerializeField] private NetGameSession gameSession;
 
         [Header("Debug UI")]
         [Tooltip("If false, the UI is read-only (no Ready/Start buttons). Useful when using platform-based ready.")]
@@ -45,9 +42,6 @@ namespace DungeonSteakhouse.Net.UI
                 netGameRoot.PlayerRegistry.PlayerRemoved += OnRegistryChanged;
                 netGameRoot.PlayerRegistry.PlayerUpdated += OnRegistryChanged;
             }
-
-            if (gameSession == null)
-                Debug.LogWarning("[NetLobbyRosterTMP] gameSession is not assigned in the Inspector.");
 
             ApplyButtonVisibility();
             Refresh();
@@ -106,11 +100,10 @@ namespace DungeonSteakhouse.Net.UI
 
             var isLocalHost = NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost;
 
-            bool canStart = false;
-            if (gameSession != null)
-                canStart = gameSession.CanStartRun();
-            else
-                canStart = netGameRoot.PlayerRegistry.AreAllReady;
+            var session = NetSessionManager.Instance;
+            bool canStart = session != null
+                ? session.State == NetSessionState.Lobby && netGameRoot.PlayerRegistry.AreAllReady
+                : netGameRoot.PlayerRegistry.AreAllReady;
 
             if (startButton != null)
                 startButton.interactable = enableDebugButtons && isLocalHost && canStart;
@@ -136,20 +129,14 @@ namespace DungeonSteakhouse.Net.UI
             if (!enableDebugButtons)
                 return;
 
-            if (gameSession != null)
+            var session = NetSessionManager.Instance;
+            if (session == null)
             {
-                gameSession.RequestStartRun();
+                Debug.LogError("[NetLobbyRosterTMP] NetSessionManager.Instance is null.");
                 return;
             }
 
-            if (sceneFlow == null)
-            {
-                Debug.LogError("[NetLobbyRosterTMP] Missing NetSceneFlow reference.");
-                return;
-            }
-
-            if (!sceneFlow.TryStartRun())
-                Debug.LogWarning("[NetLobbyRosterTMP] StartRun failed (check console for details).");
+            session.RequestStartRunServerRpc();
         }
 
         private static NetPlayer GetLocalPlayer()

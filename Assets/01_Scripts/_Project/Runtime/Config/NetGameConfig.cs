@@ -34,5 +34,9 @@ namespace DungeonSteakhouse.Net
         [Tooltip("Run scene loaded when the host starts a run (additively).")]
         [SerializeField] private string dungeonSceneName = "Dungeon";
         public string DungeonSceneName => dungeonSceneName;
+
+        [Tooltip("Persistent elevator scene loaded at startup via regular SceneManager (never unloaded).")]
+        [SerializeField] private string elevatorSceneName = "Elevator";
+        public string ElevatorSceneName => elevatorSceneName;
     }
 }

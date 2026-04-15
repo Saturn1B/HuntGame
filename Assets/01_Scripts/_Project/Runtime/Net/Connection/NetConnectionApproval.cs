@@ -1,6 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
-using DungeonSteakhouse.Net.Flow;
+using DungeonSteakhouse.Net.Session;
 
 namespace DungeonSteakhouse.Net.Connection
 {
@@ -11,7 +11,6 @@ namespace DungeonSteakhouse.Net.Connection
 
         [Header("References")]
         [SerializeField] private NetworkManager networkManager;
-        [SerializeField] private NetSceneFlow sceneFlow;
 
         private void Awake()
         {
@@ -75,7 +74,7 @@ namespace DungeonSteakhouse.Net.Connection
             }
 
             // 3) No late-join (unless explicitly allowed)
-            var inRun = (sceneFlow != null && sceneFlow.Phase == NetRunPhase.InRun);
+            var inRun = NetSessionManager.Instance?.State == NetSessionState.InRun;
             if (inRun && !config.AllowLateJoin)
             {
                 response.Reason = "Run already started (no late join).";
@@ -98,9 +97,6 @@ namespace DungeonSteakhouse.Net.Connection
 
             if (networkManager == null)
                 Debug.LogError("[NetConnectionApproval] NetworkManager is missing.");
-
-            if (sceneFlow == null)
-                Debug.LogWarning("[NetConnectionApproval] NetSceneFlow is not assigned (late-join gate will be weaker).");
         }
     }
 }

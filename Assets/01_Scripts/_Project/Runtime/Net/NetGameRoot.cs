@@ -4,7 +4,6 @@ using Unity.Netcode;
 using Netcode.Transports.Facepunch;
 using DungeonSteakhouse.Net.Core;
 using DungeonSteakhouse.Net.Players;
-using DungeonSteakhouse.Net.Flow;
 
 namespace DungeonSteakhouse.Net
 {
@@ -32,7 +31,6 @@ namespace DungeonSteakhouse.Net
         [Header("Services")]
         [SerializeField] private MonoBehaviour identityProviderBehaviour; // Must implement INetIdentityProvider
         [SerializeField] private NetPlayerRegistry playerRegistry;
-        [SerializeField] private NetSceneFlow sceneFlow;
 
         [Header("Existing Implementation (do not delete)")]
         [SerializeField] private MonoBehaviour steamBootstrapBehaviour;   // Must implement INetBootstrapper
@@ -47,7 +45,6 @@ namespace DungeonSteakhouse.Net
         public NetGameState State => _state;
         public NetGameConfig Config => config;
         public NetPlayerRegistry PlayerRegistry => playerRegistry;
-        public NetSceneFlow SceneFlow => sceneFlow;
 
         public INetIdentityProvider IdentityProvider => identityProviderBehaviour as INetIdentityProvider;
 
@@ -191,9 +188,6 @@ namespace DungeonSteakhouse.Net
 
             if (playerRegistry == null)
                 Debug.LogWarning("[NetGameRoot] NetPlayerRegistry reference is missing.");
-
-            if (sceneFlow == null)
-                Debug.LogWarning("[NetGameRoot] NetSceneFlow reference is missing.");
 
             if (identityProviderBehaviour != null && identityProviderBehaviour is not INetIdentityProvider)
                 Debug.LogError("[NetGameRoot] IdentityProviderBehaviour does not implement INetIdentityProvider.");

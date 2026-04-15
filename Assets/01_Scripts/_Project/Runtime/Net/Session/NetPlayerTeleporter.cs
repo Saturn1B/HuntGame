@@ -13,13 +13,6 @@ namespace DungeonSteakhouse.Net.Session
         [SerializeField] private int teleportRetryFrames = 2;
         [SerializeField] private bool verboseLogs = true;
 
-        private NetSessionPhase _currentPhase = NetSessionPhase.Lobby;
-
-        /// <summary>
-        /// Must be called by NetGameSession when the phase changes so teleporter knows the context.
-        /// </summary>
-        public void SetCurrentPhase(NetSessionPhase phase) => _currentPhase = phase;
-
         public void TeleportAllPlayers(NetSpawnContext context)
         {
             var nm = NetworkManager.Singleton;
@@ -39,6 +32,22 @@ namespace DungeonSteakhouse.Net.Session
 
                 c.PlayerObject.transform.SetPositionAndRotation(pos, rot);
             }
+        }
+
+        public bool TeleportClient(ulong clientId, NetSpawnContext context)
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm == null || spawnResolver == null)
+                return false;
+
+            if (!nm.ConnectedClients.TryGetValue(clientId, out var client) || client == null || client.PlayerObject == null)
+                return false;
+
+            if (!spawnResolver.TryGetSpawnPoint(context, clientId, out var pos, out var rot))
+                return false;
+
+            client.PlayerObject.transform.SetPositionAndRotation(pos, rot);
+            return true;
         }
 
         public void DeferredTeleportClient(ulong clientId)
@@ -69,7 +78,8 @@ namespace DungeonSteakhouse.Net.Session
             if (!nm.ConnectedClients.TryGetValue(clientId, out var client) || client == null || client.PlayerObject == null)
                 return false;
 
-            var ctx = (_currentPhase == NetSessionPhase.InRun || _currentPhase == NetSessionPhase.LoadingRun)
+            var state = NetSessionManager.Instance?.State ?? NetSessionState.Lobby;
+            var ctx = (state == NetSessionState.InRun || state == NetSessionState.StartingRun)
                 ? NetSpawnContext.Run
                 : NetSpawnContext.Lobby;
 

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using DungeonSteakhouse.Net;
-using DungeonSteakhouse.Net.Flow;
 using DungeonSteakhouse.Net.Players;
 
 namespace DungeonSteakhouse.Net.Session
@@ -51,6 +50,11 @@ namespace DungeonSteakhouse.Net.Session
 
         public NetReadyGateMode Mode => mode;
         public bool AllReadyConfirmedServer => _allReadyConfirmedServer;
+
+        public IReadOnlyCollection<ulong> GetPlayersOnPlatform()
+        {
+            return new List<ulong>(_overlapCounts.Keys);
+        }
 
         private void Awake()
         {
@@ -156,14 +160,14 @@ namespace DungeonSteakhouse.Net.Session
             if (nm == null || !nm.IsServer)
                 return false;
 
-            var flow = netGameRoot != null ? netGameRoot.SceneFlow : null;
-            if (flow == null)
+            var session = NetSessionManager.Instance;
+            if (session == null)
                 return true;
 
             return mode switch
             {
-                NetReadyGateMode.HubOnly => flow.Phase == NetRunPhase.Hub,
-                NetReadyGateMode.InRunOnly => flow.Phase == NetRunPhase.InRun,
+                NetReadyGateMode.HubOnly => session.State == NetSessionState.Lobby,
+                NetReadyGateMode.InRunOnly => session.State == NetSessionState.InRun,
                 NetReadyGateMode.HubAndRun => true,
                 _ => true
             };

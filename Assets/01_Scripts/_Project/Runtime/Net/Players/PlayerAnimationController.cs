@@ -169,7 +169,7 @@ namespace HuntGame.Player
 
         private void ApplyRemoteHead()
         {
-            Debug.Log($"ApplyRemoteHead — IsOwner:{IsOwner} yaw:{_netHeadYaw.Value} pitch:{_netHeadPitch.Value} headIK:{headIK != null}");
+            //Debug.Log($"ApplyRemoteHead — IsOwner:{IsOwner} yaw:{_netHeadYaw.Value} pitch:{_netHeadPitch.Value} headIK:{headIK != null}");
             if (headIK != null)
                 headIK.SetRemoteTarget(_netHeadYaw.Value, _netHeadPitch.Value);
         }
