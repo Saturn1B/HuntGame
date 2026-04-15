@@ -4,6 +4,8 @@ namespace HuntingGame.Item
 {
     public class Arrow : MonoBehaviour
     {
+		[SerializeField] private OrientationSettings orientation;
+
 		private Rigidbody rb;
 		private BoxCollider boxCollider;
 
@@ -24,11 +26,12 @@ namespace HuntingGame.Item
 
 		public void Shoot(float shootForce)
 		{
+			transform.SetParent(null);
+
 			boxCollider.enabled = true;
 
 			rb.isKinematic = false;
 			rb.AddForce(transform.up * shootForce, ForceMode.Impulse);
-			transform.SetParent(null);
 
 			isShot = true;
 		}
@@ -38,7 +41,11 @@ namespace HuntingGame.Item
 			if (!isShot) return;
 
 			if (rb.linearVelocity.magnitude > .1f)
-				transform.up = rb.linearVelocity;
+			{
+				Quaternion targetRotation = RotationUtils.GetCorrectedLookRotation(rb.linearVelocity.normalized, Vector3.up, orientation);
+
+				transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * 10);
+			}
 		}
 
 		private void OnCollisionEnter(Collision collision)

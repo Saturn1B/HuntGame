@@ -198,6 +198,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &546774239 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 220705417515639676, guid: 8a3dbe6c9b734944abd621efab6ae197, type: 3}
+  m_PrefabInstance: {fileID: 1485643494}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &546774241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546774239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d972d1f3aa8e6e409b20b83676e3384, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.CameraShakeManager
+  defaultDuration: 0.2
+  defaultStrength: 0.1
+  defaultVibrato: 20
 --- !u!1 &806060948
 GameObject:
   m_ObjectHideFlags: 0
@@ -633,7 +653,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 220705417515639676, guid: 8a3dbe6c9b734944abd621efab6ae197, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 546774241}
   m_SourcePrefab: {fileID: 100100000, guid: 8a3dbe6c9b734944abd621efab6ae197, type: 3}
 --- !u!1001 &6485984864508506978
 PrefabInstance:

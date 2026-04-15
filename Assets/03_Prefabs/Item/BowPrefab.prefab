@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 40071645938584689}
   - component: {fileID: 687904249063293972}
   - component: {fileID: 5427830555327288676}
+  - component: {fileID: 6096364683798155183}
   m_Layer: 6
   m_Name: BowPrefab
   m_TagString: Untagged
@@ -137,4 +138,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Item.Bow
   ammoType: {fileID: 11400000, guid: fee6f53c1c8944f498c7ed93c531b76f, type: 2}
   arrowSpawnPoint: {fileID: 2748298547759086812}
-  bowForce: 5
+  maxBowForce: 5
+  timeToMaxTension: 1
+--- !u!114 &6096364683798155183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7353943408698986364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 482bd6c820efb874fbb32496d4d71693, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.CenterAim
+  maxAimDistance: 100
+  aimSpeed: 20
+  orientation:
+    forwardAxis: 0
+    upAxis: 2
