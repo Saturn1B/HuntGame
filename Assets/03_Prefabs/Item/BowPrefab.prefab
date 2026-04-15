@@ -42,8 +42,8 @@ GameObject:
   - component: {fileID: 9092013116760328232}
   - component: {fileID: 40071645938584689}
   - component: {fileID: 687904249063293972}
-  - component: {fileID: 5427830555327288676}
   - component: {fileID: 6096364683798155183}
+  - component: {fileID: 7025583410419753789}
   m_Layer: 6
   m_Name: BowPrefab
   m_TagString: Untagged
@@ -124,22 +124,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &5427830555327288676
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7353943408698986364}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71fb027bdb1f05f4e80f6309bfb9b313, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Item.Bow
-  ammoType: {fileID: 11400000, guid: fee6f53c1c8944f498c7ed93c531b76f, type: 2}
-  arrowSpawnPoint: {fileID: 2748298547759086812}
-  maxBowForce: 5
-  timeToMaxTension: 1
 --- !u!114 &6096364683798155183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,3 +141,23 @@ MonoBehaviour:
   orientation:
     forwardAxis: 0
     upAxis: 2
+--- !u!114 &7025583410419753789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7353943408698986364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28b94b2101531184eb58ae149545cbbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Item.DrawingWeapon
+  weaponPower: 5
+  spread: 0.08
+  itemData: {fileID: 11400000, guid: 00a18e883594c964d8855d346b1dda88, type: 2}
+  ammoType: {fileID: 11400000, guid: fee6f53c1c8944f498c7ed93c531b76f, type: 2}
+  arrowSpawnPoint: {fileID: 2748298547759086812}
+  needAmmo: 1
+  reloadTime: 0
+  timeToMaxTension: 1

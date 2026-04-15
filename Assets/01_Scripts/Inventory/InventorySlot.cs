@@ -64,5 +64,12 @@ namespace HuntingGame.Inventory
 
 			RefreshItem();
 		}
+
+		public void AddItem(ItemScriptable itemScriptable)
+		{
+			currentItem = itemScriptable;
+			ChangeNumber(1);
+			RefreshItem();
+		}
     }
 }

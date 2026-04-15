@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4110667015105369912}
   - component: {fileID: 1112843506648090408}
   - component: {fileID: 3001594214624043155}
-  - component: {fileID: 6910200256584012682}
+  - component: {fileID: 8986332887286705398}
   m_Layer: 16
   m_Name: Arrow
   m_TagString: Untagged
@@ -141,7 +141,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.20969585, y: 1.2079458, z: 0.11434084}
   m_Center: {x: 0.008416896, y: 0.59269065, z: -0.0019256708}
---- !u!114 &6910200256584012682
+--- !u!114 &8986332887286705398
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,9 +150,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 992750840313922818}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f2bcedc77b373d46b8f376b5eb6fcb7, type: 3}
+  m_Script: {fileID: 11500000, guid: d3f9994ba3436114eac47782f3fd0171, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Item.Arrow
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Item.Munition
+  itemData: {fileID: 11400000, guid: fee6f53c1c8944f498c7ed93c531b76f, type: 2}
   orientation:
     forwardAxis: 1
     upAxis: 3
+  isPhysic: 1
+  isPersistent: 1
+  damage: 1

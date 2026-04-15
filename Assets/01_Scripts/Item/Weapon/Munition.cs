@@ -1,0 +1,121 @@
+using UnityEngine;
+using HuntingGame.Inventory;
+
+namespace HuntingGame.Item
+{
+    public class Munition : MonoBehaviour, ISimpleInteractable
+    {
+        [Header("Ammo Visual Settings")]
+        [SerializeField] protected ItemScriptable itemData;
+
+        [Space]
+
+        [Header("Ammo Visual Settings")]
+        [SerializeField] protected OrientationSettings orientation;
+        [SerializeField] protected bool isPhysic;
+        [SerializeField] protected bool isPersistent;
+
+        [Space]
+
+        [Header("Ammo Damage Settings")]
+        [SerializeField] protected int damage;
+
+        protected Rigidbody rb;
+        protected BoxCollider boxCollider;
+
+        protected bool isShot;
+
+        protected virtual void Awake()
+        {
+            if(isPhysic)
+                rb = GetComponent<Rigidbody>();
+            boxCollider = GetComponent<BoxCollider>();
+        }
+
+		private void Start()
+		{
+            isShot = false;
+
+            boxCollider.enabled = false;
+
+            if (isPhysic)
+                rb.isKinematic = true;
+        }
+
+        public virtual void Shoot(float shootForce, Vector3 rndOffset)
+        {
+            isShot = true;
+
+            transform.SetParent(null);
+
+            boxCollider.enabled = true;
+
+            if (isPhysic)
+			{
+                rb.isKinematic = false;
+
+                Vector3 shootDir = orientation.GetForwardDirection(transform);
+
+                Vector3 finalDir = (shootDir + rndOffset).normalized;
+
+                rb.AddForce(finalDir * shootForce, ForceMode.Impulse);
+            }
+			else
+			{
+                //SHOOT WITHOUT PHYSIC
+			}
+        }
+
+        protected virtual void FixedUpdate()
+        {
+            if (!isPhysic) return;
+            if (!isShot) return;
+
+            if (rb.linearVelocity.magnitude > .1f)
+            {
+                Quaternion targetRotation = RotationUtils.GetCorrectedLookRotation(rb.linearVelocity.normalized, Vector3.up, orientation);
+
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * 10);
+            }
+        }
+
+        protected virtual void OnCollisionEnter(Collision collision)
+        {
+            isShot = false;
+
+            if (collision.transform.TryGetComponent(out Health health))
+                health.ChangeHealth(-damage);
+
+            if(!isPersistent)
+                Destroy(gameObject);
+			else
+			{
+				if (isPhysic)
+				{
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.isKinematic = true;
+                }
+
+                boxCollider.isTrigger = true;
+            }
+        }
+
+		public void StartInteract(Transform owner)
+		{
+            if (owner.TryGetComponent(out PlayerInventory inventory))
+                inventory.AddItem(itemData);
+
+            Destroy(gameObject);
+        }
+
+        public void EndInteract()
+		{
+		}
+
+		public bool CanInteract()
+		{
+            return !isShot && isPersistent;
+		}
+	}
+}

@@ -14,6 +14,8 @@ namespace HuntingGame
 		[Header("Axis Alignment")]
 		[SerializeField] private OrientationSettings orientation;
 
+		private bool isFirstFrame = true;
+
 		private void Update()
 		{
 			Vector3 targetPoint;
@@ -30,7 +32,13 @@ namespace HuntingGame
 
 			Quaternion targetRotation = RotationUtils.GetCorrectedLookRotation(aimDirection, Camera.main.transform.up, orientation);
 
-			transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * aimSpeed);
+			if (isFirstFrame)
+			{
+				transform.rotation = targetRotation;
+				isFirstFrame = false;
+			}
+			else
+				transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * aimSpeed);
 		}
 	}
 }

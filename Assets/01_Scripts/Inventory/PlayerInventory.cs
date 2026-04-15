@@ -168,10 +168,19 @@ namespace HuntingGame.Inventory
 
 		public int GetNumberItemOfType(ItemScriptable itemType)
 		{
+			return GetNumberItemOfType(itemType, out _);
+		}
+		public int GetNumberItemOfType(ItemScriptable itemType, out InventorySlot itemSlot)
+		{
+			itemSlot = null;
+
 			foreach (InventorySlot slot in inventorySlots)
 			{
 				if (slot.currentItem == itemType)
+				{
+					itemSlot = slot;
 					return slot.GetItemNumber();
+				}
 			}
 
 			return 0;
@@ -183,6 +192,23 @@ namespace HuntingGame.Inventory
 			{
 				if (slot.currentItem == itemType)
 					slot.ChangeNumber(-1);
+			}
+		}
+
+		public void AddItem(ItemScriptable itemType)
+		{
+			if(GetNumberItemOfType(itemType, out InventorySlot itemSlot) > 0)
+				itemSlot.ChangeNumber(1);
+			else
+			{
+				foreach (InventorySlot slot in inventorySlots)
+				{
+					if(slot.currentItem == null)
+					{
+						slot.AddItem(itemType);
+						break;
+					}
+				}
 			}
 		}
 	}
