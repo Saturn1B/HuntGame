@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__hacknplan__list_work_items",
+      "mcp__hacknplan__get_board",
+      "mcp__hacknplan__get_active_sprint_overview",
+      "mcp__hacknplan__get_board_metrics",
+      "mcp__hacknplan__get_sprint_summary",
+      "mcp__hacknplan__search_work_items",
+      "mcp__hacknplan__get_incomplete_tasks"
+    ]
+  }
+}
