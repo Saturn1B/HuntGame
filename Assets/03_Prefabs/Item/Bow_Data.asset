@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37a530b5cae8d7a4cb6061c15ce3f89b, type: 3}
-  m_Name: BowSO
+  m_Name: Bow_Data
   m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Item.ItemScriptable
   stackable: 0
   itemName: Bow
   offset:
     position: {x: 0, y: 0, z: 0.2}
-    rotation: {x: 0.49999997, y: -0.49999997, z: 0.49999997, w: 0.49999997}
+    rotation: {x: -0.5, y: 0.5, z: -0.5, w: -0.5}
   itemSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  itemPrefab: {fileID: 7353943408698986364, guid: 08075fc1399bff743bccb5d9c0f3bf05, type: 3}
+  itemPrefab: {fileID: 4709410175748578393, guid: 47388bdddafa72f4fa5d8a9b2267e41a, type: 3}

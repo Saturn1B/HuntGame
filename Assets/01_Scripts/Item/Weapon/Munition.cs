@@ -6,11 +6,6 @@ namespace HuntingGame.Item
     public class Munition : MonoBehaviour, ISimpleInteractable
     {
         [Header("Ammo Visual Settings")]
-        [SerializeField] protected ItemScriptable itemData;
-
-        [Space]
-
-        [Header("Ammo Visual Settings")]
         [SerializeField] protected OrientationSettings orientation;
         [SerializeField] protected bool isPhysic;
         [SerializeField] protected bool isPersistent;
@@ -22,6 +17,7 @@ namespace HuntingGame.Item
 
         protected Rigidbody rb;
         protected BoxCollider boxCollider;
+        protected ItemBehaviour itemBehaviour;
 
         protected bool isShot;
 
@@ -30,9 +26,10 @@ namespace HuntingGame.Item
             if(isPhysic)
                 rb = GetComponent<Rigidbody>();
             boxCollider = GetComponent<BoxCollider>();
+            itemBehaviour = GetComponent<ItemBehaviour>();
         }
 
-		private void Start()
+        private void Start()
 		{
             isShot = false;
 
@@ -107,7 +104,7 @@ namespace HuntingGame.Item
 		public void StartInteract(Transform owner)
 		{
             if (owner.TryGetComponent(out PlayerInventory inventory))
-                inventory.AddItem(itemData);
+                inventory.AddItem(itemBehaviour.itemData);
 
             Destroy(gameObject);
         }

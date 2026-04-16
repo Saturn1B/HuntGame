@@ -11,7 +11,6 @@ namespace HuntingGame.Item
 		[Header("Weapon Settings")]
 		[SerializeField] protected float weaponPower;
 		[SerializeField, Range(0, .1f)] protected float spread;
-		[SerializeField] protected ItemScriptable itemData;
 
 		[Space]
 
@@ -25,10 +24,12 @@ namespace HuntingGame.Item
 
         protected PlayerInventory playerInventory;
         protected Munition currentAmmo;
+		protected ItemBehaviour itemBehaviour;
 
 		protected virtual void Awake()
 		{
 			playerInventory = GetComponentInParent<PlayerInventory>();
+			itemBehaviour = GetComponent<ItemBehaviour>();
 		}
 
 		protected virtual void Shoot()
@@ -71,7 +72,7 @@ namespace HuntingGame.Item
 		{
 			transform.DOKill();
 
-			transform.localPosition = itemData.offset.position;
+			transform.localPosition = itemBehaviour.itemData.offset.position;
 
 			transform.DOPunchPosition(new Vector3(0, .05f, -.1f), .3f, 5, 1);
 			transform.DOPunchRotation(new Vector3(-5, 0, 0), .3f, 5, 1);

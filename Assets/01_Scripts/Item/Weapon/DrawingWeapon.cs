@@ -55,7 +55,7 @@ namespace HuntingGame.Item
 		{
 			transform.DOKill();
 
-			transform.localPosition = itemData.offset.position;
+			transform.localPosition = itemBehaviour.itemData.offset.position;
 
 			float recoilMult = Mathf.Lerp(0.1f, 1f, currentTension);
 			transform.DOPunchPosition(new Vector3(0, .05f, -.1f) * recoilMult, .3f, 5, 1);

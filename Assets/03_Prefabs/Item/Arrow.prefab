@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &992750840313922818
+--- !u!1 &3543332256260017926
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,12 +8,13 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5609648324902458507}
-  - component: {fileID: 1332088860294252890}
-  - component: {fileID: 4110667015105369912}
-  - component: {fileID: 1112843506648090408}
-  - component: {fileID: 3001594214624043155}
-  - component: {fileID: 8986332887286705398}
+  - component: {fileID: 2211071391468774821}
+  - component: {fileID: 8032161989559713234}
+  - component: {fileID: 1351031868800770284}
+  - component: {fileID: 5511089254932267338}
+  - component: {fileID: 1856783645597286519}
+  - component: {fileID: 4821842397896808091}
+  - component: {fileID: 2630138259420072784}
   m_Layer: 16
   m_Name: Arrow
   m_TagString: Untagged
@@ -21,13 +22,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5609648324902458507
+--- !u!4 &2211071391468774821
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992750840313922818}
+  m_GameObject: {fileID: 3543332256260017926}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -36,21 +37,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &1332088860294252890
+--- !u!33 &8032161989559713234
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992750840313922818}
+  m_GameObject: {fileID: 3543332256260017926}
   m_Mesh: {fileID: 5112249756055657088, guid: 7e3f6117358ba1f43b0e099bbb2de1c7, type: 3}
---- !u!23 &4110667015105369912
+--- !u!23 &1351031868800770284
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992750840313922818}
+  m_GameObject: {fileID: 3543332256260017926}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -93,13 +94,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!54 &1112843506648090408
+--- !u!54 &5511089254932267338
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992750840313922818}
+  m_GameObject: {fileID: 3543332256260017926}
   serializedVersion: 5
   m_Mass: 0.5
   m_LinearDamping: 0
@@ -120,13 +121,13 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!65 &3001594214624043155
+--- !u!65 &1856783645597286519
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992750840313922818}
+  m_GameObject: {fileID: 3543332256260017926}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -141,22 +142,34 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.20969585, y: 1.2079458, z: 0.11434084}
   m_Center: {x: 0.008416896, y: 0.59269065, z: -0.0019256708}
---- !u!114 &8986332887286705398
+--- !u!114 &4821842397896808091
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992750840313922818}
+  m_GameObject: {fileID: 3543332256260017926}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3f9994ba3436114eac47782f3fd0171, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Item.Munition
-  itemData: {fileID: 11400000, guid: fee6f53c1c8944f498c7ed93c531b76f, type: 2}
   orientation:
     forwardAxis: 1
     upAxis: 3
   isPhysic: 1
   isPersistent: 1
   damage: 1
+--- !u!114 &2630138259420072784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3543332256260017926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0c88697ee7b2224497256cdfbbe0253, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HuntingGame.Item.ItemBehaviour
+  itemData: {fileID: 11400000, guid: 622bd28441adaa74db743ae489d4f5a8, type: 2}
