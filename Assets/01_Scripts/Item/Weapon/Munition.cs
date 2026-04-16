@@ -98,6 +98,9 @@ namespace HuntingGame.Item
                 }
 
                 boxCollider.isTrigger = true;
+
+                if(collision.transform.lossyScale == Vector3.one)
+                    transform.SetParent(collision.transform, true);
             }
         }
 
