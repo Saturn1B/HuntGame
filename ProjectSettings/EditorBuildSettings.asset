@@ -7,7 +7,10 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/02_Scenes/Tavern.unity
-    guid: d1a795f44cce42b4090621c66b445c25
+    guid: 2854f08f60cd8754cb76b8f0473c3b93
+  - enabled: 1
+    path: Assets/02_Scenes/Tavern NetDev.unity
+    guid: 0da9f0a4f78d1604ab1acbf164469370
   - enabled: 1
     path: Assets/02_Scenes/Elevator.unity
     guid: f0372fd67e801384eab93ada8d2c2751

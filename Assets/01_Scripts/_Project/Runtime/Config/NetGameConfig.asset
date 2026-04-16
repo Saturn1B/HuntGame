@@ -16,3 +16,7 @@ MonoBehaviour:
   buildVersion: 0.1.0-dev
   allowLateJoin: 0
   dontDestroyOnLoad: 1
+  syncActiveScene: 0
+  tavernSceneName: Tavern NetDev
+  dungeonSceneName: Dungeon
+  elevatorSceneName: Elevator

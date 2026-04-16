@@ -48,8 +48,14 @@ namespace HuntingGame.ProceduralGeneration
 			return ghost;
 		}
 
-		[ContextMenu("GenerateDungeon")]
-		private void Generate()
+        /*public void Generate(int seed)
+        {
+            Random.InitState(seed);
+            // ... ton code existant
+        }*/
+
+        [ContextMenu("GenerateDungeon")]
+		public void Generate()
 		{
 			//Clean dungeon
 			ClearDungeon();

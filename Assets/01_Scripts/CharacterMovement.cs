@@ -1,8 +1,9 @@
+using HuntGame.Player;
 using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class CharacterMovement : MonoBehaviour, IControlable
+public class CharacterMovement : MonoBehaviour, IMovable, ILookable
 {
     [Header("Movement Speed")]
     [SerializeField] private float moveSpeed = 10f;

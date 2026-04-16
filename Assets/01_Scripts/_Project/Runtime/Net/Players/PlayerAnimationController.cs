@@ -131,9 +131,7 @@ namespace HuntGame.Player
 
             bool grounded = characterController != null && characterController.isGrounded;
 
-            float bodyYaw = firstPersonCamera != null
-                ? firstPersonCamera.BodyYaw
-                : bodyTransform.eulerAngles.y;
+            float bodyYaw = bodyTransform.eulerAngles.y;
 
             // Write NetworkVariables
             _netVelocityX.Value = _smoothedVelocity.x;

@@ -1,0 +1,1676 @@
+{
+  "generated": "2026-04-16T00:00:00Z",
+  "files": [
+    {
+      "file_path": "Assets/01_Scripts/CharacterMovement.cs",
+      "namespace": null,
+      "types": [
+        {
+          "class_name": "CharacterMovement",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["IMovable", "ILookable"],
+          "attributes": ["RequireComponent(typeof(CharacterController))"],
+          "fields": ["moveSpeed", "sprintSpeed", "crouchSpeed", "jumpHeight", "standingHeight", "crouchingHeight", "crouchTransitionSpeed", "gravity", "groundLayer", "characterController", "velocity", "currentMovementInput", "isCrouching", "isSprinting", "canMove", "isDragging", "dragWeight"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "Update", "ResetVerticalVelocity", "SetMovementInput", "SetLookInput", "SetSprinting", "SetCrouching", "Jump", "SetSlowingWeight", "HandleMovement", "ApplyGravity", "IsGroundedLocal", "GetCurrentSpeed", "GetCurrentSpeedWithDrag", "CrouchStandTransition", "SetCanMove"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/HeadBobbing.cs",
+      "namespace": "HuntGame.Player",
+      "types": [
+        {
+          "class_name": "HeadBobbing",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["enableBobbing", "amplitude", "frequency", "cam", "camHolder", "toggleSpeed", "startPos", "characterController"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "Update", "FootStepMotion", "CheckMotion", "ResetPosition", "FocusTarget", "PlayMotion"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/FirstPersonCamera.cs",
+      "namespace": null,
+      "types": [
+        {
+          "class_name": "FirstPersonCamera",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["lookSensitivity", "minPitch", "maxPitch", "cameraTransform", "yaw", "pitch", "currentLookInput", "isDragging", "dragWeight"],
+          "properties": [],
+          "events": [],
+          "methods": ["Start", "LateUpdate", "SetLookInput", "HandleCameraRotation", "ClampAngle", "SetSlowingWeight", "GetSensitivityWithDrag"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/PlayerInputHandler.cs",
+      "namespace": null,
+      "types": [
+        {
+          "class_name": "PlayerInputHandler",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["RequireComponent(typeof(PlayerInput))"],
+          "fields": ["movementController", "cameraController", "playerInteractor"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "OnMove", "OnCamera", "OnSprint", "OnCrouch", "OnJump", "OnInteract"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/SimplePlayerInteractor.cs",
+      "namespace": null,
+      "types": [
+        {
+          "class_name": "SimplePlayerInteractor",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["viewCamera", "rayDistance", "interactable"],
+          "properties": [],
+          "events": [],
+          "methods": ["TryInteract"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/Health.cs",
+      "namespace": "HuntingGame",
+      "types": [
+        {
+          "class_name": "Health",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["healthPoint", "currentHealthPoint"],
+          "properties": [],
+          "events": ["_onChangeHealthValue", "_onDeath"],
+          "methods": ["Start", "GetCurrentHealth", "ChangeHealth"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/Interfaces/IControlable.cs",
+      "namespace": "HuntGame.Player",
+      "types": [
+        {
+          "class_name": "IMovable",
+          "kind": "interface",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": [],
+          "properties": [],
+          "events": [],
+          "methods": ["SetMovementInput", "SetSprinting", "SetCrouching", "Jump", "SetCanMove"],
+          "enums": [],
+          "nested_types": []
+        },
+        {
+          "class_name": "ILookable",
+          "kind": "interface",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": [],
+          "properties": [],
+          "events": [],
+          "methods": ["SetLookInput"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/Interfaces/ISimpleInteractable.cs",
+      "namespace": null,
+      "types": [
+        {
+          "class_name": "ISimpleInteractable",
+          "kind": "interface",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": [],
+          "properties": [],
+          "events": [],
+          "methods": ["StartInteract", "EndInteract", "CanInteract"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Config/NetGameConfig.cs",
+      "namespace": "DungeonSteakhouse.Net",
+      "types": [
+        {
+          "class_name": "NetGameConfig",
+          "kind": "class",
+          "base_class": "ScriptableObject",
+          "interfaces": [],
+          "attributes": ["CreateAssetMenu"],
+          "fields": ["maxPlayers", "buildVersion", "allowLateJoin", "dontDestroyOnLoad", "syncActiveScene", "tavernSceneName", "dungeonSceneName", "elevatorSceneName"],
+          "properties": ["MaxPlayers", "BuildVersion", "AllowLateJoin", "DontDestroyOnLoad", "SyncActiveScene", "TavernSceneName", "DungeonSceneName", "ElevatorSceneName"],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Config/NetSteamVoiceConfig.cs",
+      "namespace": "DungeonSteakhouse.Net.Voice",
+      "types": [
+        {
+          "class_name": "NetSteamVoiceConfig",
+          "kind": "class",
+          "base_class": "ScriptableObject",
+          "interfaces": [],
+          "attributes": ["CreateAssetMenu"],
+          "fields": ["enableVoice", "sendIntervalSeconds", "maxChunkBytes", "chunkAssemblyTimeoutSeconds", "bufferSeconds", "prefillSeconds", "talkerActiveSeconds", "fadeInSeconds", "fadeOutSeconds", "rebufferOnUnderrun", "hubSpatialBlend", "runSpatialBlend", "runMaxDistance", "runMinDistance", "compressedBufferBytes", "rawBufferBytes", "sampleRate"],
+          "properties": ["EnableVoice", "SendIntervalSeconds", "MaxChunkBytes", "ChunkAssemblyTimeoutSeconds", "BufferSeconds", "PrefillSeconds", "TalkerActiveSeconds", "FadeInSeconds", "FadeOutSeconds", "RebufferOnUnderrun", "HubSpatialBlend", "RunSpatialBlend", "RunMaxDistance", "RunMinDistance", "CompressedBufferBytes", "RawBufferBytes", "SampleRate"],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/IInteractable.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "IInteractable",
+          "kind": "interface",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": [],
+          "properties": [],
+          "events": [],
+          "methods": ["CanInteract", "Interact"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/InteractionContext.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "InteractionContext",
+          "kind": "struct",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["Interactor", "Verb", "IsMultiplayer", "IsServer", "InteractorClientId"],
+          "properties": [],
+          "events": [],
+          "methods": ["Local", "Server"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/InteractionVerb.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "InteractionVerb",
+          "kind": "enum",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["Use", "Open", "Close"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/PlayerInteractor.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "PlayerInteractor",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["_viewCamera", "_rayDistance", "_interactableMask", "_useKey", "_debugLogs"],
+          "properties": [],
+          "events": [],
+          "methods": ["Update", "TryInteract"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/Interactions/ChestInteractable.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "ChestInteractable",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["IInteractable"],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["lid", "closedAngle", "openAngle", "openSpeed", "maxUseDistance", "useCooldown", "onOpened", "onClosed", "debugLogs", "_isOpen", "_isAnimating", "_lastUseTime", "_closedRot", "_openRot"],
+          "properties": ["IsOpen"],
+          "events": ["onOpened", "onClosed"],
+          "methods": ["Awake", "CanInteract", "Interact", "SetState", "AnimateLid"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/Interactions/DoorInteractable.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "DoorInteractable",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["IInteractable"],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["_doorPivot", "_openAngle", "_openCloseTime", "_maxUseDistance", "_useCooldownSeconds", "_debugLogs", "_isOpen", "_isAnimating", "_lastUseTime", "_closedRotation", "_openRotation"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "CanInteract", "Interact", "SetState", "AnimateDoor"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/Interactions/HeldItemSocket.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "HeldItemSocket",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["holdPositionOffset", "holdRotationOffset", "attachSpeed", "_heldItem"],
+          "properties": ["HasItem", "HeldItem"],
+          "events": [],
+          "methods": ["Attach", "Drop", "Update"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/Interactions/LeverInteractable.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "LeverInteractable",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["IInteractable"],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["leverPivot", "angleOff", "angleOn", "animSpeed", "onTurnedOn", "onTurnedOff", "useCooldown", "debugLogs", "_isOn", "_isAnimating", "_lastUseTime"],
+          "properties": ["IsOn"],
+          "events": ["onTurnedOn", "onTurnedOff"],
+          "methods": ["CanInteract", "Interact", "SetState", "AnimateLever"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/CoreInteractions/Interactions/PickupInteractable.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "PickupInteractable",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["IInteractable"],
+          "attributes": ["DisallowMultipleComponent", "RequireComponent(typeof(Rigidbody))"],
+          "fields": ["maxPickupDistance", "canBeDropped", "debugLogs", "_rb", "_isHeld"],
+          "properties": ["IsHeld"],
+          "events": [],
+          "methods": ["Awake", "CanInteract", "Interact", "ServerPickup", "ServerDrop"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/NetGameRoot.cs",
+      "namespace": "DungeonSteakhouse.Net",
+      "types": [
+        {
+          "class_name": "NetGameState",
+          "kind": "enum",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["Offline", "Hosting", "Connecting", "InSession"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        },
+        {
+          "class_name": "NetGameRoot",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["Instance", "config", "networkManager", "transport", "identityProviderBehaviour", "playerRegistry", "steamBootstrapBehaviour", "steamLobbyNetcodeBehaviour", "_bootstrapper", "_lobbyController", "_state", "_hostRequestInFlight"],
+          "properties": ["State", "Config", "PlayerRegistry", "IdentityProvider"],
+          "events": ["StateChanged"],
+          "methods": ["Awake", "OnDestroy", "Host", "Shutdown", "GetDebugStatus", "HookNetcodeCallbacks", "UnhookNetcodeCallbacks", "OnServerStarted", "OnClientConnected", "OnClientDisconnected", "SetState", "ValidateReferences"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Connection/NetConnectionApproval.cs",
+      "namespace": "DungeonSteakhouse.Net.Connection",
+      "types": [
+        {
+          "class_name": "NetConnectionApproval",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["config", "networkManager"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "OnEnable", "OnDisable", "ApprovalCheck", "ValidateReferences"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Connection/NetConnectionPayload.cs",
+      "namespace": "DungeonSteakhouse.Net.Connection",
+      "types": [
+        {
+          "class_name": "NetConnectionPayload",
+          "kind": "struct",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": ["Serializable"],
+          "fields": ["buildVersion", "platformUserId", "displayName"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        },
+        {
+          "class_name": "NetConnectionPayloadCodec",
+          "kind": "class",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": [],
+          "properties": [],
+          "events": [],
+          "methods": ["Encode", "TryDecode"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Core/INetBootstrapper.cs",
+      "namespace": "DungeonSteakhouse.Net.Core",
+      "types": [
+        {
+          "class_name": "INetBootstrapper",
+          "kind": "interface",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": [],
+          "properties": ["IsReady"],
+          "events": [],
+          "methods": ["Initialize", "Shutdown"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Core/INetIdentityProvider.cs",
+      "namespace": "DungeonSteakhouse.Net.Core",
+      "types": [
+        {
+          "class_name": "NetLocalIdentity",
+          "kind": "struct",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["PlatformUserId", "DisplayName"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        },
+        {
+          "class_name": "INetIdentityProvider",
+          "kind": "interface",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": [],
+          "properties": [],
+          "events": [],
+          "methods": ["TryGetLocalIdentity"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Core/INetLobbyController.cs",
+      "namespace": "DungeonSteakhouse.Net.Core",
+      "types": [
+        {
+          "class_name": "INetLobbyController",
+          "kind": "interface",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": [],
+          "properties": [],
+          "events": [],
+          "methods": ["Host", "LeaveLobby", "TryGetSessionId"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Interactions/NetcodeInteractableObject.cs",
+      "namespace": "HuntGame.Interactions",
+      "types": [
+        {
+          "class_name": "NetcodeInteractableObject",
+          "kind": "class",
+          "base_class": "NetworkBehaviour",
+          "interfaces": [],
+          "attributes": ["RequireComponent(typeof(NetworkObject))"],
+          "fields": ["_debugLogs", "_interactable"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "RequestInteractFromClient", "RequestInteractServerRpc", "BroadcastInteractClientRpc"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/NetFpsPlayerAdapter.cs",
+      "namespace": "DungeonSteakhouse.Net.Players",
+      "types": [
+        {
+          "class_name": "NetFpsPlayerAdapter",
+          "kind": "class",
+          "base_class": "NetworkBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["playerInput", "inputHandler", "characterMovement", "firstPersonCamera", "headBobbing", "playerCamera", "playerAudioListener"],
+          "properties": [],
+          "events": [],
+          "methods": ["OnNetworkSpawn", "OnGainedOwnership", "OnLostOwnership", "OnNetworkDespawn", "ResolveReferencesIfNeeded", "ApplyLocalState", "SetEnabled"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/NetLocalCameraEnforcer.cs",
+      "namespace": "DungeonSteakhouse.Net.Players",
+      "types": [
+        {
+          "class_name": "NetLocalCameraEnforcer",
+          "kind": "class",
+          "base_class": "NetworkBehaviour",
+          "interfaces": [],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["ownerCamera", "ownerAudioListener", "forceMainCameraTag", "disableOtherCameras", "disableOtherAudioListeners", "enforceForSecondsAfterSceneLoad", "logDebug", "_enforceUntilTime"],
+          "properties": [],
+          "events": [],
+          "methods": ["OnNetworkSpawn", "OnNetworkDespawn", "LateUpdate", "OnSceneLoaded", "OnActiveSceneChanged", "ResolveOwnerRig", "DisableOwnerRig", "EnforceNow", "DisableNonOwnerCameras", "DisableNonOwnerAudioListeners"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/NetPlayer.cs",
+      "namespace": "DungeonSteakhouse.Net.Players",
+      "types": [
+        {
+          "class_name": "NetPlayer",
+          "kind": "class",
+          "base_class": "NetworkBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["_platformUserId", "_displayName", "_isReady"],
+          "properties": ["PlatformUserId", "DisplayName", "IsReady"],
+          "events": [],
+          "methods": ["OnNetworkSpawn", "OnNetworkDespawn", "ToggleReady", "ServerSetReady", "TrySubmitLocalIdentity", "SubmitIdentityServerRpc", "SetReadyServerRpc", "OnAnyValueChanged"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/NetPlayerRegistry.cs",
+      "namespace": "DungeonSteakhouse.Net.Players",
+      "types": [
+        {
+          "class_name": "NetPlayerRegistry",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["_players"],
+          "properties": ["Players", "AreAllReady"],
+          "events": ["PlayerAdded", "PlayerRemoved", "PlayerUpdated"],
+          "methods": ["Register", "Unregister", "NotifyPlayerUpdated"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/PlayerHeadIK.cs",
+      "namespace": "HuntGame.Player",
+      "types": [
+        {
+          "class_name": "PlayerHeadIK",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["headBone", "cameraTransform", "headYawLimit", "headPitchLimit", "smoothSpeed", "_currentHeadYaw", "_currentHeadPitch", "_targetHeadYaw", "_targetHeadPitch", "_isOwner", "_targetYaw", "_targetPitch"],
+          "properties": ["CurrentHeadYaw", "CurrentHeadPitch"],
+          "events": [],
+          "methods": ["SetOwner", "SetRemote", "LateUpdate", "SetRemoteTarget"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Players/PlayerAnimationController.cs",
+      "namespace": "HuntGame.Player",
+      "types": [
+        {
+          "class_name": "PlayerAnimationController",
+          "kind": "class",
+          "base_class": "NetworkBehaviour",
+          "interfaces": [],
+          "attributes": ["DefaultExecutionOrder(10)", "RequireComponent(typeof(Animator))"],
+          "fields": ["animator", "characterController", "bodyTransform", "firstPersonCamera", "headIK", "velocitySmoothing", "_netVelocityX", "_netVelocityZ", "_netIsGrounded", "_netBodyYaw", "_netHeadYaw", "_netHeadPitch", "_smoothedVelocity"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "OnNetworkSpawn", "OnNetworkDespawn", "LateUpdate", "OnVelocityChanged", "OnGroundedChanged", "OnBodyYawChanged", "OnHeadChanged", "ApplyRemoteAnimatorState", "ApplyRemoteBodyYaw", "ApplyRemoteHead", "DriveAnimator"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Pysique/PlayerCubePusher.cs",
+      "namespace": "HuntGame",
+      "types": [
+        {
+          "class_name": "PlayerCubePusher",
+          "kind": "class",
+          "base_class": "NetworkBehaviour",
+          "interfaces": [],
+          "attributes": ["RequireComponent(typeof(CharacterController))"],
+          "fields": ["pushForce"],
+          "properties": [],
+          "events": [],
+          "methods": ["OnControllerColliderHit", "PushServerRpc"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetSessionManager.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "NetSessionManager",
+          "kind": "class",
+          "base_class": "NetworkBehaviour",
+          "interfaces": [],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["Instance", "config", "elevatorGate", "teleporter", "returnToLobbyCountdown", "verboseLogs", "_state", "_returnCountdownRemaining", "_flowStep", "_countdownRoutine"],
+          "properties": ["State", "ReturnCountdownRemaining"],
+          "events": ["StateChanged"],
+          "methods": ["Awake", "OnDestroy", "OnNetworkSpawn", "OnNetworkDespawn", "OnStateValueChanged", "RequestStartRunServerRpc", "RequestReturnToLobbyServerRpc", "StartRunServer", "ReturnCountdownRoutine", "StartReturnSequence", "UnloadTavernNextFrame", "OnSceneEvent", "HandleReturnTeleports", "OnClientConnected", "ConfigureSceneManager", "VerifyScene", "SetState", "TryGetSceneManager"],
+          "enums": ["FlowStep"],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetSessionState.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "NetSessionState",
+          "kind": "enum",
+          "base_class": "byte",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["Lobby", "StartingRun", "InRun", "ReturningToLobby"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetPlayerSpawnResolver.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "NetPlayerSpawnResolver",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": [],
+          "properties": [],
+          "events": [],
+          "methods": ["TryGetSpawnPoint"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetPlayerTeleporter.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "NetPlayerTeleporter",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["spawnResolver", "teleportRetryFrames", "verboseLogs"],
+          "properties": [],
+          "events": [],
+          "methods": ["TeleportAllPlayers", "TeleportClient", "DeferredTeleportClient", "DeferredTeleportClientRoutine", "TryTeleportClientNow"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetReadyPlatformGate.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "NetReadyGateMode",
+          "kind": "enum",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["HubOnly", "InRunOnly", "HubAndRun"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        },
+        {
+          "class_name": "NetReadyPlatformGate",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["DisallowMultipleComponent", "RequireComponent(typeof(Collider))"],
+          "fields": ["mode", "netGameRoot", "confirmCountdownSeconds", "logDebug", "_overlapCounts", "_countdownActive", "_countdownEndTime", "_allReadyConfirmedServer"],
+          "properties": ["Mode", "AllReadyConfirmedServer"],
+          "events": [],
+          "methods": ["Awake", "Update", "OnTriggerEnter", "OnTriggerExit", "ServerClearConfirmedReady", "GetPlayersOnPlatform", "IsActiveOnServer", "TryGetPlayerClientId", "AreAllPlayersOnPlatform", "TryStartConfirmCountdownIfReady", "CancelCountdown", "SetAllReadyConfirmed"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/NetSpawnPointGroup.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "NetSpawnContext",
+          "kind": "enum",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["Lobby", "Run"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        },
+        {
+          "class_name": "NetSpawnPointGroup",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["context", "points"],
+          "properties": ["Context"],
+          "events": [],
+          "methods": ["TryGetSpawnPoint", "OnDrawGizmosSelected"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/Elevator/ElevatorButtonInteractable.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "ElevatorButtonInteractable",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["IInteractable"],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["logDebug"],
+          "properties": [],
+          "events": [],
+          "methods": ["CanInteract", "Interact"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/Elevator/ElevatorEffectsController.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "ElevatorEffectsController",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["sessionManager", "doorAnimator", "cameraShakeDuration", "cameraShakeIntensity", "logDebug"],
+          "properties": [],
+          "events": [],
+          "methods": ["OnEnable", "OnDisable", "OnStateChanged", "TriggerDoorClose", "TriggerDoorOpen", "CameraShakeRoutine"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/Elevator/ElevatorSceneLoader.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "ElevatorSceneLoader",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["elevatorSceneName", "logDebug"],
+          "properties": [],
+          "events": [],
+          "methods": ["Start"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Session/Elevator/ReturnToLobbyInteractable.cs",
+      "namespace": "DungeonSteakhouse.Net.Session",
+      "types": [
+        {
+          "class_name": "ReturnToLobbyInteractable",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["IInteractable"],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["logDebug"],
+          "properties": [],
+          "events": [],
+          "methods": ["CanInteract", "Interact"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Steam/SteamBootstrap.cs",
+      "namespace": "DungeonSteakhouse.Net.Steam",
+      "types": [
+        {
+          "class_name": "SteamBootstrap",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["INetBootstrapper"],
+          "attributes": ["DefaultExecutionOrder(-1000)"],
+          "fields": ["Ready", "ReadyChanged", "initializeSteamClient", "steamAppId", "runCallbacks", "shutdownOnDestroy", "_ownsSteamClient"],
+          "properties": [],
+          "events": ["ReadyChanged"],
+          "methods": ["Awake", "Update", "OnDestroy", "WaitForSteamValid", "SetReady"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Steam/SteamIdentityProvider.cs",
+      "namespace": "DungeonSteakhouse.Net.Steam",
+      "types": [
+        {
+          "class_name": "SteamIdentityProvider",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["INetIdentityProvider"],
+          "attributes": [],
+          "fields": [],
+          "properties": [],
+          "events": [],
+          "methods": ["TryGetLocalIdentity"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Steam/SteamLobbyNetcode.cs",
+      "namespace": "DungeonSteakhouse.Net.Steam",
+      "types": [
+        {
+          "class_name": "SteamLobbyNetcode",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["INetLobbyController"],
+          "attributes": [],
+          "fields": ["config", "fallbackMaxMembers", "fallbackBuildVersion", "networkManager", "transport", "_currentLobby", "_isCreatingLobby", "_sessionId"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "OnEnable", "OnDisable", "Host", "HostAsync", "OnGameLobbyJoinRequested", "JoinLobbyAsync", "OnLobbyEntered", "LeaveLobby", "ApplyConnectionPayload", "GetMaxPlayers", "GetBuildVersion", "ResolveConfigIfMissing", "ValidateReferences", "TryGetSessionId"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Voice/NetSteamProximityVoiceChat.cs",
+      "namespace": "DungeonSteakhouse.Net.Voice",
+      "types": [
+        {
+          "class_name": "NetSteamProximityVoiceChat",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["voiceConfig", "alwaysTransmit", "delivery", "decodeDistanceMax", "logOnce", "logErrors", "_registered", "_voiceCompressed", "_voiceIn", "_voiceOut", "_txBuffer", "_rxBuffer", "_skipBuffer", "_floatBuffer", "_sampleRate"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "OnEnable", "OnDisable", "Update", "TryRegisterHandlers", "OnVoiceFromClient", "OnVoiceFromServer", "TryFindPlayerObject", "SkipBytes", "EnsureByteBuffer", "EnsureFloatBuffer", "StopRecordingSafe", "ResolveListenerTransform"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Voice/SteamVoiceSpeaker.cs",
+      "namespace": "DungeonSteakhouse.Net.Voice",
+      "types": [
+        {
+          "class_name": "SteamVoiceSpeaker",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["audioSource", "minDistance", "maxDistance", "bufferSeconds", "talkIndicator", "mouthBlendshapeAnimator", "_clip", "_ring", "_ringWrite", "_ringRead", "_ringCount", "_lock"],
+          "properties": ["MaxDistance"],
+          "events": [],
+          "methods": ["EnsureInitialized", "PushSamples", "OnAudioRead"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Voice/MouthBlendshapeTalkAnimator.cs",
+      "namespace": "DungeonSteakhouse.Net.Voice",
+      "types": [
+        {
+          "class_name": "MouthBlendshapeTalkAnimator",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["DisallowMultipleComponent"],
+          "fields": ["skinnedMeshRenderer", "mouthCloseBlendShapeName", "mouthOpenBlendShapeName", "silentCloseWeight", "silentOpenWeight", "talkingCloseWeight", "talkingOpenWeight", "animateWhileTalking", "talkOpenMin", "talkOpenMax", "talkFrequencyHz", "pingHoldSeconds", "smoothSpeed", "_closeIndex", "_openIndex", "_isTalking", "_hasTalkLevel", "_talkLevel01", "_lastPingTime", "_currentClose", "_currentOpen"],
+          "properties": [],
+          "events": [],
+          "methods": ["Reset", "Awake", "Update", "ComputeOpenness01", "ApplyWeights", "PingTalking", "SetTalking", "SetTalkLevel01", "OnValidate"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/Net/Voice/VoiceTalkIndicator.cs",
+      "namespace": "DungeonSteakhouse.Net.Voice",
+      "types": [
+        {
+          "class_name": "VoiceTalkIndicator",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["mouthRenderer", "mouthClosed", "mouthOpen", "holdSeconds", "_lastPingTime", "_isOpen"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "Update", "PingTalking", "SetOpen", "SetClosed"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/UI/NetDemoUI.cs",
+      "namespace": "DungeonSteakhouse.Net",
+      "types": [
+        {
+          "class_name": "NetDemoUI",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["netGameRoot", "hostButton", "joinButton", "statusText"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "OnDestroy", "Update", "OnHostClicked", "OnJoinClicked"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/UI/NetLobbyRosterTMP.cs",
+      "namespace": "DungeonSteakhouse.Net.UI",
+      "types": [
+        {
+          "class_name": "NetLobbyRosterTMP",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["netGameRoot", "enableDebugButtons", "rosterText", "readyButton", "readyButtonLabel", "startButton", "startButtonLabel"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "OnEnable", "OnDisable", "ApplyButtonVisibility", "OnRegistryChanged", "Refresh", "OnReadyClicked", "OnStartClicked", "GetLocalPlayer"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/_Project/Runtime/UI/NetSessionUI.cs",
+      "namespace": "DungeonSteakhouse.Net.UI",
+      "types": [
+        {
+          "class_name": "NetSessionUI",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["countdownText", "countdownPanel"],
+          "properties": [],
+          "events": [],
+          "methods": ["Update"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/AI/AIInputHandler.cs",
+      "namespace": "HuntingGame.AI",
+      "types": [
+        {
+          "class_name": "AIInputHandler",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["RequireComponent(typeof(NavMeshAgent))", "RequireComponent(typeof(CharacterMovement))"],
+          "fields": ["target", "targetTransform", "stoppingDistance", "turningSpeed", "agent", "movementController", "characterController", "ragdollController", "health", "ragdollCollider", "_arrivedAtTarget", "isRagdoll", "stoppedMoving"],
+          "properties": ["targetPosition"],
+          "events": [],
+          "methods": ["Awake", "OnEnable", "OnDisable", "Update", "MoveTowardsSetTarget", "MoveTowardsTarget", "FaceMovementDirection", "FaceTarget", "SetTarget", "ToggleSprint", "ToggleRagdoll", "Ragdoll", "Death"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/AI/BoilBackAI.cs",
+      "namespace": "HuntingGame.AI",
+      "types": [
+        {
+          "class_name": "BoilBackAI",
+          "kind": "class",
+          "base_class": "AIInputHandler",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["debugFleeingRange", "fleeingRange", "relaxingRange", "debugHidingRange", "hidingRange", "animator", "detector", "wanderingBehaviour", "_state", "isMoving", "distancePadding", "currentTrackingPlayer"],
+          "properties": [],
+          "events": [],
+          "methods": ["OnEnable", "OnDisable", "Awake", "Update", "ChangeState", "SpotPlayer", "OnWanderingMovingChanged", "OnWanderingTargetChanged", "KeepDistance", "OnDrawGizmosSelected"],
+          "enums": ["State"],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/AI/CeilingAI.cs",
+      "namespace": "HuntingGame.AI",
+      "types": [
+        {
+          "class_name": "CeilingAI",
+          "kind": "class",
+          "base_class": "AIInputHandler",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["groundAreaName", "ceilingAreaName", "switchToGroundDistance", "surfaceCheckDistance", "groundMask", "ceilingMask", "isOnCeiling", "isTransitioning"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "Update", "HandleSurfaceLogic", "HasCeilingAbove", "TransitionToCeiling", "TransitionToGround", "FlipCharacter", "MoveTowardsTarget"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/AI/PopCockAI.cs",
+      "namespace": "HuntingGame.AI",
+      "types": [
+        {
+          "class_name": "PopCockAI",
+          "kind": "class",
+          "base_class": "AIInputHandler",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["timeMinLimit", "timeMaxLimit", "debugChasingRange", "loosingPlayerRange", "explosionTriggerRange", "explosionSpawn", "explosionVfxPrefab", "smokeVfx", "alertVfx", "animator", "detector", "wanderingBehaviour", "_state", "timer", "distancePadding", "explosionTriggered"],
+          "properties": [],
+          "events": [],
+          "methods": ["OnEnable", "OnDisable", "Awake", "Update", "ChangeState", "SpotPlayer", "OnWanderingMovingChanged", "OnWanderingTargetChanged", "DetectPlayer", "Explose", "OnDrawGizmosSelected"],
+          "enums": ["State"],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/AI/RagdollController.cs",
+      "namespace": "HuntingGame.AI",
+      "types": [
+        {
+          "class_name": "RagdollController",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": ["ISimpleInteractable"],
+          "attributes": [],
+          "fields": ["ragdollBodies", "ragdollColliders", "_ragdollSize", "rootBone", "ragdollWeight", "animator", "joint", "grabber", "isRagdolled", "isGrabbed"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "LateUpdate", "Ragdoll", "ToggleRagdoll", "ApplyForce", "ToggleRagdollCollision", "StartInteract", "EndInteract", "CanInteract"],
+          "enums": ["RagdollSize"],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/AI/WanderingBehaviour.cs",
+      "namespace": "HuntingGame.AI",
+      "types": [
+        {
+          "class_name": "WanderingBehaviour",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["debugWanderingRange", "minWalkingRange", "maxWalkingRange", "rangeAroundPoint", "rangeCenterPoint", "_isMoving", "_currentTarget"],
+          "properties": ["isMoving", "currentTarget"],
+          "events": ["_onMovingChanged", "_onTargetChanged"],
+          "methods": ["StartWandering", "StopWandering", "FindNewTarget", "KeepTargetInRange", "OnDrawGizmosSelected"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/AI/ConeDetector.cs",
+      "namespace": "HuntingGame.AI",
+      "types": [
+        {
+          "class_name": "ConeDetector",
+          "kind": "class",
+          "base_class": "Detector",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["viewRadius", "viewAngle"],
+          "properties": [],
+          "events": [],
+          "methods": ["Detect", "OnDrawGizmosSelected", "DirFromAngle"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/AI/Detector.cs",
+      "namespace": "HuntingGame.AI",
+      "types": [
+        {
+          "class_name": "Detector",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["targetMask", "obstacleMask", "detectionInterval", "currentTarget"],
+          "properties": [],
+          "events": ["_onPlayerSpotted", "_onPlayerLost"],
+          "methods": ["OnEnable", "OnDisable", "DetectionLoop", "Detect"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/AI/IKFootSolver.cs",
+      "namespace": "HuntingGame.AI",
+      "types": [
+        {
+          "class_name": "IKFootSolver",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["mainBody", "home", "stepDistance", "stepHeight", "speed", "opposedLegs", "panicDistanceMultiplier", "newPosition", "currentPosition", "oldPosition", "lastBodyPosition", "lerp"],
+          "properties": [],
+          "events": [],
+          "methods": ["Start", "Update", "IsMoving", "OnDrawGizmos"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/Gameplay/DamageZone.cs",
+      "namespace": "HuntingGame.Gameplay",
+      "types": [
+        {
+          "class_name": "DamageZone",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["damageAmount"],
+          "properties": [],
+          "events": [],
+          "methods": ["OnTriggerEnter"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/Gameplay/Trap/BladeTrap.cs",
+      "namespace": "HuntingGame.Gameplay",
+      "types": [
+        {
+          "class_name": "BladeTrap",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["bladePart", "triggerSpeed", "triggeredEndRotation", "animationEasing", "startRotation", "triggerDetection"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "OnEnable", "OnDisable", "ToggleBlade"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/Gameplay/Trap/SpikeTrap.cs",
+      "namespace": "HuntingGame.Gameplay",
+      "types": [
+        {
+          "class_name": "SpikeTrap",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["spikePart", "triggerSpeed", "triggeredPosition", "animationEasing", "hidePosition", "triggerDetection"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "OnEnable", "OnDisable", "SpikeIn", "SpikeOut", "ToggleSpike"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/Gameplay/TriggerDetection.cs",
+      "namespace": "HuntingGame.Gameplay",
+      "types": [
+        {
+          "class_name": "TriggerDetection",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["tags", "playerInDetection"],
+          "properties": [],
+          "events": ["_onTriggerEnter", "_onTriggerExit"],
+          "methods": ["OnTriggerEnter", "OnTriggerExit"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/ProceduralGeneration/DungeonGenerator.cs",
+      "namespace": "HuntingGame.ProceduralGeneration",
+      "types": [
+        {
+          "class_name": "DungeonGenerator",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["roomLibrary", "entrancePrefab", "deepness", "roomLayer", "tryLooping", "loopLibrary", "loopProbability", "openSocket", "spawnedRoom", "ghostPool"],
+          "properties": [],
+          "events": [],
+          "methods": ["SetupGhostPool", "GetGhost", "Generate", "TryPlaceRoom", "CheckForNaturalLoop", "TryPlaceLoop", "TryBridgeRoom", "CheckRoomValidityWithSocket", "GetWeightedRandomRoom", "AlignRooms", "IsOverlapping", "PolygonsOverlap", "Project", "GetWorldFootprint", "ClearDungeon", "FinnishDungeon", "TryPlaceEndRoom"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/ProceduralGeneration/LoopData.cs",
+      "namespace": "HuntingGame.ProceduralGeneration",
+      "types": [
+        {
+          "class_name": "LoopData",
+          "kind": "class",
+          "base_class": "ScriptableObject",
+          "interfaces": [],
+          "attributes": ["CreateAssetMenu"],
+          "fields": ["roomLoop", "relativePoseLoop"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/ProceduralGeneration/LoopPregenerator.cs",
+      "namespace": "HuntingGame.ProceduralGeneration",
+      "types": [
+        {
+          "class_name": "LoopPregenerator",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["dungeonNameType", "roomLibrary", "loopSize", "roomLayer", "currentLoop", "openSocket", "isPregen", "useManualConfirmation", "isWaitingForDecision", "userConfirmedSave", "_discoveredLoopShapes", "loopPool", "roomPool"],
+          "properties": [],
+          "events": [],
+          "methods": ["LaunchPregeneration", "ConfirmAndSave", "SkipAndContinue", "GetFromPool", "SendToPool", "LoopPregen", "TryLoop", "Backtrack", "CheckRoomValidityWithSocket", "AlignRooms", "IsOverlapping", "PolygonsOverlap", "Project", "GetWorldFootprint", "ClearLoop", "GetCombinedFootprintSignature"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/ProceduralGeneration/LoopViewer.cs",
+      "namespace": "HuntingGame.ProceduralGeneration",
+      "types": [
+        {
+          "class_name": "LoopViewer",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["loopLibrary", "currentlyViewing", "currentData", "currentIndex"],
+          "properties": [],
+          "events": [],
+          "methods": ["Preview", "Next", "ClearPreview", "ViewLoop", "ClearLoop"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/ProceduralGeneration/Room.cs",
+      "namespace": "HuntingGame.ProceduralGeneration",
+      "types": [
+        {
+          "class_name": "Room",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["roomName", "sockets", "footprint", "originalData"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/ProceduralGeneration/RoomData.cs",
+      "namespace": "HuntingGame.ProceduralGeneration",
+      "types": [
+        {
+          "class_name": "RoomData",
+          "kind": "class",
+          "base_class": "ScriptableObject",
+          "interfaces": [],
+          "attributes": ["CreateAssetMenu"],
+          "fields": ["roomName", "roomPrefab", "roomWeight", "socketTypes"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    },
+    {
+      "file_path": "Assets/01_Scripts/ProceduralGeneration/Socket.cs",
+      "namespace": "HuntingGame.ProceduralGeneration",
+      "types": [
+        {
+          "class_name": "SocketType",
+          "kind": "enum",
+          "base_class": null,
+          "interfaces": [],
+          "attributes": [],
+          "fields": ["SMALL", "MEDIUM", "LARGE"],
+          "properties": [],
+          "events": [],
+          "methods": [],
+          "enums": [],
+          "nested_types": []
+        },
+        {
+          "class_name": "Socket",
+          "kind": "class",
+          "base_class": "MonoBehaviour",
+          "interfaces": [],
+          "attributes": ["RequireComponent(typeof(Collider))"],
+          "fields": ["socketType", "isAvailable", "room", "connectedRoom", "boundCollider", "socket", "barricade"],
+          "properties": [],
+          "events": [],
+          "methods": ["Awake", "CloseSocket", "OnDrawGizmos"],
+          "enums": [],
+          "nested_types": []
+        }
+      ]
+    }
+  ],
+  "dependency_map": {
+    "CharacterMovement": { "uses": ["IMovable", "ILookable"], "used_by": ["PlayerInputHandler", "AIInputHandler", "NetFpsPlayerAdapter", "RagdollController"] },
+    "FirstPersonCamera": { "uses": [], "used_by": ["PlayerInputHandler", "NetFpsPlayerAdapter", "PlayerAnimationController", "RagdollController"] },
+    "PlayerInputHandler": { "uses": ["CharacterMovement", "FirstPersonCamera", "SimplePlayerInteractor"], "used_by": ["NetFpsPlayerAdapter"] },
+    "SimplePlayerInteractor": { "uses": ["ISimpleInteractable"], "used_by": ["PlayerInputHandler"] },
+    "PlayerInteractor": { "uses": ["IInteractable", "NetcodeInteractableObject", "InteractionContext", "InteractionVerb"], "used_by": [] },
+    "NetFpsPlayerAdapter": { "uses": ["CharacterMovement", "FirstPersonCamera", "HeadBobbing", "PlayerInputHandler"], "used_by": [] },
+    "NetLocalCameraEnforcer": { "uses": [], "used_by": [] },
+    "NetPlayer": { "uses": ["NetGameRoot", "NetPlayerRegistry", "INetIdentityProvider"], "used_by": ["NetPlayerRegistry", "NetLobbyRosterTMP", "NetReadyPlatformGate"] },
+    "NetPlayerRegistry": { "uses": ["NetPlayer"], "used_by": ["NetGameRoot", "NetLobbyRosterTMP", "NetReadyPlatformGate"] },
+    "NetGameRoot": { "uses": ["NetGameConfig", "INetBootstrapper", "INetLobbyController", "INetIdentityProvider", "NetPlayerRegistry"], "used_by": ["NetPlayer", "NetDemoUI", "NetLobbyRosterTMP", "NetReadyPlatformGate", "SteamLobbyNetcode"] },
+    "NetSessionManager": { "uses": ["NetGameConfig", "NetReadyPlatformGate", "NetPlayerTeleporter"], "used_by": ["NetConnectionApproval", "ElevatorButtonInteractable", "ReturnToLobbyInteractable", "ElevatorEffectsController", "NetLobbyRosterTMP", "NetSessionUI", "NetPlayerTeleporter"] },
+    "NetcodeInteractableObject": { "uses": ["IInteractable", "InteractionContext"], "used_by": ["PlayerInteractor"] },
+    "SteamBootstrap": { "uses": ["INetBootstrapper"], "used_by": ["SteamIdentityProvider", "SteamLobbyNetcode"] },
+    "SteamLobbyNetcode": { "uses": ["INetLobbyController", "NetGameConfig", "NetConnectionPayload", "SteamBootstrap"], "used_by": ["NetGameRoot"] },
+    "SteamIdentityProvider": { "uses": ["INetIdentityProvider", "SteamBootstrap"], "used_by": ["NetGameRoot"] },
+    "NetSteamProximityVoiceChat": { "uses": ["SteamVoiceSpeaker", "NetSteamVoiceConfig"], "used_by": [] },
+    "SteamVoiceSpeaker": { "uses": ["VoiceTalkIndicator", "MouthBlendshapeTalkAnimator"], "used_by": ["NetSteamProximityVoiceChat"] },
+    "DungeonGenerator": { "uses": ["Room", "RoomData", "Socket", "LoopData"], "used_by": [] },
+    "LoopPregenerator": { "uses": ["Room", "RoomData", "Socket", "LoopData"], "used_by": [] },
+    "AIInputHandler": { "uses": ["CharacterMovement", "Health", "RagdollController"], "used_by": ["BoilBackAI", "CeilingAI", "PopCockAI"] },
+    "Health": { "uses": [], "used_by": ["AIInputHandler", "DamageZone"] },
+    "PlayerAnimationController": { "uses": ["PlayerHeadIK", "CharacterController", "FirstPersonCamera"], "used_by": [] },
+    "PlayerHeadIK": { "uses": [], "used_by": ["PlayerAnimationController"] }
+  },
+  "srp_violations": [
+    {
+      "class": "DungeonGenerator",
+      "severity": "high",
+      "description": "Manages dungeon generation algorithm, ghost object pooling, loop detection, AND SAT collision overlap testing all in a single 600-line class.",
+      "evidence": "Methods: Generate, TryPlaceRoom, TryPlaceLoop, TryBridgeRoom, CheckForNaturalLoop, IsOverlapping, PolygonsOverlap, AlignRooms, SetupGhostPool, GetWeightedRandomRoom — 10+ distinct sub-responsibilities."
+    },
+    {
+      "class": "LoopPregenerator",
+      "severity": "high",
+      "description": "Combines editor tooling (Odin buttons, AssetDatabase), async DFS loop search, room pooling, and SAT polygon overlap — all duplicating code from DungeonGenerator.",
+      "evidence": "AlignRooms, PolygonsOverlap, Project, GetWorldFootprint are exact copies of DungeonGenerator methods. Also mixes async/await with Unity editor callbacks."
+    },
+    {
+      "class": "NetSessionManager",
+      "severity": "medium",
+      "description": "Manages session state machine, NGO scene loading/unloading, scene event routing, player teleport orchestration, and ready-gate interaction.",
+      "evidence": "OnSceneEvent switch handles 4 flow steps; HandleReturnTeleports directly queries elevatorGate and splits players into lists."
+    },
+    {
+      "class": "NetSteamProximityVoiceChat",
+      "severity": "medium",
+      "description": "Handles Steam voice capture, network relay (server role), decompression, speaker lookup, and distance culling in one MonoBehaviour.",
+      "evidence": "OnVoiceFromClient (server relay) and OnVoiceFromServer (client decode) are distinct concerns folded into one class with separate memory buffers."
+    },
+    {
+      "class": "AIInputHandler",
+      "severity": "medium",
+      "description": "Combines NavMesh movement driving, ragdoll death sequence, and input bridging between NavMeshAgent and CharacterMovement.",
+      "evidence": "Ragdoll coroutine directly disables CharacterController, CharacterMovement, Health — mixes locomotion and death responsibilities."
+    },
+    {
+      "class": "RagdollController",
+      "severity": "medium",
+      "description": "Handles physics ragdoll activation, per-bone rigidbody control, AND player grab interaction (ISimpleInteractable) including applying drag weight to the grabber's camera and movement.",
+      "evidence": "StartInteract reaches into grabber's CharacterMovement and FirstPersonCamera via GetComponent — strong coupling across systems."
+    },
+    {
+      "class": "NetGameRoot",
+      "severity": "low",
+      "description": "Acts as service locator and also owns netcode event subscription / state transition.",
+      "evidence": "Exposes Instance (singleton), Config, PlayerRegistry, IdentityProvider — many unrelated consumers depend on this one class."
+    }
+  ],
+  "code_smells": [
+    {
+      "type": "DuplicatedCode",
+      "severity": "high",
+      "description": "AlignRooms, IsOverlapping, PolygonsOverlap, Project, and GetWorldFootprint are copy-pasted verbatim between DungeonGenerator and LoopPregenerator.",
+      "affected_classes": ["DungeonGenerator", "LoopPregenerator"],
+      "suggestion": "Extract a static DungeonGeometryUtils class (or ProceduralGenerationUtils) with these shared methods."
+    },
+    {
+      "type": "InappropriateIntimacy",
+      "severity": "high",
+      "description": "RagdollController.StartInteract reaches into the grabber Transform and calls SetSlowingWeight on CharacterMovement and FirstPersonCamera, directly coupling AI death to player camera/movement internals.",
+      "affected_classes": ["RagdollController", "CharacterMovement", "FirstPersonCamera"],
+      "suggestion": "Introduce an ISlowable interface or broadcast a physics drag event rather than coupling via direct GetComponent calls."
+    },
+    {
+      "type": "InconsistentInteractionSystem",
+      "severity": "high",
+      "description": "Two parallel interaction systems exist: the legacy ISimpleInteractable (SimplePlayerInteractor, RagdollController) and the production IInteractable + InteractionContext system. Both are active in the codebase.",
+      "affected_classes": ["ISimpleInteractable", "SimplePlayerInteractor", "RagdollController", "IInteractable", "PlayerInteractor"],
+      "suggestion": "Migrate RagdollController and any remaining ISimpleInteractable consumers to IInteractable, then delete ISimpleInteractable."
+    },
+    {
+      "type": "InconsistentNamespace",
+      "severity": "medium",
+      "description": "CharacterMovement, FirstPersonCamera, PlayerInputHandler, and SimplePlayerInteractor have no namespace. Other systems use HuntGame.Player, HuntingGame, DungeonSteakhouse.Net etc.",
+      "affected_classes": ["CharacterMovement", "FirstPersonCamera", "PlayerInputHandler", "SimplePlayerInteractor"],
+      "suggestion": "Move root-namespace classes into HuntGame.Player or HuntGame.Core."
+    },
+    {
+      "type": "HealthBug",
+      "severity": "medium",
+      "description": "Health.ChangeHealth has a bug: the else branch increments `healthPoint` (SerializeField max value) instead of `currentHealthPoint`.",
+      "affected_classes": ["Health"],
+      "suggestion": "Change `healthPoint += value` to `currentHealthPoint += value`."
+    },
+    {
+      "type": "GlobalSingleton overuse",
+      "severity": "medium",
+      "description": "NetGameRoot.Instance, NetSessionManager.Instance, and SteamBootstrap.Ready/ReadyChanged are static singletons. Any class can call them without injection, making testing and scene isolation harder.",
+      "affected_classes": ["NetGameRoot", "NetSessionManager", "SteamBootstrap"],
+      "suggestion": "Keep singletons but inject dependencies via inspector where practical (NetSessionManager is already injected on ElevatorEffectsController)."
+    },
+    {
+      "type": "MissingNullCheck",
+      "severity": "low",
+      "description": "ElevatorEffectsController.CameraShakeRoutine uses Camera.main directly, which returns null in multiplayer additive scenes when NetLocalCameraEnforcer has not finished enforcing.",
+      "affected_classes": ["ElevatorEffectsController"],
+      "suggestion": "Resolve camera via NetLocalCameraEnforcer or inject it explicitly."
+    },
+    {
+      "type": "NativeArrayLeak risk",
+      "severity": "low",
+      "description": "NetcodeInteractableObject.RequestInteractServerRpc allocates a NativeArray with Allocator.Persistent and disposes it after SendClientRpc. If an exception occurs between allocation and Dispose, memory leaks.",
+      "affected_classes": ["NetcodeInteractableObject"],
+      "suggestion": "Use a try/finally block around the Dispose call, or switch to Allocator.Temp if NGO reads it synchronously."
+    }
+  ],
+  "refactoring_suggestions": [
+    {
+      "priority": 1,
+      "title": "Fix Health.ChangeHealth bug",
+      "effort": "trivial",
+      "impact": "critical",
+      "description": "Line `healthPoint += value` must be `currentHealthPoint += value`. The current code modifies the inspector-set max value instead of current HP, causing health not to decrease correctly.",
+      "files_affected": ["Assets/01_Scripts/Health.cs"]
+    },
+    {
+      "priority": 2,
+      "title": "Extract DungeonGeometryUtils shared utility",
+      "effort": "low",
+      "impact": "high",
+      "description": "Move AlignRooms, IsOverlapping, PolygonsOverlap, Project, and GetWorldFootprint into a static or non-MonoBehaviour utility class. Both DungeonGenerator and LoopPregenerator reference it. Eliminates ~120 lines of duplicated code.",
+      "files_affected": ["Assets/01_Scripts/ProceduralGeneration/DungeonGenerator.cs", "Assets/01_Scripts/ProceduralGeneration/LoopPregenerator.cs"]
+    },
+    {
+      "priority": 3,
+      "title": "Migrate ISimpleInteractable to IInteractable",
+      "effort": "medium",
+      "impact": "high",
+      "description": "RagdollController implements ISimpleInteractable (legacy). Convert it to IInteractable with InteractionContext. Delete ISimpleInteractable and SimplePlayerInteractor once migration is complete. This unifies the interaction pipeline.",
+      "files_affected": ["Assets/01_Scripts/AI/RagdollController.cs", "Assets/01_Scripts/Interfaces/ISimpleInteractable.cs", "Assets/01_Scripts/SimplePlayerInteractor.cs"]
+    },
+    {
+      "priority": 4,
+      "title": "Introduce ISlowable to decouple RagdollController grab",
+      "effort": "low",
+      "impact": "medium",
+      "description": "RagdollController.StartInteract/EndInteract directly calls CharacterMovement.SetSlowingWeight and FirstPersonCamera.SetSlowingWeight. Extract interface ISlowable { void SetSlowingWeight(bool, float); } and implement on both. RagdollController only knows ISlowable.",
+      "files_affected": ["Assets/01_Scripts/AI/RagdollController.cs", "Assets/01_Scripts/CharacterMovement.cs", "Assets/01_Scripts/FirstPersonCamera.cs"]
+    },
+    {
+      "priority": 5,
+      "title": "Split DungeonGenerator into focused classes",
+      "effort": "high",
+      "impact": "medium",
+      "description": "Separate responsibilities: DungeonGhostPool (ghost object lifecycle), DungeonRoomPlacer (TryPlaceRoom, AlignRooms), DungeonLoopPlacer (TryPlaceLoop, TryBridgeRoom), DungeonOverlapTester (SAT polygon math). DungeonGenerator becomes an orchestrator.",
+      "files_affected": ["Assets/01_Scripts/ProceduralGeneration/DungeonGenerator.cs"]
+    },
+    {
+      "priority": 6,
+      "title": "Add namespace to root-level player scripts",
+      "effort": "low",
+      "impact": "low",
+      "description": "Move CharacterMovement, FirstPersonCamera, PlayerInputHandler, SimplePlayerInteractor to namespace HuntGame.Player. Consistent with HeadBobbing and PlayerHeadIK.",
+      "files_affected": ["Assets/01_Scripts/CharacterMovement.cs", "Assets/01_Scripts/FirstPersonCamera.cs", "Assets/01_Scripts/PlayerInputHandler.cs", "Assets/01_Scripts/SimplePlayerInteractor.cs"]
+    },
+    {
+      "priority": 7,
+      "title": "Wrap NativeArray disposal in try/finally in NetcodeInteractableObject",
+      "effort": "trivial",
+      "impact": "low",
+      "description": "RequestInteractServerRpc allocates NativeArray(Persistent). Wrap Dispose in try/finally to prevent leaks on exception paths.",
+      "files_affected": ["Assets/01_Scripts/_Project/Runtime/Net/Interactions/NetcodeInteractableObject.cs"]
+    },
+    {
+      "priority": 8,
+      "title": "Fix ElevatorEffectsController camera resolution",
+      "effort": "low",
+      "impact": "low",
+      "description": "Replace Camera.main lookup in CameraShakeRoutine with an injected camera reference or query via NetLocalCameraEnforcer. Camera.main is unreliable in additive multiplayer scenes.",
+      "files_affected": ["Assets/01_Scripts/_Project/Runtime/Net/Session/Elevator/ElevatorEffectsController.cs"]
+    }
+  ]
+}
