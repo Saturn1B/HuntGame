@@ -109,6 +109,9 @@ MonoBehaviour:
   crouchingHeight: 0.3
   crouchTransitionSpeed: 0.1
   gravity: 19.62
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &6343219175549357665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,9 +131,12 @@ MonoBehaviour:
   ragdollCollider: {fileID: 5499757653299860764}
   timeMinLimit: 5
   timeMaxLimit: 10
-  debugChasingRange: 1
+  debugChasingRange: 0
   loosingPlayerRange: 20
   explosionTriggerRange: 3
+  debugExplosionRange: 0
+  explosionDamageRange: 5
+  explosionDamage: 5
   explosionSpawn: {x: 0, y: 0.5, z: 0}
   explosionVfxPrefab: {fileID: 4483439250218314614, guid: 54122ac63ec6a58489af5931ace8d651, type: 3}
   smokeVfx: {fileID: 6119153413722335387}
@@ -226,7 +232,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.75
+  m_Radius: 0.35
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &447084188381195690
 PrefabInstance:

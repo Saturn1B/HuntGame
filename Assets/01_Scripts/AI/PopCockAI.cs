@@ -27,6 +27,14 @@ namespace HuntingGame.AI
 		[SerializeField] private float loosingPlayerRange;
 		[SerializeField] private float explosionTriggerRange;
 
+		[Space]
+		[Header("Explosion Settings")]
+		[SerializeField] private bool debugExplosionRange;
+		[SerializeField] private float explosionDamageRange;
+		[SerializeField] private int explosionDamage;
+
+		[Space]
+
 		[Header("AI Effect Settings")]
 		[SerializeField] private Vector3 explosionSpawn;
 		[SerializeField] private GameObject explosionVfxPrefab;
@@ -212,6 +220,16 @@ namespace HuntingGame.AI
 			ParticleSystem explosionVfx = Instantiate(explosionVfxPrefab, transform.position + explosionSpawn, Quaternion.identity).GetComponent<ParticleSystem>();
 			explosionVfx.Play();
 
+			Collider[] hitColliders = Physics.OverlapSphere(transform.position, explosionDamageRange);
+			foreach (var hit in hitColliders)
+			{
+				if(hit.TryGetComponent(out Health health))
+				{
+					//MAYBE TO DO Add explosion damage dependant on distance to explosion center
+					health.ChangeHealth(-explosionDamage);
+				}
+			}
+
 			Destroy(gameObject);
 		}
 
@@ -226,6 +244,11 @@ namespace HuntingGame.AI
 
 				Gizmos.color = new Color(1, .5f, 0, 1);
 				Gizmos.DrawWireSphere(transform.position, explosionTriggerRange);
+			}
+			if (debugExplosionRange)
+			{
+				Gizmos.color = Color.red;
+				Gizmos.DrawWireSphere(transform.position, explosionDamageRange);
 			}
 		}
 	}
