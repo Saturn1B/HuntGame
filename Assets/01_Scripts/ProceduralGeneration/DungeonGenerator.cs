@@ -2,8 +2,11 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System;
+using Random = UnityEngine.Random;
 
-namespace ProceduralGeneration
+namespace HuntingGame.ProceduralGeneration
 {
 	public class DungeonGenerator : MonoBehaviour
 	{
@@ -11,6 +14,7 @@ namespace ProceduralGeneration
 		[SerializeField, Tooltip("All the room that might generate in the dungeon")] private RoomData[] roomLibrary;
 		[SerializeField, Tooltip("The entrance room of the dungeon")] private GameObject entrancePrefab;
 		[SerializeField, Tooltip("Bigger deepness means bigger dungeon and longer generation time")] private int deepness;
+		[SerializeField, Tooltip("Seed used for the generation of the dungeon")] private int currentSeed;
 		[SerializeField] private LayerMask roomLayer;
 		[SerializeField, Tooltip("Set to true if you want to actively try looping in the dungeon. Might not work depending on room type. Will slow down generation")]
 		private bool tryLooping;
@@ -47,7 +51,31 @@ namespace ProceduralGeneration
 			return ghost;
 		}
 
-		[ContextMenu("GenerateDungeon")]
+		[ContextMenu("GenerateDungeon")] //For debug purpose, DO NOT USE
+		private void TestGenerateWithSeed() => GenerateWithSeed();
+
+		//Use this to launch dungeon generation with seed
+		public void GenerateWithSeed(int seed = 0)
+		{
+			//Check if seed inputed, if not used already existing
+			if (seed == 0)
+			{
+				//Check if seed already exist, if not generate it
+				if (currentSeed == 0)
+					currentSeed = (int)DateTime.Now.Ticks;
+			}
+			//If seed inputed, use it
+			else
+				currentSeed = seed;
+
+			//Set seed
+			Random.InitState(currentSeed);
+
+			//Start dungeon generation
+			Generate();
+		}
+
+
 		private void Generate()
 		{
 			//Clean dungeon
@@ -200,7 +228,7 @@ namespace ProceduralGeneration
 		{
 			if (loopLibrary == null || loopLibrary.Length == 0) return false;
 
-			//Shuffle library to avaoid always picking th same room
+			//Shuffle library to avaoid always picking the same room
 			List<LoopData> loopsToTry = loopLibrary.OrderBy(x => Random.value).ToList();
 
 			foreach (LoopData loop in loopsToTry)
@@ -243,7 +271,9 @@ namespace ProceduralGeneration
 							checkGhost.transform.position = worldPos;
 							checkGhost.transform.rotation = worldRot;
 
-							if(IsOverlapping(checkGhost, targetSocket))
+							Room ignoreTarget = (j == i) ? targetSocket.room : null;
+
+							if (IsOverlapping(checkGhost, ignoreTarget))
 							{
 								anyOverlap = true;
 								checkGhost.gameObject.SetActive(false);
@@ -323,7 +353,7 @@ namespace ProceduralGeneration
 						if(dist < .1f && angle < 1f)
 						{
 							//Check for room overlaping
-							if (!IsOverlapping(ghostRoom, socketA))
+							if (!IsOverlapping(ghostRoom, socketA.room))
 							{
 								//Bridge is valid, validate the room and socket
 
@@ -377,7 +407,7 @@ namespace ProceduralGeneration
 				AlignRooms(targetSocket, incomingSocket, room.transform);
 
 				//Check for room overlaping
-				if (IsOverlapping(room, targetSocket)) continue;
+				if (IsOverlapping(room, targetSocket.room)) continue;
 
 				//If socket found return it
 				return incomingSocket;
@@ -429,17 +459,8 @@ namespace ProceduralGeneration
 			roomTransform.position += positionOffset;
 		}
 
-		private bool IsOverlapping(Room room, Socket targetSocket)
+		private bool IsOverlapping(Room room, Room roomToIgnore)
 		{
-			Physics.SyncTransforms();
-
-			//float padding = .05f;
-			//Get the bounds or our room
-			//Bounds b = room.boundCollider.bounds;
-
-			//Get all the object colliding with our room (added a small bit of padding for tolerance)
-			//Collider[] colliders = Physics.OverlapBox(b.center, (b.extents - Vector3.one * padding), room.transform.rotation, roomLayer);
-
 			Vector2[] incoming = GetWorldFootprint(room);
 
 			//Check on all the room colliding object found
@@ -454,10 +475,7 @@ namespace ProceduralGeneration
 				if (hitRoom.gameObject == room.gameObject) continue;
 
 				//If it's the room we're buidling from, skip
-				if (hitRoom == targetSocket.room) continue;
-
-				//Else, we're colliding with another room, return overlapping to true
-				//return true;
+				if (hitRoom == roomToIgnore) continue;
 
 				Vector2[] placed = GetWorldFootprint(hitRoom);
 				if (PolygonsOverlap(incoming, placed)) return true;
@@ -475,6 +493,10 @@ namespace ProceduralGeneration
 				{
 					Vector2 edge = poly[(i + 1) % poly.Length] - poly[i];
 					Vector2 axis = new Vector2(-edge.y, edge.x);
+
+					float magnitude = axis.magnitude;
+					if (magnitude < 0.0001f) continue; // ignore les arêtes dégénérées
+					axis /= magnitude;
 
 					Project(polyA, axis, out float minA, out float maxA);
 					Project(polyB, axis, out float minB, out float maxB);

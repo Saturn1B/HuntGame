@@ -9,6 +9,8 @@ public class SimplePlayerInteractor : MonoBehaviour
 
 	private ISimpleInteractable interactable;
 
+	private ISimpleUseable useable;
+
 	public void TryInteract(bool isPressed)
 	{
 		if (viewCamera == null) return;
@@ -37,5 +39,33 @@ public class SimplePlayerInteractor : MonoBehaviour
 				interactable.EndInteract();
 			}
 		}
+	}
+
+	public void TryUse(bool isPressed)
+	{
+		if(useable != null)
+
+		if (isPressed)
+		{
+				Debug.Log("Try use");
+				if (useable.CanUse())
+				{
+					Debug.Log("Interact success");
+					useable.StartUse();
+				}
+			}
+		else
+		{
+			if (useable != null && useable.CanUse())
+			{
+				Debug.Log("End interact success");
+					useable.EndUse();
+			}
+		}
+	}
+
+	public void SetUseable(ISimpleUseable use)
+	{
+		useable = use;
 	}
 }

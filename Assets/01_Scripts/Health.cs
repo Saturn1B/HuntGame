@@ -23,12 +23,15 @@ namespace HuntingGame
 
         public void ChangeHealth(int value)
 		{
+            if (value < 0 && transform.GetComponentInChildren<CameraShakeManager>() != null)
+                transform.GetComponentInChildren<CameraShakeManager>().Shake(.5f, .5f);
+
             if (currentHealthPoint <= 0) return;
 
             if (Mathf.Abs(value) >= currentHealthPoint)
                 currentHealthPoint = 0;
             else
-                healthPoint += value;
+                currentHealthPoint += value;
 
             _onChangeHealthValue?.Invoke(currentHealthPoint);
 

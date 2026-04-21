@@ -158,6 +158,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7431421516234140022, guid: 24e7ac79264a0df49908ccc7acf19a5d, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: b99406ad41750d24ea883aa9408e24d8, type: 2}
     - target: {fileID: 9159583261339852202, guid: 24e7ac79264a0df49908ccc7acf19a5d, type: 3}
       propertyPath: m_Name
       value: P_MOD_Wall_01_O_straight_large_ArcCover
