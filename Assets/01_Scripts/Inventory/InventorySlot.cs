@@ -71,5 +71,12 @@ namespace HuntingGame.Inventory
 			ChangeNumber(1);
 			RefreshItem();
 		}
+
+		public void RemoveItem()
+		{
+			itemNumber = 0;
+
+			RefreshItem();
+		}
     }
 }

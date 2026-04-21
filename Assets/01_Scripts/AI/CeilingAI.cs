@@ -19,8 +19,8 @@ namespace HuntingGame.AI
 		private int groundMask;
 		private int ceilingMask;
 
-		private bool isOnCeiling;
-		private bool isTransitioning;
+		protected bool isOnCeiling;
+		protected bool isTransitioning;
 
 		protected override void Awake()
 		{
@@ -47,7 +47,7 @@ namespace HuntingGame.AI
 			HandleSurfaceLogic();
 		}
 
-		private void HandleSurfaceLogic()
+		protected virtual void HandleSurfaceLogic()
 		{
 			//Check if is transitionning
 			if (isTransitioning)
@@ -71,13 +71,13 @@ namespace HuntingGame.AI
 				StartCoroutine(TransitionToGround());
 		}
 
-		private bool HasCeilingAbove()
+		protected bool HasCeilingAbove()
 		{
 			//Raycast up to check for ceiling presence
 			return Physics.Raycast(transform.position, Vector3.up, surfaceCheckDistance);
 		}
 
-		private IEnumerator TransitionToCeiling()
+		protected virtual IEnumerator TransitionToCeiling()
 		{
 			//Start transitionning
 			isTransitioning = true;
@@ -109,7 +109,7 @@ namespace HuntingGame.AI
 			isTransitioning = false;
 		}
 
-		private IEnumerator TransitionToGround()
+		protected virtual IEnumerator TransitionToGround()
 		{
 			//Start transitionning
 			isTransitioning = true;
@@ -132,7 +132,7 @@ namespace HuntingGame.AI
 			isTransitioning = false;
 		}
 
-		private void FlipCharacter(bool toCeiling)
+		protected virtual void FlipCharacter(bool toCeiling)
 		{
 			//Find forward vector
 			Vector3 forward = transform.forward;

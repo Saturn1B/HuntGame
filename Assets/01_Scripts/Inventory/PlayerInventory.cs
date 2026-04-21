@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using HuntingGame.Item;
 
 namespace HuntingGame.Inventory
@@ -186,12 +187,20 @@ namespace HuntingGame.Inventory
 			return 0;
 		}
 
-		public void RemoveItemOfType(ItemScriptable itemType)
+		public void RemoveItemOfType(ItemScriptable itemType, bool all = false)
 		{
 			foreach (InventorySlot slot in inventorySlots)
 			{
 				if (slot.currentItem == itemType)
-					slot.ChangeNumber(-1);
+				{
+					if (all)
+						slot.RemoveItem();
+					else
+						slot.ChangeNumber(-1);
+
+					if(slot.currentItem == null && slot == selectedSlot)
+						RemoveObjectInHand();
+				}
 			}
 		}
 
@@ -210,6 +219,24 @@ namespace HuntingGame.Inventory
 					}
 				}
 			}
+		}
+
+		public ItemScriptable GetRandomItem()
+		{
+			List<InventorySlot> availableSlot = new List<InventorySlot>();
+
+			foreach (InventorySlot slot in inventorySlots)
+			{
+				if (slot.currentItem != null)
+					availableSlot.Add(slot);
+			}
+
+			if (availableSlot.Count == 0)
+				return null;
+
+			InventorySlot rndSlot = availableSlot[Random.Range(0, availableSlot.Count)];
+
+			return rndSlot.currentItem;
 		}
 	}
 }
