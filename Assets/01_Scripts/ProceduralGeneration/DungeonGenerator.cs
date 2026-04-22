@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
+using Random = UnityEngine.Random;
 
 namespace HuntingGame.ProceduralGeneration
 {
@@ -12,6 +14,7 @@ namespace HuntingGame.ProceduralGeneration
 		[SerializeField, Tooltip("All the room that might generate in the dungeon")] private RoomData[] roomLibrary;
 		[SerializeField, Tooltip("The entrance room of the dungeon")] private GameObject entrancePrefab;
 		[SerializeField, Tooltip("Bigger deepness means bigger dungeon and longer generation time")] private int deepness;
+		[SerializeField, Tooltip("Seed used for the generation of the dungeon")] private int currentSeed;
 		[SerializeField] private LayerMask roomLayer;
 		[SerializeField, Tooltip("Set to true if you want to actively try looping in the dungeon. Might not work depending on room type. Will slow down generation")]
 		private bool tryLooping;
@@ -48,14 +51,32 @@ namespace HuntingGame.ProceduralGeneration
 			return ghost;
 		}
 
-        /*public void Generate(int seed)
-        {
-            Random.InitState(seed);
-            // ... ton code existant
-        }*/
+		[ContextMenu("GenerateDungeon")] //For debug purpose, DO NOT USE
+		private void TestGenerateWithSeed() => GenerateWithSeed();
 
-        [ContextMenu("GenerateDungeon")]
-		public void Generate()
+		//Use this to launch dungeon generation with seed
+		public void GenerateWithSeed(int seed = 0)
+		{
+			//Check if seed inputed, if not used already existing
+			if (seed == 0)
+			{
+				//Check if seed already exist, if not generate it
+				if (currentSeed == 0)
+					currentSeed = (int)DateTime.Now.Ticks;
+			}
+			//If seed inputed, use it
+			else
+				currentSeed = seed;
+
+			//Set seed
+			Random.InitState(currentSeed);
+
+			//Start dungeon generation
+			Generate();
+		}
+
+
+		private void Generate()
 		{
 			//Clean dungeon
 			ClearDungeon();

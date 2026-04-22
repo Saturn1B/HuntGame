@@ -584,6 +584,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: P_MOD_Gateway_Door_01_large
       objectReference: {fileID: 0}
+    - target: {fileID: 5376314400767217205, guid: 7cde9f4d14dbec342ae2ce64b5e46c2d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8991393425137531942, guid: 7cde9f4d14dbec342ae2ce64b5e46c2d, type: 3}
       propertyPath: m_RootOrder
       value: 0
