@@ -1304,6 +1304,8 @@ MonoBehaviour:
   detectionInterval: 0.1
   viewRadius: 12
   viewAngle: 145
+  _shape: 1
+  capsuleHeight: 6
 --- !u!114 &6164220718690715239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1523,7 +1525,7 @@ MonoBehaviour:
   switchToGroundDistance: 10
   surfaceCheckDistance: 10
   debugStealingRange: 1
-  droppingPlayerRange: 7
+  droppingPlayerRange: 4.5
   stealingPlayerRange: 2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

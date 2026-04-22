@@ -44,7 +44,7 @@ namespace HuntingGame.AI
 				base.Update();
 
 			//Handle the surface switching logic
-			HandleSurfaceLogic();
+			//HandleSurfaceLogic();
 		}
 
 		protected virtual void HandleSurfaceLogic()
@@ -130,6 +130,28 @@ namespace HuntingGame.AI
 
 			//Stop transitionning
 			isTransitioning = false;
+		}
+
+		protected virtual void SetSurfaceInstant(bool isCeiling)
+		{
+			isOnCeiling = isCeiling;
+			isTransitioning = false;
+
+			StopAllCoroutines();
+
+			if (agent != null)
+				agent.areaMask = isCeiling ? ceilingMask : groundMask;
+
+			if (isCeiling)
+				transform.rotation = Quaternion.LookRotation(transform.forward, -Vector3.up);
+			else
+				transform.rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
+
+			if (movementController != null)
+				movementController.ResetVerticalVelocity();
+
+			if (agent != null && agent.enabled)
+				agent.nextPosition = transform.position;
 		}
 
 		protected virtual void FlipCharacter(bool toCeiling)

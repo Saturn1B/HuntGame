@@ -39,7 +39,7 @@ namespace HuntingGame.AI
 			}
 		}
 
-		public void StartWandering() => StartCoroutine(FindNewTarget());
+		public void StartWandering(int mask = NavMesh.AllAreas) => StartCoroutine(FindNewTarget(true, mask));
 		public void StopWandering(bool keepMoving = false)
 		{
 			Debug.Log($"is moving state before stop wandering: {isMoving}");
@@ -48,7 +48,7 @@ namespace HuntingGame.AI
 				isMoving = false;
 		}
 
-		private IEnumerator FindNewTarget(bool wait = true)
+		private IEnumerator FindNewTarget(bool wait = true, int mask = NavMesh.AllAreas)
 		{
 			isMoving = false;
 
@@ -61,13 +61,14 @@ namespace HuntingGame.AI
 			Vector3 newTarget = UnityEngine.Random.insideUnitSphere * maxWalkingRange;
 			newTarget = KeepTargetInRange(newTarget);
 			newTarget = rangeAroundPoint ? rangeCenterPoint + newTarget : transform.position + newTarget;
-			newTarget.y = 0;
+			newTarget.y = transform.position.y;
 
 			NavMeshHit hit;
 
-			if (NavMesh.SamplePosition(newTarget, out hit, maxWalkingRange, NavMesh.AllAreas))
+			if (NavMesh.SamplePosition(newTarget, out hit, maxWalkingRange, mask))
 			{
 				currentTarget = hit.position;
+
 				isMoving = true;
 			}
 			else

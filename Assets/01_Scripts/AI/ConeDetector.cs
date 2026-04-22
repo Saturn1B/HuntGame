@@ -1,18 +1,42 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using Sirenix.OdinInspector;
 
 namespace HuntingGame.AI
 {
     public class ConeDetector : Detector
     {
+        private enum Shape
+		{
+            SPHERE,
+            CAPSULE
+		}
+
         [Header("Cone Shape Settings")]
         [SerializeField] private float viewRadius = 10f;
         [SerializeField] private float viewAngle = 90f;
+        [SerializeField] private Shape _shape = Shape.SPHERE;
+        [SerializeField, ShowIf("@_shape == Shape.CAPSULE")] private float capsuleHeight = 5f;
 
         protected override void Detect()
 		{
-            Collider[] hits = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
+            Collider[] hits;
+			switch (_shape)
+			{
+				case Shape.SPHERE:
+                    hits = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
+                    break;
+				case Shape.CAPSULE:
+                    Vector3 point1 = transform.position;
+                    Vector3 point2 = transform.position - (transform.up);
+                    hits = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
+                    break;
+				default:
+                    hits = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
+                    break;
+			}
+
 
             Transform bestCandidate = null;
 
@@ -59,21 +83,39 @@ namespace HuntingGame.AI
 
 		private void OnDrawGizmosSelected()
 		{
-            Vector3 origin = transform.position;
+			switch (_shape)
+			{
+				case Shape.SPHERE:
+                    DisplayAngleFlat(transform.position.y);
+                    break;
+				case Shape.CAPSULE:
+                    int height = Mathf.RoundToInt(capsuleHeight);
+					for (int i = 0; i < capsuleHeight; i++)
+					{
+                        DisplayAngleFlat(transform.position.y + i * transform.up.y);
+					}
+					break;
+				default:
+                    DisplayAngleFlat(transform.position.y);
+                    break;
+			}
+        }
 
-            //Gizmos.color = Color.yellow;
-            //Gizmos.DrawWireSphere(origin, viewRadius);
+        private void DisplayAngleFlat(float yPos)
+		{
+            Vector3 origin = transform.position;
+            origin.y = yPos;
 
             int stepCount = 16;
             float stepAngleSize = viewAngle / stepCount;
 
             Gizmos.color = new Color(1, .5f, 0, 1);
-			for (int i = 0; i <= stepCount; i++)
-			{
+            for (int i = 0; i <= stepCount; i++)
+            {
                 float angle = -viewAngle * .5f + stepAngleSize * i;
                 Vector3 dir = DirFromAngle(angle, false);
                 Gizmos.DrawLine(origin, origin + dir * viewRadius);
-			}
+            }
 
             Gizmos.color = Color.red;
             Vector3 leftBoundaryDir = DirFromAngle(-viewAngle * .5f, false);

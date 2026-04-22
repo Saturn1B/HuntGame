@@ -24,7 +24,7 @@ namespace HuntingGame.AI
 
 		private State _state;
 		private bool isMoving;
-		private float distancePadding = .5f;
+		private float distancePadding = .75f;
 		private PlayerInventory targetPlayerInventory;
 		private ItemScriptable stoledItem;
 		private bool stealingDone;
@@ -71,6 +71,8 @@ namespace HuntingGame.AI
 
 		private void Start()
 		{
+			stealingDone = false;
+			SetSurfaceInstant(true);
 			//Set starting state to IDLE and start timer
 			ChangeState(State.WANDERING);
 		}
@@ -94,8 +96,7 @@ namespace HuntingGame.AI
 					if (Vector3.Distance(transform.position, target) < stoppingDistance + distancePadding)
 					{
 						wanderingBehaviour.StopWandering();
-						//TO DO fix wandering for when on ceiling
-						//wanderingBehaviour.StartWandering();
+						wanderingBehaviour.StartWandering(agent.areaMask);
 						break;
 					}
 					target = wanderingBehaviour.currentTarget;
@@ -103,25 +104,24 @@ namespace HuntingGame.AI
 					break;
 				case State.STEALING:
 					//TO DO go to player -> drop to floor -> steal planned object -> go into fleeing
-					if (!isMoving) break;
-
 					float distanceToTarget = Vector3.Distance(transform.position, targetTransform.position);
-					if (distanceToTarget < droppingPlayerRange)
+					if (distanceToTarget < droppingPlayerRange && isOnCeiling)
 					{
-						if (isOnCeiling)
+						if (isOnCeiling && !isTransitioning)
 							StartCoroutine(TransitionToGround());
 						break;
 					}
-
-					if (distanceToTarget < stealingPlayerRange && !isOnCeiling && !stealingDone)
+					//TO DO Fix targetting problem gnome faster than agent ???
+					if (distanceToTarget < stealingPlayerRange && !stealingDone)
 					{
+						stealingDone = true;
 						targetPlayerInventory.RemoveItemOfType(stoledItem);
 						ChangeState(State.FLEEING);
 					}
 
+					base.Update();
 					break;
 				case State.FLEEING:
-
 					break;
 			}
 		}
@@ -136,7 +136,7 @@ namespace HuntingGame.AI
 					ToggleSprint(false);
 					if (!isOnCeiling) StartCoroutine(TransitionToCeiling());
 					wanderingBehaviour.StopWandering();
-					//wanderingBehaviour.StartWandering();
+					wanderingBehaviour.StartWandering(agent.areaMask);
 					break;
 				case State.STEALING:
 					ToggleSprint(false);
@@ -145,13 +145,14 @@ namespace HuntingGame.AI
 				case State.FLEEING:
 					ToggleSprint(true);
 					wanderingBehaviour.StopWandering();
+					//TO DO Fix problem gnome not stopping / Make Gnome run away
 					break;
 			}
 		}
 
 		private void SpotPlayer(Transform player)
 		{
-			if (_state == State.WANDERING) return;
+			if (_state != State.WANDERING) return;
 
 			if (player.TryGetComponent(out targetPlayerInventory))
 			{
