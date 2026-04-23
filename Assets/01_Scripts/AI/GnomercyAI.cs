@@ -19,17 +19,45 @@ namespace HuntingGame.AI
 		[SerializeField] private bool debugStealingRange;
 		[SerializeField] private float droppingPlayerRange;
 		[SerializeField] private float stealingPlayerRange;
+		[SerializeField] private Transform stealingObjectTransform;
+
+		[Header("AI Fleeing Settings")]
+		[SerializeField] private bool debugFleeingRange;
+		[SerializeField] private float fleeingRange;
 
 		private Animator animator;
         private Detector detector;
         private WanderingBehaviour wanderingBehaviour;
 
+		private bool _isMoving;
+		[HideInInspector]
+		public bool isMoving
+		{
+			get => _isMoving;
+			private set
+			{
+				_isMoving = value;
+				if (animator != null) animator.SetBool("isMoving", _isMoving);
+			}
+		}
+
+		private bool _stealingDone;
+		[HideInInspector]
+		public bool stealingDone
+		{
+			get => _stealingDone;
+			private set
+			{
+				_stealingDone = value;
+				if (animator != null) animator.SetBool("hasLoot", _stealingDone);
+			}
+		}
+
 		private State _state;
-		private bool isMoving;
 		private float distancePadding = .75f;
 		private PlayerInventory targetPlayerInventory;
+		private Transform currentTrackingPlayer;
 		private ItemScriptable stoledItem;
-		private bool stealingDone;
 
 		protected override void OnEnable()
 		{
@@ -105,26 +133,44 @@ namespace HuntingGame.AI
 					base.Update();
 					break;
 				case State.STEALING:
-					//TO DO go to player -> drop to floor -> steal planned object -> go into fleeing
+
+					if (!IsItemStillAvailable())
+					{
+						ChangeState(State.WANDERING);
+						break;
+					}
+
 					float distanceToTarget = Vector3.Distance(transform.position, targetTransform.position);
 					if (distanceToTarget < droppingPlayerRange && isOnCeiling)
 					{
+						if (!IsItemStillAvailable())
+						{
+							ChangeState(State.WANDERING);
+							break;
+						}
+
 						if (isOnCeiling && !isTransitioning)
 							StartCoroutine(TransitionToGround());
 						break;
 					}
 					if (distanceToTarget < stealingPlayerRange && !stealingDone)
 					{
+						if (!IsItemStillAvailable())
+						{
+							ChangeState(State.WANDERING);
+							break;
+						}
 						stealingDone = true;
 						targetPlayerInventory.RemoveItemOfType(stoledItem);
+						GameObject obj = Instantiate(stoledItem.itemVisualPrefab != null ? stoledItem.itemVisualPrefab : stoledItem.itemPrefab, stealingObjectTransform);
+						obj.transform.localRotation = stoledItem.offset.rotation;
 						ChangeState(State.FLEEING);
 					}
 
 					base.Update();
 					break;
 				case State.FLEEING:
-					if (!isMoving) break;
-					base.Update();
+					KeepDistance();
 					break;
 			}
 		}
@@ -136,21 +182,21 @@ namespace HuntingGame.AI
 			switch (_state)
 			{
 				case State.WANDERING:
+					SetTarget(null);
 					ToggleSprint(false);
-					if (!isOnCeiling) StartCoroutine(TransitionToCeiling());
+					if (!isOnCeiling && !stealingDone) SetSurfaceInstant(true);
+					else if (stealingDone && isOnCeiling) SetSurfaceInstant(false);
 					wanderingBehaviour.StopWandering();
 					wanderingBehaviour.StartWandering(agent.areaMask);
 					break;
 				case State.STEALING:
 					ToggleSprint(false);
 					wanderingBehaviour.StopWandering();
+					isMoving = true;
 					break;
 				case State.FLEEING:
 					ToggleSprint(true);
 					wanderingBehaviour.StopWandering();
-					StartCoroutine(Fleeing(targetTransform));
-					SetTarget(null);
-					//TO DO Fix problem gnome not stopping / Make Gnome run away
 					break;
 			}
 		}
@@ -158,6 +204,15 @@ namespace HuntingGame.AI
 		private void SpotPlayer(Transform player)
 		{
 			if (_state != State.WANDERING) return;
+
+			if (stealingDone)
+			{
+				currentTrackingPlayer = player;
+				SetTarget(player);
+
+				ChangeState(State.FLEEING);
+				return;
+			}
 
 			if (player.TryGetComponent(out targetPlayerInventory))
 			{
@@ -168,25 +223,54 @@ namespace HuntingGame.AI
 			else
 				return;
 
-			SetTarget(player);
+			currentTrackingPlayer = player;
+			SetTarget(currentTrackingPlayer);
 			ChangeState(State.STEALING);
 		}
 
-		private IEnumerator Fleeing(Transform playerPos)
+		private void KeepDistance()
 		{
-			isMoving = false;
+			if (targetTransform == null) return;
 
-			yield return null;
+			float distanceToPlayer = Vector3.Distance(transform.position, targetTransform.position);
 
-			Vector3 runDir = (transform.position - playerPos.position).normalized;
-			Vector3 fleePoint = transform.position + runDir * 15;
-
-			NavMeshHit hit;
-			if (NavMesh.SamplePosition(fleePoint, out hit, 15, groundMask))
+			if (distanceToPlayer < fleeingRange)
 			{
-				target = hit.position;
-				isMoving = true;
+				Vector3 fleeDirection = (transform.position - targetTransform.position).normalized;
+				Vector3 fleePoint = transform.position + fleeDirection * 5;
+
+				NavMeshHit hit;
+				if (NavMesh.SamplePosition(fleePoint, out hit, 5, NavMesh.AllAreas))
+				{
+					isMoving = true;
+					target = hit.position;
+					ToggleSprint(true);
+					MoveTowardsSetTarget(target);
+					FaceMovementDirection();
+				}
 			}
+			else
+			{
+				isMoving = false;
+				ToggleSprint(false);
+				movementController.SetMovementInput(Vector2.zero);
+				currentTrackingPlayer = null;
+				ChangeState(State.WANDERING);
+			}
+		}
+
+		private bool IsItemStillAvailable()
+		{
+			if (targetPlayerInventory.GetNumberItemOfType(stoledItem) == 0)
+			{
+				stoledItem = targetPlayerInventory.GetRandomItem();
+				if (stoledItem == null)
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		private void OnWanderingMovingChanged(bool isMoving)
@@ -212,6 +296,11 @@ namespace HuntingGame.AI
 				Gizmos.DrawWireSphere(transform.position, stealingPlayerRange);
 			}
 
+			if (debugFleeingRange)
+			{
+				Gizmos.color = Color.red;
+				Gizmos.DrawWireSphere(transform.position, fleeingRange);
+			}
 		}
 	}
 }

@@ -19,3 +19,4 @@ MonoBehaviour:
     rotation: {x: 0, y: 0, z: 0, w: 1}
   itemSprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
   itemPrefab: {fileID: 3543332256260017926, guid: 934aab8233adac2419ff5c7f80570b4f, type: 3}
+  itemVisualPrefab: {fileID: 1568023049281786498, guid: 80be7900164e88c46896990b034c30fd, type: 3}

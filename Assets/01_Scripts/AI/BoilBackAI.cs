@@ -23,7 +23,7 @@ namespace HuntingGame.AI
 
 		[Space]
 
-		[Header("AI `Hiding Settings")]
+		[Header("AI Hiding Settings")]
 		[SerializeField] private bool debugHidingRange;
 		[SerializeField] private float hidingRange;
 

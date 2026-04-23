@@ -14,5 +14,7 @@ namespace HuntingGame.Item
 		public Sprite itemSprite;
 		[PreviewField]
 		public GameObject itemPrefab;
+		[PreviewField]
+		public GameObject itemVisualPrefab;
 	}
 }
