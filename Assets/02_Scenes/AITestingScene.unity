@@ -1525,7 +1525,7 @@ MonoBehaviour:
   switchToGroundDistance: 10
   surfaceCheckDistance: 10
   debugStealingRange: 1
-  droppingPlayerRange: 4.5
+  droppingPlayerRange: 4
   stealingPlayerRange: 2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -16,8 +16,8 @@ namespace HuntingGame.AI
 		[SerializeField] private float switchToGroundDistance;
 		[SerializeField] private float surfaceCheckDistance;
 
-		private int groundMask;
-		private int ceilingMask;
+		protected int groundMask;
+		protected int ceilingMask;
 
 		protected bool isOnCeiling;
 		protected bool isTransitioning;
@@ -178,10 +178,23 @@ namespace HuntingGame.AI
 				return;
 			}
 
-			//Check if agent is enabled and on mesh, if not, return
-			if (!agent.enabled || !agent.isOnNavMesh) return;
-
 			base.MoveTowardsTarget();
+
+			float distance = Vector3.Distance(transform.position, targetPosition);
+
+			Vector3 dirToTarget = (targetPosition - transform.position).normalized;
+			Vector3 horizontalDir = Vector3.ProjectOnPlane(dirToTarget, transform.up).normalized;
+			Vector3 horizontalForward = Vector3.ProjectOnPlane(transform.forward, transform.up).normalized;
+
+			float dot = Vector3.Dot(horizontalForward, horizontalDir);
+			bool isFacingTarget = dot > 0.7f;
+
+			//Debug.Log($"isFacingTarget: {isFacingTarget}");
+
+			if (distance > stoppingDistance && isFacingTarget)
+				movementController.SetMovementInput(Vector2.up);
+			else
+				movementController.SetMovementInput(Vector2.zero);
 		}
 	}
 }

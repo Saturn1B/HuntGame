@@ -1,6 +1,8 @@
 using UnityEngine;
 using HuntingGame.Inventory;
 using HuntingGame.Item;
+using System.Collections;
+using UnityEngine.AI;
 
 namespace HuntingGame.AI
 {
@@ -111,7 +113,6 @@ namespace HuntingGame.AI
 							StartCoroutine(TransitionToGround());
 						break;
 					}
-					//TO DO Fix targetting problem gnome faster than agent ???
 					if (distanceToTarget < stealingPlayerRange && !stealingDone)
 					{
 						stealingDone = true;
@@ -122,6 +123,8 @@ namespace HuntingGame.AI
 					base.Update();
 					break;
 				case State.FLEEING:
+					if (!isMoving) break;
+					base.Update();
 					break;
 			}
 		}
@@ -145,6 +148,8 @@ namespace HuntingGame.AI
 				case State.FLEEING:
 					ToggleSprint(true);
 					wanderingBehaviour.StopWandering();
+					StartCoroutine(Fleeing(targetTransform));
+					SetTarget(null);
 					//TO DO Fix problem gnome not stopping / Make Gnome run away
 					break;
 			}
@@ -165,6 +170,23 @@ namespace HuntingGame.AI
 
 			SetTarget(player);
 			ChangeState(State.STEALING);
+		}
+
+		private IEnumerator Fleeing(Transform playerPos)
+		{
+			isMoving = false;
+
+			yield return null;
+
+			Vector3 runDir = (transform.position - playerPos.position).normalized;
+			Vector3 fleePoint = transform.position + runDir * 15;
+
+			NavMeshHit hit;
+			if (NavMesh.SamplePosition(fleePoint, out hit, 15, groundMask))
+			{
+				target = hit.position;
+				isMoving = true;
+			}
 		}
 
 		private void OnWanderingMovingChanged(bool isMoving)
