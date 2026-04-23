@@ -852,6 +852,7 @@ MonoBehaviour:
   movementController: {fileID: 0}
   cameraController: {fileID: 4436954195002885481}
   playerInteractor: {fileID: 0}
+  playerInventory: {fileID: 0}
 --- !u!114 &6334023525698170745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -916,9 +917,9 @@ MonoBehaviour:
     m_ActionName: 'Movement/Camera[/Mouse/delta]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: Movement
+  m_DefaultActionMap: 156ffd49-6647-4081-9b20-e4fbef0c0b0d
   m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 1020143624784532481}
 --- !u!114 &8407344553545229398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -931,7 +932,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1402152254
+  GlobalObjectIdHash: 3760544391
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1

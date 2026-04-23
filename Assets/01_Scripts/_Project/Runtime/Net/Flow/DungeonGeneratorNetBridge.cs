@@ -1,12 +1,11 @@
 using DungeonSteakhouse.Net.Session;
-using HuntingGame.ProceduralGeneration;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace HuntingGame.ProceduralGeneration
 {
     [RequireComponent(typeof(DungeonGenerator))]
-    public class DungeonGeneratorNetBridge : MonoBehaviour
+    public class DungeonGeneratorNetBridge : NetworkBehaviour
     {
         private DungeonGenerator _generator;
 
@@ -25,7 +24,7 @@ namespace HuntingGame.ProceduralGeneration
             if (NetworkManager.Singleton.IsServer
                 && NetSessionManager.Instance.State == NetSessionState.StartingRun)
             {
-                _generator.Generate();
+                GenerateDungeon();
             }
         }
 
@@ -40,7 +39,23 @@ namespace HuntingGame.ProceduralGeneration
             if (!NetworkManager.Singleton.IsServer) return;
             if (next != NetSessionState.StartingRun) return;
 
-            _generator.Generate();
+            GenerateDungeon();
+        }
+
+        private void GenerateDungeon()
+        {
+            int seed = UnityEngine.Random.Range(1, int.MaxValue);
+            _generator.GenerateWithSeed(seed);
+            SyncSeedToClientsClientRpc(seed);
+        }
+
+        [ClientRpc]
+        private void SyncSeedToClientsClientRpc(int seed)
+        {
+            // Host already generated, skip
+            if (NetworkManager.Singleton.IsServer) return;
+
+            _generator.GenerateWithSeed(seed);
         }
     }
 }
