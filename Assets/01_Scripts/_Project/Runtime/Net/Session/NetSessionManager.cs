@@ -52,6 +52,7 @@ namespace DungeonSteakhouse.Net.Session
 
         public override void OnNetworkSpawn()
         {
+            Debug.Log($"[NetSessionManager] OnNetworkSpawn. IsServer={IsServer} IsClient={IsClient} IsOwner={IsOwner}");
             base.OnNetworkSpawn();
             _state.OnValueChanged += OnStateValueChanged;
 
@@ -84,8 +85,7 @@ namespace DungeonSteakhouse.Net.Session
 
         private void OnStateValueChanged(NetSessionState previous, NetSessionState current)
         {
-            if (verboseLogs)
-                Debug.Log($"[NetSessionManager] State: {previous} -> {current}");
+            Debug.Log($"[NetSessionManager] OnStateValueChanged called on client. IsServer={IsServer} {previous} -> {current}");
             StateChanged?.Invoke(previous, current);
         }
 
