@@ -55,6 +55,11 @@ namespace DungeonSteakhouse.Net.Session
             base.OnNetworkSpawn();
             _state.OnValueChanged += OnStateValueChanged;
 
+            
+            if (NetworkManager.SceneManager != null)
+                NetworkManager.SceneManager.SetClientSynchronizationMode(
+                    LoadSceneMode.Additive);
+
             if (!IsServer) return;
 
             ConfigureSceneManager();
