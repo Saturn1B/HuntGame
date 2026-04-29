@@ -291,8 +291,14 @@ namespace DungeonSteakhouse.Net.Session
         private bool VerifyScene(int sceneIndex, string sceneName, LoadSceneMode mode)
         {
             if (mode == LoadSceneMode.Single) return false;
-            if (config == null) return false;
-            return sceneName == config.TavernSceneName || sceneName == config.DungeonSceneName;
+            if (config == null)
+            {
+                Debug.LogError("[NetSessionManager] VerifyScene: config is NULL — scene blocked!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                return false;
+            }
+            bool allowed = sceneName == config.TavernSceneName || sceneName == config.DungeonSceneName;
+            Debug.Log($"[NetSessionManager] VerifyScene: '{sceneName}' -> {allowed}");
+            return allowed;
         }
 
         private void SetState(NetSessionState newState)
