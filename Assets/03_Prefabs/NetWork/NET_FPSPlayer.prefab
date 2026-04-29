@@ -795,7 +795,7 @@ CharacterController:
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 1.5
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.09
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7753308724464867349
@@ -917,7 +917,7 @@ MonoBehaviour:
     m_ActionName: 'Movement/Camera[/Mouse/delta]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: 156ffd49-6647-4081-9b20-e4fbef0c0b0d
+  m_DefaultActionMap: PlayerAction
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 1020143624784532481}
 --- !u!114 &8407344553545229398
