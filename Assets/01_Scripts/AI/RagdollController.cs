@@ -64,7 +64,11 @@ namespace HuntingGame.AI
 			{
                 if (ragdollBodies[i] == null) continue;
 
-                ragdollColliders[i].enabled = enable;
+                if(ragdollColliders[i].gameObject.layer == LayerMask.NameToLayer("Ragdoll"))
+                    ragdollColliders[i].enabled = true;
+                else
+                    ragdollColliders[i].enabled = enable;
+
                 ragdollBodies[i].isKinematic = !enable;
                 ragdollBodies[i].interpolation = enable ? RigidbodyInterpolation.Interpolate : RigidbodyInterpolation.None;
             }

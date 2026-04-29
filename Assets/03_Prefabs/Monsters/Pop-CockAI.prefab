@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 9214421097063546760}
   - component: {fileID: 231603712897779870}
   - component: {fileID: 5499757653299860764}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: Pop-CockAI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -179,6 +179,8 @@ MonoBehaviour:
   detectionInterval: 0.1
   viewRadius: 12
   viewAngle: 145
+  _shape: 0
+  capsuleHeight: 5
 --- !u!114 &9214421097063546760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283,12 +285,48 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8661925470487382814, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -8661925470487382814, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8584007541911356796, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -7813920479850024926, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -7478424379025050697, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -4858086955866001774, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -3865718471422901656, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -2453300524425634178, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: -2160853905671212096, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: -2160853905671212096, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 587227340294028716, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
       propertyPath: m_Name
@@ -297,6 +335,38 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017466978304313688, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 1038395121916008064, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712180768072203790, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 3940098187088625440, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 5097842934412361064, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 5353059280504359469, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 6744900583780573226, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 7664918189411561722, guid: 0a2262ade80626348b9f444a8c39bfe4, type: 3}
+      propertyPath: m_Layer
+      value: 18
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1255,6 +1325,10 @@ PrefabInstance:
     - target: {fileID: 3867609368655158419, guid: 30abcfcf78cf8ef4584783ffc5a53aff, type: 3}
       propertyPath: m_Name
       value: VFX_FuseSmoke
+      objectReference: {fileID: 0}
+    - target: {fileID: 3867609368655158419, guid: 30abcfcf78cf8ef4584783ffc5a53aff, type: 3}
+      propertyPath: m_Layer
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 8620884074675749452, guid: 30abcfcf78cf8ef4584783ffc5a53aff, type: 3}
       propertyPath: m_LocalPosition.x

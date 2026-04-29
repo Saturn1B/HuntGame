@@ -351,7 +351,7 @@ GameObject:
   - component: {fileID: 2332676076958204676}
   - component: {fileID: 4424110824876080642}
   - component: {fileID: 82531634097796976}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: Boil-BackAI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -441,6 +441,9 @@ MonoBehaviour:
   crouchingHeight: 0.3
   crouchTransitionSpeed: 0.1
   gravity: 19.62
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &1850472393321288077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -462,6 +465,8 @@ MonoBehaviour:
   detectionInterval: 0.1
   viewRadius: 12
   viewAngle: 145
+  _shape: 0
+  capsuleHeight: 5
 --- !u!114 &3133137354201840056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -569,7 +574,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.8
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4924163237033168166
 GameObject:
@@ -1556,6 +1561,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1756395756694185624}
     m_Modifications:
+    - target: {fileID: 714129751832553028, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 1153513501824032449, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 1559454682139710630, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006861202266614996, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2516582075002537301, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: 3485992359861789145, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1596,6 +1621,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3697268184868000041, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 3870528130033439132, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: 4263619362410855267, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
       propertyPath: m_Name
       value: Boil-Back
@@ -1603,6 +1636,30 @@ PrefabInstance:
     - target: {fileID: 4263619362410855267, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7301418603872977297, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 7394343057192206794, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 7814362976073273986, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 8444826168841261191, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 8466737925095979870, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 8946838859243855902, guid: b3bc8c6c87b1d884d8dfdb81b7d302bc, type: 3}
+      propertyPath: m_Layer
+      value: 18
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

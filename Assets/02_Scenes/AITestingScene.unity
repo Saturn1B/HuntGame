@@ -1126,6 +1126,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GnomercyAI
       objectReference: {fileID: 0}
+    - target: {fileID: 9118953795355516513, guid: 1322eff4806e3234582a057fff2d35c1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1139,10 +1143,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 82531634097796976, guid: f71acb63f4a2fd441ba611e94fda54c2, type: 3}
-      propertyPath: m_Radius
-      value: 0.8
-      objectReference: {fileID: 0}
     - target: {fileID: 1756395756694185624, guid: f71acb63f4a2fd441ba611e94fda54c2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

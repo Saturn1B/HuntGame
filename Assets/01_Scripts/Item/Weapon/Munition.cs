@@ -78,9 +78,13 @@ namespace HuntingGame.Item
 
         protected virtual void OnCollisionEnter(Collision collision)
         {
+            if (!isShot) return;
+
             isShot = false;
 
-            if (collision.transform.TryGetComponent(out Health health))
+            Health health = collision.transform.GetComponentInParent<Health>();
+
+            if (health != null)
                 health.ChangeHealth(-damage);
 
             if(!isPersistent)
