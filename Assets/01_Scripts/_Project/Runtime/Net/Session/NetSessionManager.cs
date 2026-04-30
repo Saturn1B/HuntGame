@@ -14,8 +14,9 @@ namespace DungeonSteakhouse.Net.Session
         public static NetSessionManager Instance { get; private set; }
 
         [SerializeField] private NetGameConfig config;
-        [SerializeField] private NetReadyPlatformGate elevatorGate;  // assign in inspector
-        [SerializeField] private NetPlayerTeleporter teleporter;      // assign in inspector
+        private NetReadyPlatformGate elevatorGate;  
+        private NetPlayerTeleporter teleporter;     
+        
         [SerializeField] private float returnToLobbyCountdown = 10f;
         [SerializeField] private bool verboseLogs = true;
 
@@ -58,7 +59,6 @@ namespace DungeonSteakhouse.Net.Session
             if (NetworkManager.SceneManager != null)
             {
                 NetworkManager.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
-                // Tous les peers doivent avoir VerifyScene — pas seulement le serveur
                 NetworkManager.SceneManager.VerifySceneBeforeLoading = VerifyScene;
             }
 
@@ -66,6 +66,15 @@ namespace DungeonSteakhouse.Net.Session
 
             ConfigureSceneManager();
             NetworkManager.OnClientConnectedCallback += OnClientConnected;
+
+            // Charge Elevator via NGO pour que tous les clients la reçoivent
+            var elevatorScene = UnityEngine.SceneManagement.SceneManager
+                .GetSceneByName(config.ElevatorSceneName);
+            if (!elevatorScene.IsValid() || !elevatorScene.isLoaded)
+            {
+                NetworkManager.SceneManager.LoadScene(
+                    config.ElevatorSceneName, LoadSceneMode.Additive);
+            }
         }
 
         public override void OnNetworkDespawn()
@@ -82,6 +91,17 @@ namespace DungeonSteakhouse.Net.Session
             }
 
             base.OnNetworkDespawn();
+        }
+        private void ResolveElevatorReferences()
+        {
+            if (elevatorGate == null)
+                elevatorGate = FindObjectOfType<NetReadyPlatformGate>();
+
+            if (teleporter == null)
+                teleporter = FindObjectOfType<NetPlayerTeleporter>();
+
+            if (verboseLogs)
+                Debug.Log($"[NetSessionManager] References resolved — gate={elevatorGate != null} teleporter={teleporter != null}");
         }
 
         private void OnStateValueChanged(NetSessionState previous, NetSessionState current)
@@ -179,6 +199,11 @@ namespace DungeonSteakhouse.Net.Session
         {
             if (!IsServer) return;
             if (sceneEvent.ClientId != NetworkManager.ServerClientId) return;
+
+            if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted && sceneEvent.SceneName == config.ElevatorSceneName)
+            {
+                ResolveElevatorReferences();
+            }
 
             switch (_flowStep)
             {
