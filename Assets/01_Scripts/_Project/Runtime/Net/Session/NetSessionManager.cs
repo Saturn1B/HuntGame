@@ -52,14 +52,15 @@ namespace DungeonSteakhouse.Net.Session
 
         public override void OnNetworkSpawn()
         {
-            Debug.Log($"[NetSessionManager] OnNetworkSpawn. IsServer={IsServer} IsClient={IsClient} IsOwner={IsOwner}");
             base.OnNetworkSpawn();
             _state.OnValueChanged += OnStateValueChanged;
 
-            
             if (NetworkManager.SceneManager != null)
-                NetworkManager.SceneManager.SetClientSynchronizationMode(
-                    LoadSceneMode.Additive);
+            {
+                NetworkManager.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
+                // Tous les peers doivent avoir VerifyScene — pas seulement le serveur
+                NetworkManager.SceneManager.VerifySceneBeforeLoading = VerifyScene;
+            }
 
             if (!IsServer) return;
 
@@ -286,11 +287,11 @@ namespace DungeonSteakhouse.Net.Session
 
             sceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
             sceneManager.ActiveSceneSynchronizationEnabled = config != null && config.SyncActiveScene;
-            sceneManager.VerifySceneBeforeLoading = VerifyScene;
+            // VerifySceneBeforeLoading déjà assigné dans OnNetworkSpawn
             sceneManager.OnSceneEvent += OnSceneEvent;
 
             if (verboseLogs)
-                Debug.Log($"[NetSessionManager] Configured. ActiveSceneSync={sceneManager.ActiveSceneSynchronizationEnabled}");
+                Debug.Log($"[NetSessionManager] Configured.");
         }
 
         private bool VerifyScene(int sceneIndex, string sceneName, LoadSceneMode mode)

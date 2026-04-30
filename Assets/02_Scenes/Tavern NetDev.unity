@@ -39151,6 +39151,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: P_PROP_lantern_interior_02 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 2726743733724155615, guid: 45f3384a87573ba49b4901e6b12043ef, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
