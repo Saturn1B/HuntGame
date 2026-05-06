@@ -67,7 +67,7 @@ public class CharacterMovement : MonoBehaviour, IControlable
 	{
         if (IsGroundedLocal())
 		{
-            float jumpForce = Mathf.Sqrt(jumpHeight * 2f * gravity);
+            float jumpForce = Mathf.Sqrt(GetJumpHeightWithDrag() * 2f * gravity);
 
             float jumpDirection = transform.up.y > 0 ? 1f : -1f;
             velocity.y = jumpForce * jumpDirection;
@@ -130,6 +130,14 @@ public class CharacterMovement : MonoBehaviour, IControlable
 
         return targetSpeed;
 	}
+
+    private float GetJumpHeightWithDrag()
+	{
+        float slowFactor = 1 / (1 + dragWeight / 20f);
+        float targetHeight = jumpHeight * slowFactor;
+
+        return targetHeight;
+    }
 
     private IEnumerator CrouchStandTransition()
     {
