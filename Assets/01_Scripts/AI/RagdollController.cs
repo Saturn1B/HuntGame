@@ -5,12 +5,6 @@ namespace HuntingGame.AI
 {
     public class RagdollController : MonoBehaviour, ISimpleInteractable
     {
-        public enum RagdollSize
-        {
-            SMALL,
-            BIG
-        }
-
         [Header("Ragdoll Bones")]
         public List<Rigidbody> ragdollBodies = new List<Rigidbody>();
         private List<CapsuleCollider> ragdollColliders = new List<CapsuleCollider>();
@@ -18,8 +12,14 @@ namespace HuntingGame.AI
         [Space]
 
         [Header("Ragdoll Grabbing Control")]
-        [SerializeField] private RagdollSize _ragdollSize;
         [SerializeField] private Rigidbody rootBone;
+
+        [Space]
+
+        [Header("Lift Settings")]
+        [SerializeField] private float liftSensitivity = 12f;
+        [SerializeField] private float liftDecaySpeed = 1.8f;
+        [SerializeField] private float maxLiftForce = 600f;
 
         private float ragdollWeight;
 
@@ -52,7 +52,16 @@ namespace HuntingGame.AI
             transform.position = rootBone.position;
         }
 
-        [ContextMenu("Toggle Ragdoll")]
+		private void Update()
+		{
+			if (isGrabbed)
+			{
+                if (grabber.TryGetComponent(out FirstPersonCamera firstPersonCamera))
+                    UpdateGrabLift(firstPersonCamera.GetCurrentLookInput().y);
+            }
+        }
+
+		[ContextMenu("Toggle Ragdoll")]
         public void Ragdoll() => ToggleRagdoll(true);
 
         public void ToggleRagdoll(bool enable)
@@ -121,12 +130,38 @@ namespace HuntingGame.AI
             }
         }
 
+        private float liftStrain;
+
+        public void UpdateGrabLift(float mouseDeltaY)
+		{
+            if (!isGrabbed) return;
+
+            float resistanceFactor = Mathf.Max(.1f, ragdollWeight);
+
+            if(mouseDeltaY > 0f)
+			{
+                float gain = (mouseDeltaY * liftSensitivity) / resistanceFactor;
+                liftStrain = Mathf.Clamp01(liftStrain + gain * Time.deltaTime);
+			}
+			else
+			{
+                float decay = liftDecaySpeed * (resistanceFactor / 10f);
+                liftStrain = Mathf.MoveTowards(liftStrain, 0f, decay * Time.deltaTime);
+			}
+
+            float gravityCancel = rootBone.mass * Mathf.Abs(Physics.gravity.y);
+            float appliedForce = Mathf.Min(liftStrain * gravityCancel, maxLiftForce);
+
+            rootBone.AddForce(Vector3.up * appliedForce, ForceMode.Force);
+		}
+
         public void StartInteract(Transform owner)
         {
             if (isGrabbed) return;
 
             isGrabbed = true;
             grabber = owner;
+            liftStrain = 0;
 
             if (grabber.TryGetComponent(out CharacterMovement characterMovement))
                 characterMovement.SetSlowingWeight(true, ragdollWeight);
@@ -137,54 +172,23 @@ namespace HuntingGame.AI
 
             joint.connectedBody = rootBone;
 
-            switch (_ragdollSize)
+            joint.linearLimit = new SoftJointLimit
             {
-                case RagdollSize.SMALL:
-                    SoftJointLimit limit1 = new SoftJointLimit
-                    {
-                        limit = .3f,
-                        bounciness = 0,
-                        contactDistance = 0
-                    };
-                    joint.linearLimit = limit1;
+                limit = 1,
+                bounciness = 0,
+                contactDistance = 0
+            };
+            joint.yMotion = ConfigurableJointMotion.Free;
 
-                    joint.yMotion = ConfigurableJointMotion.Limited;
+            joint.yDrive = new JointDrive
+            {
+                positionSpring = 0,
+                positionDamper = 0,
+                maximumForce = Mathf.Infinity
+            };
 
-                    JointDrive drive1 = new JointDrive
-                    {
-                        positionSpring = 400,
-                        positionDamper = 400,
-                        maximumForce = Mathf.Infinity
-                    };
-                    joint.yDrive = drive1;
-
-
-                    joint.connectedAnchor = rootBone.transform.InverseTransformPoint(rootBone.transform.position);
-                    ToggleRagdollCollision(false);
-                    break;
-                case RagdollSize.BIG:
-                    SoftJointLimit limit2 = new SoftJointLimit
-                    {
-                        limit = 1,
-                        bounciness = 0,
-                        contactDistance = 0
-                    };
-                    joint.linearLimit = limit2;
-
-                    joint.yMotion = ConfigurableJointMotion.Free;
-
-                    JointDrive drive2 = new JointDrive
-                    {
-                        positionSpring = 0,
-                        positionDamper = 0,
-                        maximumForce = Mathf.Infinity
-                    };
-                    joint.yDrive = drive2;
-
-                    Vector3 worldHandAnchor = joint.transform.TransformPoint(joint.anchor);
-                    joint.connectedAnchor = rootBone.transform.InverseTransformPoint(worldHandAnchor);
-                    break;
-            }
+            Vector3 worldHandAnchor = joint.transform.TransformPoint(joint.anchor);
+            joint.connectedAnchor = rootBone.transform.InverseTransformPoint(worldHandAnchor);
 
             transform.SetParent(joint.transform, true);
         }
@@ -194,6 +198,7 @@ namespace HuntingGame.AI
             if (!isGrabbed) return;
 
             isGrabbed = false;
+            liftStrain = 0;
 
             if (grabber.TryGetComponent(out CharacterMovement characterMovement))
                 characterMovement.SetSlowingWeight(false, 0);
@@ -208,9 +213,6 @@ namespace HuntingGame.AI
                 joint.connectedAnchor = Vector3.zero;
                 joint = null;
             }
-
-            if (_ragdollSize == RagdollSize.SMALL)
-                ToggleRagdollCollision(true);
 
             transform.parent = null;
         }

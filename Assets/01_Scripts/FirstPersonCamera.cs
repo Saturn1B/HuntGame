@@ -13,6 +13,7 @@ public class FirstPersonCamera : MonoBehaviour
     private float yaw;
     private float pitch;
     private Vector2 currentLookInput;
+    public Vector2 GetCurrentLookInput() { return currentLookInput; }
 
     private bool isDragging;
     private float dragWeight;

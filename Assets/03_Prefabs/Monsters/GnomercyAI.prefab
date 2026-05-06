@@ -245,8 +245,10 @@ MonoBehaviour:
   - {fileID: 8176931294825024976}
   - {fileID: 5230209384052368221}
   - {fileID: 6971730133789592888}
-  _ragdollSize: 1
   rootBone: {fileID: 17794687019875068}
+  liftSensitivity: 40
+  liftDecaySpeed: 1
+  maxLiftForce: 40
 --- !u!135 &5934871084960166435
 SphereCollider:
   m_ObjectHideFlags: 0
