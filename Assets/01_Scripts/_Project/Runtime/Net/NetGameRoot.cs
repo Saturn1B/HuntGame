@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using Netcode.Transports.Facepunch;
 using DungeonSteakhouse.Net.Core;
@@ -151,6 +152,10 @@ namespace DungeonSteakhouse.Net
         {
             _hostRequestInFlight = false;
             SetState(NetGameState.InSession);
+
+            if (config == null || networkManager.SceneManager == null) return;
+            networkManager.SceneManager.LoadScene(config.ElevatorSceneName, LoadSceneMode.Additive);
+            networkManager.SceneManager.LoadScene(config.TavernSceneName, LoadSceneMode.Additive);
         }
 
         private void OnClientConnected(ulong clientId)

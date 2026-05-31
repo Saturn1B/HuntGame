@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
 namespace DungeonSteakhouse.Net.Session
 {
@@ -11,26 +12,19 @@ namespace DungeonSteakhouse.Net.Session
 
         private void Start()
         {
+            if (!NetworkManager.Singleton.IsServer) return;
+
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
                 if (SceneManager.GetSceneAt(i).name == elevatorSceneName)
                 {
-                    if (logDebug)
-                        Debug.Log($"[ElevatorSceneLoader] '{elevatorSceneName}' already loaded, skipping.");
+                    if (logDebug) Debug.Log($"[ElevatorSceneLoader] '{elevatorSceneName}' already loaded, skipping.");
                     return;
                 }
             }
 
-            var op = SceneManager.LoadSceneAsync(elevatorSceneName, LoadSceneMode.Additive);
-            if (op != null)
-            {
-                if (logDebug)
-                    Debug.Log($"[ElevatorSceneLoader] Loading '{elevatorSceneName}' additively...");
-            }
-            else
-            {
-                Debug.LogError($"[ElevatorSceneLoader] Failed to start loading '{elevatorSceneName}'. Is it in Build Settings?");
-            }
+            var status = NetworkManager.Singleton.SceneManager.LoadScene(elevatorSceneName, LoadSceneMode.Additive);
+            if (logDebug) Debug.Log($"[ElevatorSceneLoader] LoadScene '{elevatorSceneName}': {status}");
         }
     }
 }

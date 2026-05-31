@@ -7,7 +7,9 @@
       "mcp__hacknplan__get_board_metrics",
       "mcp__hacknplan__get_sprint_summary",
       "mcp__hacknplan__search_work_items",
-      "mcp__hacknplan__get_incomplete_tasks"
+      "mcp__hacknplan__get_incomplete_tasks",
+      "Bash(find E:\\\\HuntTheKiwi\\\\HuntGame\\\\Assets *)",
+      "Bash(xargs grep *)"
     ]
   }
 }

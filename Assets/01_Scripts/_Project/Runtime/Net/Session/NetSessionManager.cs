@@ -14,9 +14,9 @@ namespace DungeonSteakhouse.Net.Session
         public static NetSessionManager Instance { get; private set; }
 
         [SerializeField] private NetGameConfig config;
-        private NetReadyPlatformGate elevatorGate;  
-        private NetPlayerTeleporter teleporter;     
-        
+        private NetReadyPlatformGate elevatorGate;
+        private NetPlayerTeleporter teleporter;
+
         [SerializeField] private float returnToLobbyCountdown = 10f;
         [SerializeField] private bool verboseLogs = true;
 
@@ -35,7 +35,11 @@ namespace DungeonSteakhouse.Net.Session
 
         public event Action<NetSessionState, NetSessionState> StateChanged;
 
-        private enum FlowStep { None, WaitDungeonLoad, WaitTavernUnload, WaitTavernLoad, WaitDungeonUnload }
+        // WaitTavernUnload  → start-run:    taverne se décharge, puis LoadDungeon
+        // WaitDungeonLoad   → start-run:    donjon se charge,    puis InRun + téléport
+        // WaitDungeonUnload → return-lobby: donjon se décharge,  puis LoadTaverne
+        // WaitTavernLoad    → return-lobby: taverne se charge,   puis Lobby + téléport
+        private enum FlowStep { None, WaitTavernUnload, WaitDungeonLoad, WaitDungeonUnload, WaitTavernLoad }
         private FlowStep _flowStep;
         private Coroutine _countdownRoutine;
 
@@ -66,15 +70,6 @@ namespace DungeonSteakhouse.Net.Session
 
             ConfigureSceneManager();
             NetworkManager.OnClientConnectedCallback += OnClientConnected;
-
-            // Charge Elevator via NGO pour que tous les clients la reçoivent
-            var elevatorScene = UnityEngine.SceneManagement.SceneManager
-                .GetSceneByName(config.ElevatorSceneName);
-            if (!elevatorScene.IsValid() || !elevatorScene.isLoaded)
-            {
-                NetworkManager.SceneManager.LoadScene(
-                    config.ElevatorSceneName, LoadSceneMode.Additive);
-            }
         }
 
         public override void OnNetworkDespawn()
@@ -92,7 +87,8 @@ namespace DungeonSteakhouse.Net.Session
 
             base.OnNetworkDespawn();
         }
-        private void ResolveElevatorReferences()
+
+        private void ResolveReferences()
         {
             if (elevatorGate == null)
                 elevatorGate = FindObjectOfType<NetReadyPlatformGate>();
@@ -106,7 +102,7 @@ namespace DungeonSteakhouse.Net.Session
 
         private void OnStateValueChanged(NetSessionState previous, NetSessionState current)
         {
-            Debug.Log($"[NetSessionManager] OnStateValueChanged called on client. IsServer={IsServer} {previous} -> {current}");
+            Debug.Log($"[NetSessionManager] {previous} -> {current} (IsServer={IsServer})");
             StateChanged?.Invoke(previous, current);
         }
 
@@ -148,6 +144,26 @@ namespace DungeonSteakhouse.Net.Session
 
             if (!TryGetSceneManager(out var sceneManager)) return;
 
+            var tavernScene = SceneManager.GetSceneByName(config.TavernSceneName);
+            if (tavernScene.IsValid() && tavernScene.isLoaded)
+            {
+                _flowStep = FlowStep.WaitTavernUnload;
+                var status = sceneManager.UnloadScene(tavernScene);
+                if (status != SceneEventProgressStatus.Started)
+                {
+                    Debug.LogError($"[NetSessionManager] UnloadScene '{config.TavernSceneName}' failed: {status}");
+                    _flowStep = FlowStep.None;
+                    SetState(NetSessionState.Lobby);
+                }
+            }
+            else
+            {
+                LoadDungeon(sceneManager);
+            }
+        }
+
+        private void LoadDungeon(NetworkSceneManager sceneManager)
+        {
             _flowStep = FlowStep.WaitDungeonLoad;
             var status = sceneManager.LoadScene(config.DungeonSceneName, LoadSceneMode.Additive);
             if (status != SceneEventProgressStatus.Started)
@@ -177,6 +193,27 @@ namespace DungeonSteakhouse.Net.Session
         {
             if (!TryGetSceneManager(out var sceneManager)) return;
 
+            var dungeonScene = SceneManager.GetSceneByName(config.DungeonSceneName);
+            if (dungeonScene.IsValid() && dungeonScene.isLoaded)
+            {
+                _flowStep = FlowStep.WaitDungeonUnload;
+                var status = sceneManager.UnloadScene(dungeonScene);
+                if (status != SceneEventProgressStatus.Started)
+                {
+                    Debug.LogError($"[NetSessionManager] UnloadScene '{config.DungeonSceneName}' failed: {status}");
+                    _flowStep = FlowStep.None;
+                    SetState(NetSessionState.Lobby);
+                    teleporter?.TeleportAllPlayers(NetSpawnContext.Lobby);
+                }
+            }
+            else
+            {
+                LoadTaverne(sceneManager);
+            }
+        }
+
+        private void LoadTaverne(NetworkSceneManager sceneManager)
+        {
             _flowStep = FlowStep.WaitTavernLoad;
             var status = sceneManager.LoadScene(config.TavernSceneName, LoadSceneMode.Additive);
             if (status != SceneEventProgressStatus.Started)
@@ -188,47 +225,32 @@ namespace DungeonSteakhouse.Net.Session
             }
         }
 
-        // One-frame delay lets NGO register the Dungeon scene handle before Tavern is unloaded.
-        private IEnumerator UnloadTavernNextFrame(Scene tavernScene)
-        {
-            yield return null;
-            NetworkManager.SceneManager.UnloadScene(tavernScene);
-        }
-
         private void OnSceneEvent(SceneEvent sceneEvent)
         {
             if (!IsServer) return;
             if (sceneEvent.ClientId != NetworkManager.ServerClientId) return;
 
-            if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted && sceneEvent.SceneName == config.ElevatorSceneName)
+            // Résolution des références quand Elevator ou Taverne se charge
+            if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted &&
+                (sceneEvent.SceneName == config.ElevatorSceneName || sceneEvent.SceneName == config.TavernSceneName))
             {
-                ResolveElevatorReferences();
+                ResolveReferences();
             }
 
             switch (_flowStep)
             {
-                case FlowStep.WaitDungeonLoad:
-                    if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted &&
-                        sceneEvent.SceneName == config.DungeonSceneName)
-                    {
-                        var tavernScene = SceneManager.GetSceneByName(config.TavernSceneName);
-                        if (tavernScene.IsValid() && tavernScene.isLoaded)
-                        {
-                            _flowStep = FlowStep.WaitTavernUnload;
-                            StartCoroutine(UnloadTavernNextFrame(tavernScene));
-                        }
-                        else
-                        {
-                            _flowStep = FlowStep.None;
-                            SetState(NetSessionState.InRun);
-                            teleporter?.TeleportAllPlayers(NetSpawnContext.Run);
-                        }
-                    }
-                    break;
-
                 case FlowStep.WaitTavernUnload:
                     if (sceneEvent.SceneEventType == SceneEventType.UnloadEventCompleted &&
                         sceneEvent.SceneName == config.TavernSceneName)
+                    {
+                        if (!TryGetSceneManager(out var sm)) { _flowStep = FlowStep.None; return; }
+                        LoadDungeon(sm);
+                    }
+                    break;
+
+                case FlowStep.WaitDungeonLoad:
+                    if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted &&
+                        sceneEvent.SceneName == config.DungeonSceneName)
                     {
                         _flowStep = FlowStep.None;
                         SetState(NetSessionState.InRun);
@@ -236,28 +258,18 @@ namespace DungeonSteakhouse.Net.Session
                     }
                     break;
 
-                case FlowStep.WaitTavernLoad:
-                    if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted &&
-                        sceneEvent.SceneName == config.TavernSceneName)
-                    {
-                        var dungeonScene = SceneManager.GetSceneByName(config.DungeonSceneName);
-                        if (dungeonScene.IsValid() && dungeonScene.isLoaded)
-                        {
-                            _flowStep = FlowStep.WaitDungeonUnload;
-                            NetworkManager.SceneManager.UnloadScene(dungeonScene);
-                        }
-                        else
-                        {
-                            _flowStep = FlowStep.None;
-                            SetState(NetSessionState.Lobby);
-                            teleporter?.TeleportAllPlayers(NetSpawnContext.Lobby);
-                        }
-                    }
-                    break;
-
                 case FlowStep.WaitDungeonUnload:
                     if (sceneEvent.SceneEventType == SceneEventType.UnloadEventCompleted &&
                         sceneEvent.SceneName == config.DungeonSceneName)
+                    {
+                        if (!TryGetSceneManager(out var sm)) { _flowStep = FlowStep.None; return; }
+                        LoadTaverne(sm);
+                    }
+                    break;
+
+                case FlowStep.WaitTavernLoad:
+                    if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted &&
+                        sceneEvent.SceneName == config.TavernSceneName)
                     {
                         _flowStep = FlowStep.None;
                         SetState(NetSessionState.Lobby);
@@ -269,7 +281,6 @@ namespace DungeonSteakhouse.Net.Session
 
         private void HandleReturnTeleports()
         {
-            // Convert to HashSet for O(1) lookup — avoids CS7036 ambiguous Contains() overload.
             var onPlatform = elevatorGate?.GetPlayersOnPlatform();
             var onPlatformSet = onPlatform != null ? new HashSet<ulong>(onPlatform) : null;
 
@@ -295,7 +306,6 @@ namespace DungeonSteakhouse.Net.Session
                 teleporter?.TeleportClient(clientId, NetSpawnContext.Lobby);
 
             // TODO: Handle players outside elevator (death screen, loot loss, respawn, etc.)
-            // For now: teleport them to Lobby spawn as fallback.
             foreach (ulong clientId in playersOutside)
                 teleporter?.TeleportClient(clientId, NetSpawnContext.Lobby);
         }
@@ -312,11 +322,10 @@ namespace DungeonSteakhouse.Net.Session
 
             sceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
             sceneManager.ActiveSceneSynchronizationEnabled = config != null && config.SyncActiveScene;
-            // VerifySceneBeforeLoading déjà assigné dans OnNetworkSpawn
             sceneManager.OnSceneEvent += OnSceneEvent;
 
             if (verboseLogs)
-                Debug.Log($"[NetSessionManager] Configured.");
+                Debug.Log("[NetSessionManager] Configured.");
         }
 
         private bool VerifyScene(int sceneIndex, string sceneName, LoadSceneMode mode)
