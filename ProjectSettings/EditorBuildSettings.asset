@@ -6,16 +6,16 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/02_Scenes/Bootstrap.unity
+    path: Assets/02_Scenes/Scenes_Networked/Bootstrap.unity
     guid: 0d0f32590faecc647a2d0b8088a4b58c
   - enabled: 1
-    path: Assets/02_Scenes/Elevator.unity
+    path: Assets/02_Scenes/Scenes_Networked/Elevator.unity
     guid: f0372fd67e801384eab93ada8d2c2751
   - enabled: 1
-    path: Assets/02_Scenes/Tavern NetDev.unity
+    path: Assets/02_Scenes/Scenes_Networked/Tavern NetDev.unity
     guid: 0da9f0a4f78d1604ab1acbf164469370
   - enabled: 1
-    path: Assets/02_Scenes/Dungeon.unity
+    path: Assets/02_Scenes/Scenes_Networked/Dungeon.unity
     guid: dd7d5a2effc652c4d865a69429dc4618
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
