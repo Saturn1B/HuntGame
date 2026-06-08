@@ -17,6 +17,6 @@ MonoBehaviour:
   allowLateJoin: 0
   dontDestroyOnLoad: 1
   syncActiveScene: 0
-  tavernSceneName: Tavern NetDev
+  tavernSceneName: TavernNetWorked
   dungeonSceneName: Dungeon
   elevatorSceneName: Elevator

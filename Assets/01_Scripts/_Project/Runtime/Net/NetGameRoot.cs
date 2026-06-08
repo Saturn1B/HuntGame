@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
@@ -152,9 +152,19 @@ namespace DungeonSteakhouse.Net
         {
             _hostRequestInFlight = false;
             SetState(NetGameState.InSession);
-
             if (config == null || networkManager.SceneManager == null) return;
+
+            networkManager.SceneManager.OnSceneEvent += OnSceneEvent_WaitForElevator;
             networkManager.SceneManager.LoadScene(config.ElevatorSceneName, LoadSceneMode.Additive);
+        }
+
+        private void OnSceneEvent_WaitForElevator(SceneEvent sceneEvent)
+        {
+            if (sceneEvent.SceneEventType != SceneEventType.LoadEventCompleted) return;
+            if (sceneEvent.SceneName != config.ElevatorSceneName) return;
+
+            // Elevator chargée → on se désabonne et on charge Taverne
+            networkManager.SceneManager.OnSceneEvent -= OnSceneEvent_WaitForElevator;
             networkManager.SceneManager.LoadScene(config.TavernSceneName, LoadSceneMode.Additive);
         }
 
