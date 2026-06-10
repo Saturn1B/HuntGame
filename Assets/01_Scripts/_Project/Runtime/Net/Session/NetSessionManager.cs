@@ -14,6 +14,7 @@ namespace DungeonSteakhouse.Net.Session
         public static NetSessionManager Instance { get; private set; }
 
         [SerializeField] private NetGameConfig config;
+        [SerializeField] private NetworkObject seedBroadcasterPrefab;
         private NetReadyPlatformGate elevatorGate;
         private NetPlayerTeleporter teleporter;
 
@@ -174,6 +175,21 @@ namespace DungeonSteakhouse.Net.Session
             }
         }
 
+        private void SpawnSeedBroadcaster()
+        {
+            if (seedBroadcasterPrefab == null)
+            {
+                Debug.LogError("[NetSessionManager] seedBroadcasterPrefab not assigned.");
+                return;
+            }
+
+            var dungeonScene = SceneManager.GetSceneByName(config.DungeonSceneName);
+            var instance = Instantiate(seedBroadcasterPrefab);
+            if (dungeonScene.IsValid() && dungeonScene.isLoaded)
+                SceneManager.MoveGameObjectToScene(instance.gameObject, dungeonScene);
+            instance.Spawn(destroyWithScene: true);
+        }
+
         private IEnumerator ReturnCountdownRoutine()
         {
             float remaining = returnToLobbyCountdown;
@@ -254,6 +270,7 @@ namespace DungeonSteakhouse.Net.Session
                         sceneEvent.SceneName == config.DungeonSceneName)
                     {
                         _flowStep = FlowStep.None;
+                        SpawnSeedBroadcaster();
                         SetState(NetSessionState.InRun);
                         teleporter?.TeleportAllPlayers(NetSpawnContext.Run);
                     }

@@ -176,6 +176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Session.NetSessionManager
   ShowTopMostFoldoutHeaderGroup: 1
   config: {fileID: 11400000, guid: 9241eb81ec7c9f14fbef4c1e38343584, type: 2}
+  seedBroadcasterPrefab: {fileID: 1876445472645675247, guid: 7611d1540b15d514f93a7d5515a5ec84, type: 3}
   returnToLobbyCountdown: 10
   verboseLogs: 1
 --- !u!4 &19475106
