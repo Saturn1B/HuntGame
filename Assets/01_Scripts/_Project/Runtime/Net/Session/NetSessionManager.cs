@@ -245,10 +245,10 @@ namespace DungeonSteakhouse.Net.Session
         private void OnSceneEvent(SceneEvent sceneEvent)
         {
             if (!IsServer) return;
-            if (sceneEvent.ClientId != NetworkManager.ServerClientId) return;
 
-            // Résolution des références quand Elevator ou Taverne se charge
+            // Résolution des références quand Elevator ou Taverne se charge (serveur uniquement)
             if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted &&
+                sceneEvent.ClientId == NetworkManager.ServerClientId &&
                 (sceneEvent.SceneName == config.ElevatorSceneName || sceneEvent.SceneName == config.TavernSceneName))
             {
                 ResolveReferences();
@@ -257,7 +257,9 @@ namespace DungeonSteakhouse.Net.Session
             switch (_flowStep)
             {
                 case FlowStep.WaitTavernUnload:
+                    // UnloadEventCompleted n'a pas de ClientId pertinent, on filtre sur le serveur
                     if (sceneEvent.SceneEventType == SceneEventType.UnloadEventCompleted &&
+                        sceneEvent.ClientId == NetworkManager.ServerClientId &&
                         sceneEvent.SceneName == config.TavernSceneName)
                     {
                         if (!TryGetSceneManager(out var sm)) { _flowStep = FlowStep.None; return; }
@@ -267,7 +269,8 @@ namespace DungeonSteakhouse.Net.Session
 
                 case FlowStep.WaitDungeonLoad:
                     if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted &&
-                        sceneEvent.SceneName == config.DungeonSceneName)
+                        sceneEvent.SceneName == config.DungeonSceneName &&
+                        sceneEvent.ClientsThatCompleted?.Count == NetworkManager.ConnectedClients.Count)
                     {
                         _flowStep = FlowStep.None;
                         SpawnSeedBroadcaster();
@@ -278,6 +281,7 @@ namespace DungeonSteakhouse.Net.Session
 
                 case FlowStep.WaitDungeonUnload:
                     if (sceneEvent.SceneEventType == SceneEventType.UnloadEventCompleted &&
+                        sceneEvent.ClientId == NetworkManager.ServerClientId &&
                         sceneEvent.SceneName == config.DungeonSceneName)
                     {
                         if (!TryGetSceneManager(out var sm)) { _flowStep = FlowStep.None; return; }
@@ -287,6 +291,7 @@ namespace DungeonSteakhouse.Net.Session
 
                 case FlowStep.WaitTavernLoad:
                     if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted &&
+                        sceneEvent.ClientId == NetworkManager.ServerClientId &&
                         sceneEvent.SceneName == config.TavernSceneName)
                     {
                         _flowStep = FlowStep.None;
