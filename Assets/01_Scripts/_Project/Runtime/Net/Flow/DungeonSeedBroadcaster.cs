@@ -18,6 +18,7 @@ namespace HuntingGame.ProceduralGeneration
         [ClientRpc]
         private void SyncSeedClientRpc(int seed)
         {
+            Debug.Log($"[Client] SyncSeedClientRpc reçu, seed={seed}, IsServer={IsServer}");
             if (IsServer) return;
             StartCoroutine(WaitAndGenerate(seed));
         }
@@ -30,6 +31,7 @@ namespace HuntingGame.ProceduralGeneration
                 generator = FindObjectOfType<DungeonGenerator>();
                 yield return null;
             }
+            Debug.Log($"[Client] DungeonGenerator trouvé, génération avec seed={seed}");
             generator.GenerateWithSeed(seed);
         }
     }
