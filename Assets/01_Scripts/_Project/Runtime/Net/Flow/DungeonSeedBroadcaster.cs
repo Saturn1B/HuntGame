@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -18,8 +19,18 @@ namespace HuntingGame.ProceduralGeneration
         private void SyncSeedClientRpc(int seed)
         {
             if (IsServer) return;
+            StartCoroutine(WaitAndGenerate(seed));
+        }
 
-            FindObjectOfType<DungeonGenerator>()?.GenerateWithSeed(seed);
+        private IEnumerator WaitAndGenerate(int seed)
+        {
+            DungeonGenerator generator = null;
+            while (generator == null)
+            {
+                generator = FindObjectOfType<DungeonGenerator>();
+                yield return null;
+            }
+            generator.GenerateWithSeed(seed);
         }
     }
 }
