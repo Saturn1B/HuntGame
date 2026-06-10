@@ -132,7 +132,7 @@ namespace DungeonSteakhouse.Net.Session
                 return;
             }
 
-            if (_returnCountdownRemaining.Value > 0f) return;
+            if (_countdownRoutine != null) return;
 
             _countdownRoutine = StartCoroutine(ReturnCountdownRoutine());
         }
@@ -185,6 +185,7 @@ namespace DungeonSteakhouse.Net.Session
             }
 
             _returnCountdownRemaining.Value = -1f;
+            _countdownRoutine = null;
             SetState(NetSessionState.ReturningToLobby);
             StartReturnSequence();
         }
