@@ -11,8 +11,8 @@ namespace HuntingGame.ProceduralGeneration
             if (!IsServer) return;
 
             int seed = Random.Range(1, int.MaxValue);
-            FindObjectOfType<DungeonGenerator>()?.GenerateWithSeed(seed);
-            SyncSeedClientRpc(seed);
+            SyncSeedClientRpc(seed);                              // broadcast befor
+            FindObjectOfType<DungeonGenerator>()?.GenerateWithSeed(seed); 
         }
 
         [ClientRpc]
