@@ -11,12 +11,23 @@ namespace DungeonSteakhouse.Net.Session
     [DisallowMultipleComponent]
     public sealed class ElevatorButtonInteractable : MonoBehaviour, IInteractable
     {
+        [SerializeField] private NetReadyPlatformGate readyGate;
         [SerializeField] private bool logDebug = true;
+
+        private void Start()
+        {
+            if (readyGate == null)
+                readyGate = FindObjectOfType<NetReadyPlatformGate>();
+        }
 
         public bool CanInteract(in InteractionContext context)
         {
             var session = NetSessionManager.Instance;
-            return session != null && session.State == NetSessionState.Lobby;
+            if (session == null || session.State != NetSessionState.Lobby)
+                return false;
+
+            // Gate null → no platform requirement, fall through to server-side guard.
+            return readyGate == null || readyGate.AllReadyConfirmedServer;
         }
 
         public void Interact(in InteractionContext context)
