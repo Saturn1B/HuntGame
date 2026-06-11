@@ -24,6 +24,9 @@ namespace DungeonSteakhouse.Net.Players
         [SerializeField] private Camera playerCamera;
         [SerializeField] private AudioListener playerAudioListener;
 
+        [Header("Body Renderers (hidden for owner only)")]
+        [SerializeField] private Renderer[] bodyRenderers;
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -77,6 +80,9 @@ namespace DungeonSteakhouse.Net.Players
             SetEnabled(characterMovement, isOwner);
             SetEnabled(firstPersonCamera, isOwner);
             SetEnabled(headBobbing, isOwner);
+
+            foreach (var r in bodyRenderers)
+                if (r) r.enabled = !isOwner;
 
             if (playerCamera) playerCamera.enabled = isOwner;
             if (playerAudioListener) playerAudioListener.enabled = isOwner;

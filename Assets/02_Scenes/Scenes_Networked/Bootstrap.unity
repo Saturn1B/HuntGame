@@ -177,7 +177,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   config: {fileID: 11400000, guid: 9241eb81ec7c9f14fbef4c1e38343584, type: 2}
   seedBroadcasterPrefab: {fileID: 1876445472645675247, guid: 7611d1540b15d514f93a7d5515a5ec84, type: 3}
-  returnToLobbyCountdown: 10
+  elevatorSequence: {fileID: 0}
   verboseLogs: 1
 --- !u!4 &19475106
 Transform:
@@ -1237,6 +1237,7 @@ GameObject:
   - component: {fileID: 2011767858}
   - component: {fileID: 2011767857}
   - component: {fileID: 2011767862}
+  - component: {fileID: 2011767863}
   m_Layer: 0
   m_Name: NetWorkRoot
   m_TagString: Untagged
@@ -1389,7 +1390,7 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 9241eb81ec7c9f14fbef4c1e38343584, type: 2}
   networkManager: {fileID: 2011767855}
   transport: {fileID: 2011767856}
-  identityProviderBehaviour: {fileID: 2011767858}
+  identityProviderBehaviour: {fileID: 2011767863}
   playerRegistry: {fileID: 2011767857}
   steamBootstrapBehaviour: {fileID: 2011767860}
   steamLobbyNetcodeBehaviour: {fileID: 2011767862}
@@ -1410,6 +1411,18 @@ MonoBehaviour:
   fallbackBuildVersion: 0.1.0-dev
   networkManager: {fileID: 2011767855}
   transport: {fileID: 2011767856}
+--- !u!114 &2011767863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011767853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ea64bc6ec1b034691c66e298473229, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Steam.SteamIdentityProvider
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
