@@ -56,7 +56,7 @@ namespace DungeonSteakhouse.Net
         {
             // Your current join flow is "Join via Steam invite / overlay".
             // This button is intentionally not trying to auto-join a lobby.
-            Debug.Log("[NetDemoUI] To join: accept a Steam invite or use Steam overlay to join a friend.");
+            Steamworks.SteamFriends.OpenOverlay("friends");
         }
     }
 }
