@@ -127,6 +127,7 @@ namespace DungeonSteakhouse.Net
                    $"IsHost={networkManager.IsHost} IsServer={networkManager.IsServer} IsClient={networkManager.IsClient} | " +
                    $"Transport={(transport != null ? transport.GetType().Name : "<missing>")}";
         }
+       
 
         private void HookNetcodeCallbacks()
         {
@@ -171,6 +172,9 @@ namespace DungeonSteakhouse.Net
         private void OnClientConnected(ulong clientId)
         {
             Debug.Log($"[NetGameRoot] Client connected: {clientId}");
+            // Host is already InSession via OnServerStarted; this makes the joining
+            // client (which never gets OnServerStarted) transition properly too.
+            SetState(NetGameState.InSession);
         }
 
         private void OnClientDisconnected(ulong clientId)

@@ -6,31 +6,38 @@ namespace DungeonSteakhouse.Net
 {
     public sealed class NetDemoUI : MonoBehaviour
     {
-        [Header("Scene References")]
-        [SerializeField] private NetGameRoot netGameRoot;
-
         [Header("UI")]
         [SerializeField] private Button hostButton;
         [SerializeField] private Button joinButton;
-
-        [SerializeField] private TextMeshProUGUI statusText; // Optional (legacy UI Text)
+        [SerializeField] private GameObject menuRoot; // panel to hide once connected
+        [SerializeField] private TextMeshProUGUI statusText;
+        [SerializeField] private NetGameRoot netGameRoot;
 
         private void Awake()
         {
-            if (hostButton != null)
-                hostButton.onClick.AddListener(OnHostClicked);
+            if (hostButton != null) hostButton.onClick.AddListener(OnHostClicked);
+            if (joinButton != null) joinButton.onClick.AddListener(OnJoinClicked);
 
-            if (joinButton != null)
-                joinButton.onClick.AddListener(OnJoinClicked);
+            if (netGameRoot != null)
+            {
+                netGameRoot.StateChanged += OnNetStateChanged;
+                OnNetStateChanged(netGameRoot.State); // apply initial state
+            }
         }
 
         private void OnDestroy()
         {
-            if (hostButton != null)
-                hostButton.onClick.RemoveListener(OnHostClicked);
+            if (hostButton != null) hostButton.onClick.RemoveListener(OnHostClicked);
+            if (joinButton != null) joinButton.onClick.RemoveListener(OnJoinClicked);
 
-            if (joinButton != null)
-                joinButton.onClick.RemoveListener(OnJoinClicked);
+            if (netGameRoot != null)
+                netGameRoot.StateChanged -= OnNetStateChanged;
+        }
+
+        private void OnNetStateChanged(NetGameState state)
+        {
+            if (menuRoot != null)
+                menuRoot.SetActive(state == NetGameState.Offline);
         }
 
         private void Update()
