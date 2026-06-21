@@ -1859,10 +1859,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a42e64c72df0d7d498b2b4d33526ab46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.NetDemoUI
-  netGameRoot: {fileID: 2011767861}
   hostButton: {fileID: 1847104305}
   joinButton: {fileID: 1710789944}
+  menuRoot: {fileID: 1421085296}
   statusText: {fileID: 1522841883}
+  netGameRoot: {fileID: 2011767861}
 --- !u!114 &2011767860
 MonoBehaviour:
   m_ObjectHideFlags: 0
