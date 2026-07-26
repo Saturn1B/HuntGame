@@ -1,9 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
+using HuntGame.Interactions;
 
 namespace HuntingGame.AI
 {
-    public class RagdollController : MonoBehaviour, ISimpleInteractable
+    public class RagdollController : MonoBehaviour, IInteractable
     {
         public enum RagdollSize
         {
@@ -117,7 +118,20 @@ namespace HuntingGame.AI
             }
         }
 
-        public void StartInteract(Transform owner)
+        public void Interact(in InteractionContext context)
+        {
+            if (context.Verb == InteractionVerb.Release)
+            {
+                EndInteract();
+                return;
+            }
+
+            if (context.Verb != InteractionVerb.Grab) return;
+
+            StartInteract(context.Interactor);
+        }
+
+        private void StartInteract(Transform owner)
         {
             if (isGrabbed) return;
 
@@ -185,7 +199,7 @@ namespace HuntingGame.AI
             transform.SetParent(joint.transform, true);
         }
 
-        public void EndInteract()
+        private void EndInteract()
         {
             if (!isGrabbed) return;
 
@@ -211,7 +225,7 @@ namespace HuntingGame.AI
             transform.parent = null;
         }
 
-        public bool CanInteract()
+        public bool CanInteract(in InteractionContext context)
         {
             return isRagdolled;
         }

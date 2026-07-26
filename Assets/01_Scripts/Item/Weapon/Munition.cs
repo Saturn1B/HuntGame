@@ -1,9 +1,10 @@
 using UnityEngine;
 using HuntingGame.Inventory;
+using HuntGame.Interactions;
 
 namespace HuntingGame.Item
 {
-    public class Munition : MonoBehaviour, ISimpleInteractable
+    public class Munition : MonoBehaviour, IInteractable
     {
         [Header("Ammo Visual Settings")]
         [SerializeField] protected OrientationSettings orientation;
@@ -101,19 +102,17 @@ namespace HuntingGame.Item
             }
         }
 
-		public void StartInteract(Transform owner)
+		public void Interact(in InteractionContext context)
 		{
-            if (owner.TryGetComponent(out PlayerInventory inventory))
+            if (context.Verb != InteractionVerb.Grab) return;
+
+            if (context.Interactor != null && context.Interactor.TryGetComponent(out PlayerInventory inventory))
                 inventory.AddItem(itemBehaviour.itemData);
 
             Destroy(gameObject);
         }
 
-        public void EndInteract()
-		{
-		}
-
-		public bool CanInteract()
+		public bool CanInteract(in InteractionContext context)
 		{
             return !isShot && isPersistent;
 		}

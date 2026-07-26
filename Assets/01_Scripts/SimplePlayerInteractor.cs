@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using HuntGame.Interactions;
 
 public class SimplePlayerInteractor : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class SimplePlayerInteractor : MonoBehaviour
 	[SerializeField] private Camera viewCamera;
 	[SerializeField] private float rayDistance = 3f;
 
-	private ISimpleInteractable interactable;
+	private IInteractable interactable;
 
 	private ISimpleUseable useable;
 
@@ -24,19 +25,21 @@ public class SimplePlayerInteractor : MonoBehaviour
 			if (hit.transform.TryGetComponent(out interactable))
 			{
 				Debug.Log("Try interact");
-				if (interactable.CanInteract())
+				var context = InteractionContext.Local(transform, InteractionVerb.Grab);
+				if (interactable.CanInteract(in context))
 				{
 					Debug.Log("Interact success");
-					interactable.StartInteract(transform);
+					interactable.Interact(in context);
 				}
 			}
 		}
 		else
 		{
-			if (interactable != null && interactable.CanInteract())
+			var context = InteractionContext.Local(transform, InteractionVerb.Release);
+			if (interactable != null && interactable.CanInteract(in context))
 			{
 				Debug.Log("End interact success");
-				interactable.EndInteract();
+				interactable.Interact(in context);
 			}
 		}
 	}
