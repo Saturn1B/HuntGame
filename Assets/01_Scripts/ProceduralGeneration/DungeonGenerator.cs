@@ -24,6 +24,13 @@ namespace HuntingGame.ProceduralGeneration
 
 		[Header("Loop Parameter")]
 		[SerializeField, Tooltip("All the loop that might generate in the dungeon")] private LoopData[] loopLibrary;
+		// AUDIT_2026-07.md #17: as of the 2026-07 audit, both tryLooping (above) and loopProbability
+		// (below) are disabled on the production DungeonGenerator, even though ~70 pre-baked LoopData
+		// assets exist under Assets/03_Prefabs/DungeonLoop/. Decision: keep both off for now rather
+		// than re-enable blindly -- the project was paused for months and nobody has re-verified loop
+		// placement recently, so "known-working tree-only dungeons" is the safer default to resume
+		// development on. Before re-enabling: regenerate a few dungeons with tryLooping=true and/or
+		// loopProbability>0 and visually check for overlapping/broken rooms.
 		[SerializeField, Range(0, 1), Tooltip("Chance to try spawning a loop instead of a room")] private float loopProbability;
 
 		private List<Socket> openSocket = new List<Socket>();
