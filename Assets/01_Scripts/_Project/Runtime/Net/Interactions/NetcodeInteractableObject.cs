@@ -119,17 +119,22 @@ namespace HuntGame.Interactions
             // NativeArray with Persistent allocator � safe for NGO to read asynchronously.
             var targetArray = new NativeArray<ulong>(otherClients.ToArray(), Allocator.Persistent);
 
-            var clientRpcParams = new ClientRpcParams
+            try
             {
-                Send = new ClientRpcSendParams
+                var clientRpcParams = new ClientRpcParams
                 {
-                    TargetClientIdsNativeArray = targetArray
-                }
-            };
+                    Send = new ClientRpcSendParams
+                    {
+                        TargetClientIdsNativeArray = targetArray
+                    }
+                };
 
-            BroadcastInteractClientRpc(verb, playerNetworkObjectId, clientRpcParams);
-
-            targetArray.Dispose();
+                BroadcastInteractClientRpc(verb, playerNetworkObjectId, clientRpcParams);
+            }
+            finally
+            {
+                targetArray.Dispose();
+            }
         }
 
         [ClientRpc]
