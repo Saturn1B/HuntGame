@@ -86,6 +86,12 @@ namespace HuntGame.Interactions
 
             if (!canInteract) return;
 
+            // Apply the authoritative state change on the server's own copy. This is what actually
+            // writes any NetworkVariable-backed state (see DoorInteractable/ChestInteractable/
+            // LeverInteractable/PickupInteractable) so late-joiners/reconnects can resync -- without
+            // this, a dedicated (non-host) server would never run Interact() on its own instance.
+            _interactable.Interact(in ctx);
+
             // Build target list excluding the sender (already played locally).
             var otherClients = new List<ulong>();
             foreach (var id in NetworkManager.ConnectedClientsIds)
@@ -98,7 +104,7 @@ namespace HuntGame.Interactions
 
             if (otherClients.Count == 0) return;
 
-            // NativeArray with Persistent allocator — safe for NGO to read asynchronously.
+            // NativeArray with Persistent allocator ï¿½ safe for NGO to read asynchronously.
             var targetArray = new NativeArray<ulong>(otherClients.ToArray(), Allocator.Persistent);
 
             var clientRpcParams = new ClientRpcParams

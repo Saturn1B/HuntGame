@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 using System.Collections;
+using Unity.Netcode;
 using HuntGame.Interactions;
-using UnityEditor.PackageManager;
 
 namespace HuntGame.Interactions
 {
     [DisallowMultipleComponent]
-    public class ChestInteractable : MonoBehaviour, IInteractable
+    public class ChestInteractable : NetworkBehaviour, IInteractable
     {
         [Header("Lid")]
         [SerializeField] private Transform lid;
@@ -26,6 +26,13 @@ namespace HuntGame.Interactions
         [Header("Debug")]
         [SerializeField] private bool debugLogs;
 
+        // Server-written, everyone-read: lets a late-joining/reconnecting client resync the
+        // chest's current state from the spawn snapshot instead of only from one-shot ClientRpcs.
+        private readonly NetworkVariable<bool> _isOpenNetworked = new(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
         private bool _isOpen;
         private bool _isAnimating;
         private float _lastUseTime;
@@ -39,6 +46,24 @@ namespace HuntGame.Interactions
             if (lid == null) return;
             _closedRot = Quaternion.Euler(closedAngle, 0f, 0f);
             _openRot = Quaternion.Euler(openAngle, 0f, 0f);
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            _isOpenNetworked.OnValueChanged += OnNetworkedStateChanged;
+
+            if (_isOpenNetworked.Value != _isOpen)
+                SetState(_isOpenNetworked.Value, instant: true);
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            _isOpenNetworked.OnValueChanged -= OnNetworkedStateChanged;
+        }
+
+        private void OnNetworkedStateChanged(bool previous, bool current)
+        {
+            SetState(current);
         }
 
         // ── IInteractable ────────────────────────────────────────────────────
@@ -71,8 +96,15 @@ namespace HuntGame.Interactions
             SetState(!_isOpen);
         }
 
-        public void SetState(bool open)
+        public void SetState(bool open) => SetState(open, instant: false);
+
+        private void SetState(bool open, bool instant)
         {
+            if (IsServer)
+                _isOpenNetworked.Value = open;
+
+            if (_isOpen == open) return;
+
             _isOpen = open;
             _lastUseTime = Time.time;
 
@@ -82,8 +114,17 @@ namespace HuntGame.Interactions
             if (open) onOpened?.Invoke();
             else onClosed?.Invoke();
 
-            if (lid != null)
-                StartCoroutine(AnimateLid(open ? _openRot : _closedRot));
+            if (lid == null) return;
+
+            if (instant)
+            {
+                // Resync path (late join / reconnect): snap directly, no need to replay the animation.
+                StopAllCoroutines();
+                lid.localRotation = open ? _openRot : _closedRot;
+                return;
+            }
+
+            StartCoroutine(AnimateLid(open ? _openRot : _closedRot));
         }
 
         // ── Animation ────────────────────────────────────────────────────────

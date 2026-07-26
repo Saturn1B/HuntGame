@@ -1,10 +1,11 @@
 ﻿using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace HuntGame.Interactions
 {
     [DisallowMultipleComponent]
-    public sealed class DoorInteractable : MonoBehaviour, IInteractable
+    public sealed class DoorInteractable : NetworkBehaviour, IInteractable
     {
         [SerializeField] private Transform _doorPivot;
         [SerializeField] private float _openAngle = 90f;
@@ -12,6 +13,13 @@ namespace HuntGame.Interactions
         [SerializeField] private float _maxUseDistance = 3f;
         [SerializeField] private float _useCooldownSeconds = 0.1f;
         [SerializeField] private bool _debugLogs;
+
+        // Server-written, everyone-read: lets a late-joining/reconnecting client resync the
+        // door's current state from the spawn snapshot instead of only from one-shot ClientRpcs.
+        private readonly NetworkVariable<bool> _isOpenNetworked = new(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
 
         private bool _isOpen;
         private bool _isAnimating;
@@ -31,6 +39,26 @@ namespace HuntGame.Interactions
             _openRotation = _closedRotation * Quaternion.Euler(0f, _openAngle, 0f);
 
             if (_debugLogs) Debug.Log($"[DoorInteractable] Initialized. ClosedRot={_closedRotation.eulerAngles} OpenRot={_openRotation.eulerAngles}");
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            _isOpenNetworked.OnValueChanged += OnNetworkedStateChanged;
+
+            // Resync path: applies immediately for a client whose spawn snapshot already carries
+            // a non-default value (e.g. a late joiner, or a client reconnecting mid-run).
+            if (_isOpenNetworked.Value != _isOpen)
+                SetState(_isOpenNetworked.Value, instant: true);
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            _isOpenNetworked.OnValueChanged -= OnNetworkedStateChanged;
+        }
+
+        private void OnNetworkedStateChanged(bool previous, bool current)
+        {
+            SetState(current);
         }
 
         public bool CanInteract(in InteractionContext context)
@@ -93,8 +121,13 @@ namespace HuntGame.Interactions
             SetState(targetState);
         }
 
-        public void SetState(bool open)
+        public void SetState(bool open) => SetState(open, instant: false);
+
+        private void SetState(bool open, bool instant)
         {
+            if (IsServer)
+                _isOpenNetworked.Value = open;
+
             if (_isOpen == open)
             {
                 if (_debugLogs) Debug.Log($"[DoorInteractable] SetState({open}) ignored, already in that state.");
@@ -105,6 +138,14 @@ namespace HuntGame.Interactions
 
             _isOpen = open;
             StopAllCoroutines();
+
+            if (instant)
+            {
+                // Resync path (late join / reconnect): snap directly, no need to replay the animation.
+                _doorPivot.localRotation = _isOpen ? _openRotation : _closedRotation;
+                return;
+            }
+
             StartCoroutine(AnimateDoor(_isOpen ? _openRotation : _closedRotation));
         }
 
