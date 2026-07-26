@@ -6,7 +6,7 @@ using HuntGame.Interactions;
 namespace HuntGame.Interactions
 {
     [DisallowMultipleComponent]
-    public class LeverInteractable : NetworkBehaviour, IInteractable
+    public class LeverInteractable : NetworkBehaviour, IInteractable, INetworkResyncable
     {
         [Header("Pivot")]
         [SerializeField] private Transform leverPivot;
@@ -40,9 +40,7 @@ namespace HuntGame.Interactions
         public override void OnNetworkSpawn()
         {
             _isOnNetworked.OnValueChanged += OnNetworkedStateChanged;
-
-            if (_isOnNetworked.Value != _isOn)
-                SetState(_isOnNetworked.Value, instant: true);
+            ResyncFromNetworkState();
         }
 
         public override void OnNetworkDespawn()
@@ -53,6 +51,13 @@ namespace HuntGame.Interactions
         private void OnNetworkedStateChanged(bool previous, bool current)
         {
             SetState(current);
+        }
+
+        /// <summary>Snaps local state back to the authoritative NetworkVariable value.</summary>
+        public void ResyncFromNetworkState()
+        {
+            if (_isOnNetworked.Value != _isOn)
+                SetState(_isOnNetworked.Value, instant: true);
         }
 
         // ── IInteractable ────────────────────────────────────────────────────

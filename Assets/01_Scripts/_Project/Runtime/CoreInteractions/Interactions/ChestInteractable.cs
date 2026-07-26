@@ -7,7 +7,7 @@ using HuntGame.Interactions;
 namespace HuntGame.Interactions
 {
     [DisallowMultipleComponent]
-    public class ChestInteractable : NetworkBehaviour, IInteractable
+    public class ChestInteractable : NetworkBehaviour, IInteractable, INetworkResyncable
     {
         [Header("Lid")]
         [SerializeField] private Transform lid;
@@ -51,9 +51,7 @@ namespace HuntGame.Interactions
         public override void OnNetworkSpawn()
         {
             _isOpenNetworked.OnValueChanged += OnNetworkedStateChanged;
-
-            if (_isOpenNetworked.Value != _isOpen)
-                SetState(_isOpenNetworked.Value, instant: true);
+            ResyncFromNetworkState();
         }
 
         public override void OnNetworkDespawn()
@@ -64,6 +62,13 @@ namespace HuntGame.Interactions
         private void OnNetworkedStateChanged(bool previous, bool current)
         {
             SetState(current);
+        }
+
+        /// <summary>Snaps local state back to the authoritative NetworkVariable value.</summary>
+        public void ResyncFromNetworkState()
+        {
+            if (_isOpenNetworked.Value != _isOpen)
+                SetState(_isOpenNetworked.Value, instant: true);
         }
 
         // ── IInteractable ────────────────────────────────────────────────────

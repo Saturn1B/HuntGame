@@ -6,7 +6,7 @@ namespace HuntGame.Interactions
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody))]
-    public class PickupInteractable : NetworkBehaviour, IInteractable
+    public class PickupInteractable : NetworkBehaviour, IInteractable, INetworkResyncable
     {
         [Header("Settings")]
         [SerializeField] private float maxPickupDistance = 3f;
@@ -40,7 +40,7 @@ namespace HuntGame.Interactions
         public override void OnNetworkSpawn()
         {
             _isHeldNetworked.OnValueChanged += OnHeldStateChanged;
-            ResyncFromNetworkStateIfNeeded();
+            ResyncFromNetworkState();
         }
 
         public override void OnNetworkDespawn()
@@ -48,14 +48,14 @@ namespace HuntGame.Interactions
             _isHeldNetworked.OnValueChanged -= OnHeldStateChanged;
         }
 
-        private void OnHeldStateChanged(bool previous, bool current) => ResyncFromNetworkStateIfNeeded();
+        private void OnHeldStateChanged(bool previous, bool current) => ResyncFromNetworkState();
 
         /// <summary>
         /// Applies the replicated held/holder state locally without touching the NetworkVariables
-        /// again -- used for late-join / reconnect resync, as opposed to an actual pickup/drop
-        /// action (which goes through ServerPickup/ServerDrop below).
+        /// again -- used for late-join / reconnect resync, as well as correcting a client whose
+        /// locally-predicted pickup/drop the server ended up rejecting.
         /// </summary>
-        private void ResyncFromNetworkStateIfNeeded()
+        public void ResyncFromNetworkState()
         {
             if (_isHeldNetworked.Value == _isHeld) return;
 

@@ -84,7 +84,19 @@ namespace HuntGame.Interactions
             bool canInteract = _interactable.CanInteract(in ctx);
             if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] Server CanInteract = {canInteract}");
 
-            if (!canInteract) return;
+            if (!canInteract)
+            {
+                // The sender already played this interaction locally (optimistic prediction in
+                // RequestInteractFromClient). Since the server refused it -- e.g. a race between two
+                // players interacting with the same object -- tell only that client to resync,
+                // instead of leaving its visual state permanently diverged from everyone else's.
+                var rejectParams = new ClientRpcParams
+                {
+                    Send = new ClientRpcSendParams { TargetClientIds = new[] { senderClientId } }
+                };
+                NotifyInteractRejectedClientRpc(rejectParams);
+                return;
+            }
 
             // Apply the authoritative state change on the server's own copy. This is what actually
             // writes any NetworkVariable-backed state (see DoorInteractable/ChestInteractable/
@@ -118,6 +130,15 @@ namespace HuntGame.Interactions
             BroadcastInteractClientRpc(verb, playerNetworkObjectId, clientRpcParams);
 
             targetArray.Dispose();
+        }
+
+        [ClientRpc]
+        private void NotifyInteractRejectedClientRpc(ClientRpcParams clientRpcParams = default)
+        {
+            if (_debugLogs) Debug.Log($"[NetcodeInteractableObject] Server rejected interaction on {gameObject.name}; resyncing local prediction.");
+
+            if (_interactable is INetworkResyncable resyncable)
+                resyncable.ResyncFromNetworkState();
         }
 
         [ClientRpc]

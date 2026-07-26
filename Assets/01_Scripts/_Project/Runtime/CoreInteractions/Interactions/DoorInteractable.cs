@@ -5,7 +5,7 @@ using UnityEngine;
 namespace HuntGame.Interactions
 {
     [DisallowMultipleComponent]
-    public sealed class DoorInteractable : NetworkBehaviour, IInteractable
+    public sealed class DoorInteractable : NetworkBehaviour, IInteractable, INetworkResyncable
     {
         [SerializeField] private Transform _doorPivot;
         [SerializeField] private float _openAngle = 90f;
@@ -47,8 +47,7 @@ namespace HuntGame.Interactions
 
             // Resync path: applies immediately for a client whose spawn snapshot already carries
             // a non-default value (e.g. a late joiner, or a client reconnecting mid-run).
-            if (_isOpenNetworked.Value != _isOpen)
-                SetState(_isOpenNetworked.Value, instant: true);
+            ResyncFromNetworkState();
         }
 
         public override void OnNetworkDespawn()
@@ -59,6 +58,13 @@ namespace HuntGame.Interactions
         private void OnNetworkedStateChanged(bool previous, bool current)
         {
             SetState(current);
+        }
+
+        /// <summary>Snaps local state back to the authoritative NetworkVariable value.</summary>
+        public void ResyncFromNetworkState()
+        {
+            if (_isOpenNetworked.Value != _isOpen)
+                SetState(_isOpenNetworked.Value, instant: true);
         }
 
         public bool CanInteract(in InteractionContext context)
