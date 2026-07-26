@@ -154,6 +154,26 @@ namespace DungeonSteakhouse.Net.Session
             _countdownActive = false;
         }
 
+        /// <summary>
+        /// Removes any stale overlap tracking for a client that just disconnected. Without this,
+        /// a client disconnecting while standing on the platform leaves an orphaned entry in
+        /// _overlapCounts forever, since OnTriggerExit never fires for a destroyed object.
+        /// </summary>
+        public void ServerRemoveClient(ulong clientId)
+        {
+            if (!_overlapCounts.Remove(clientId))
+                return;
+
+            if (logDebug)
+                Debug.Log($"[NetReadyPlatformGate] Removed stale platform tracking for disconnected clientId={clientId}.");
+
+            if (_countdownActive)
+                CancelCountdown("Countdown cancelled: a player disconnected while on the platform.");
+
+            if (_allReadyConfirmedServer)
+                SetAllReadyConfirmed(false, "AllReady lost: a player disconnected while on the platform.");
+        }
+
         private bool IsActiveOnServer()
         {
             var nm = NetworkManager.Singleton;

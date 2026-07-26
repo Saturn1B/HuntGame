@@ -60,6 +60,7 @@ namespace DungeonSteakhouse.Net.Session
 
             ConfigureSceneManager();
             NetworkManager.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.OnClientDisconnectCallback += OnClientDisconnected;
         }
 
         public override void OnNetworkDespawn()
@@ -69,7 +70,10 @@ namespace DungeonSteakhouse.Net.Session
             if (IsServer)
             {
                 if (NetworkManager != null)
+                {
                     NetworkManager.OnClientConnectedCallback -= OnClientConnected;
+                    NetworkManager.OnClientDisconnectCallback -= OnClientDisconnected;
+                }
 
                 if (NetworkManager?.SceneManager != null)
                     NetworkManager.SceneManager.OnSceneEvent -= OnSceneEvent;
@@ -328,6 +332,16 @@ namespace DungeonSteakhouse.Net.Session
         private void OnClientConnected(ulong clientId)
         {
             teleporter?.DeferredTeleportClient(clientId);
+        }
+
+        private void OnClientDisconnected(ulong clientId)
+        {
+            if (verboseLogs)
+                Debug.LogWarning($"[NetSessionManager] Client disconnected: clientId={clientId} (State={State}, FlowStep={_flowStep}).");
+
+            // Clean up any per-client tracking that would otherwise leak (OnTriggerExit never
+            // fires for a destroyed player object) or wrongly keep counting a disconnected client.
+            elevatorGate?.ServerRemoveClient(clientId);
         }
 
         private void ConfigureSceneManager()
