@@ -6,20 +6,33 @@ namespace HuntingGame.ProceduralGeneration
 {
     public class DungeonSeedBroadcaster : NetworkBehaviour
     {
+        // Server-written, everyone-read. Any client that syncs this object -- including a late
+        // joiner -- receives the current value as part of its spawn snapshot, so generation is
+        // never dependent on having been connected at the exact moment the seed was rolled.
+        private readonly NetworkVariable<int> _seed = new(
+            0,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
         public override void OnNetworkSpawn()
         {
-            if (!IsServer) return;
+            if (IsServer)
+            {
+                int seed = Random.Range(1, int.MaxValue);
+                _seed.Value = seed;
+                GenerateWithSeed(seed);
+                return;
+            }
 
-            int seed = Random.Range(1, int.MaxValue);
-            SyncSeedClientRpc(seed);                              // broadcast befor
-            FindObjectOfType<DungeonGenerator>()?.GenerateWithSeed(seed); 
+            // Client (including a late joiner): the spawn snapshot already carries the seed
+            // rolled by the server above, no need to wait for a ClientRpc.
+            if (_seed.Value != 0)
+                GenerateWithSeed(_seed.Value);
         }
 
-        [ClientRpc]
-        private void SyncSeedClientRpc(int seed)
+        private void GenerateWithSeed(int seed)
         {
-            Debug.Log($"[Client] SyncSeedClientRpc reçu, seed={seed}, IsServer={IsServer}");
-            if (IsServer) return;
+            Debug.Log($"[DungeonSeedBroadcaster] Generating with seed={seed}, IsServer={IsServer}");
             StartCoroutine(WaitAndGenerate(seed));
         }
 
@@ -31,7 +44,7 @@ namespace HuntingGame.ProceduralGeneration
                 generator = FindObjectOfType<DungeonGenerator>();
                 yield return null;
             }
-            Debug.Log($"[Client] DungeonGenerator trouvé, génération avec seed={seed}");
+
             generator.GenerateWithSeed(seed);
         }
     }
