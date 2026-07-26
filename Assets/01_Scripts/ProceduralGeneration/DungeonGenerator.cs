@@ -1,13 +1,16 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System;
 using Random = UnityEngine.Random;
 
 namespace HuntingGame.ProceduralGeneration
 {
+	/// <summary>
+	/// Single responsibility: orchestrate the overall generation loop (pick an open socket, ask
+	/// the placer to fill it, regenerate if the result is too small, close remaining sockets at
+	/// the end). Ghost pooling, room/loop/bridge placement, and footprint math live in
+	/// DungeonGhostPool, DungeonRoomPlacer and DungeonGeometryUtils respectively.
+	/// </summary>
 	public class DungeonGenerator : MonoBehaviour
 	{
 		[Header("Generator Parameter")]
@@ -26,30 +29,8 @@ namespace HuntingGame.ProceduralGeneration
 		private List<Socket> openSocket = new List<Socket>();
 		private List<Room> spawnedRoom = new List<Room>();
 
-		private Dictionary<RoomData, Room> ghostPool = new Dictionary<RoomData, Room>();
-
-		private void SetupGhostPool()
-		{
-			if (ghostPool.Count > 0) return;
-
-			foreach (var data in roomLibrary)
-			{
-				GameObject ghostObj = Instantiate(data.roomPrefab);
-				ghostObj.name = $"Ghost_{data.name}";
-				ghostObj.SetActive(false);
-
-				Room ghostRoom = ghostObj.GetComponent<Room>();
-
-				ghostPool.Add(data, ghostRoom);
-			}
-		}
-
-		private Room GetGhost(RoomData data)
-		{
-			Room ghost = ghostPool[data];
-			ghost.gameObject.SetActive(true);
-			return ghost;
-		}
+		private readonly DungeonGhostPool ghostPool = new DungeonGhostPool();
+		private DungeonRoomPlacer placer;
 
 		[ContextMenu("GenerateDungeon")] //For debug purpose, DO NOT USE
 		private void TestGenerateWithSeed() => GenerateWithSeed();
@@ -75,9 +56,10 @@ namespace HuntingGame.ProceduralGeneration
 			Generate();
 		}
 
-
 		private void Generate()
 		{
+			placer = new DungeonRoomPlacer(roomLibrary, loopLibrary, ghostPool, transform, deepness, loopProbability, tryLooping);
+
 			//Clean dungeon
 			ClearDungeon();
 
@@ -101,11 +83,11 @@ namespace HuntingGame.ProceduralGeneration
 				if (!currentSocket.isAvailable) continue;
 
 				//If socket available, try placing a room from it
-				if (TryPlaceRoom(currentSocket)) openSocket.RemoveAt(socketIndex);
+				if (placer.TryPlaceRoom(currentSocket, spawnedRoom, openSocket)) openSocket.RemoveAt(socketIndex);
 			}
 
 			//If dungeon is too small, regenerate
-			if(spawnedRoom.Count < (float)deepness / 2)
+			if (spawnedRoom.Count < (float)deepness / 2)
 			{
 				Debug.LogWarning($"Dungeon too small, generated only {spawnedRoom.Count} rooms. Regenerating !");
 				Generate();
@@ -115,338 +97,6 @@ namespace HuntingGame.ProceduralGeneration
 			//Close all still opened door after the dungeon is generated
 			FinnishDungeon();
 		}
-
-		private bool TryPlaceRoom(Socket targetSocket)
-		{
-			SetupGhostPool(); //Ensure ghost pool is set
-
-			//Random try placing a loop from loop library
-			if(Random.value < loopProbability)
-			{
-				if (TryPlaceLoop(targetSocket)) return true;
-			}
-
-			//REDUNDANT, MIGHT REMOVE THE ACTIVE LOOP GENERATION
-			//Check if we want to actively try looping
-			if (tryLooping)
-			{
-				//Before generating a room, we check to see if we can't bridge two existing socket
-				//Check on all open socket
-				foreach (Socket otherSocket in openSocket.ToList())
-				{
-					//if the socket is not available or it's from the same room as the other socket we're trying to bridge with, we skip
-					if (!otherSocket.isAvailable || otherSocket.room == targetSocket.room) continue;
-
-					//get the distance between the two socket
-					float dist = Vector3.Distance(targetSocket.transform.position, otherSocket.transform.position);
-
-					//if the two socket are in acceptable range, try bridging between them
-					if (dist > 1f && dist < 20)
-						if (TryBridgeRoom(targetSocket, otherSocket)) return true;
-				}
-			}
-
-			//Find all room having corresponding socket
-			List<RoomData> correspondingRooms = roomLibrary.Where(obj => obj.socketTypes.Contains(targetSocket.socketType)).ToList();
-
-			//If room count is bellow a certain number, remove all dead end from coresponding rooms
-			if (spawnedRoom.Count < deepness * .75f)
-				correspondingRooms = correspondingRooms.Where(r => r.roomPrefab.GetComponent<Room>().sockets.Length > 1).ToList();
-
-			//Test all corresponding room until one fits well with orientation
-			while (correspondingRooms.Count > 0)
-			{
-				//Get a random corresponding room to test by weight
-				RoomData selectedData = GetWeightedRandomRoom(correspondingRooms);
-				correspondingRooms.Remove(selectedData);
-
-				Room ghostRoom = GetGhost(selectedData);
-
-				//Find if room can be placed with one socket
-				Socket incomingSocket = CheckRoomValidityWithSocket(targetSocket, ghostRoom);
-
-				//Check if no good socket found on this room -> the room cannot be placed
-				if (incomingSocket == null)
-				{
-					//Return ghost room to pool
-					ghostRoom.gameObject.SetActive(false);
-					continue;
-				}
-
-				//If good socket found -> the room can be placed, stop search there
-				GameObject realRoomObj = Instantiate(selectedData.roomPrefab, transform);
-				Room realRoom = realRoomObj.GetComponent<Room>();
-
-				realRoom.transform.position = ghostRoom.transform.position;
-				realRoom.transform.rotation = ghostRoom.transform.rotation;
-
-				//Return ghost room to pool
-				ghostRoom.gameObject.SetActive(false);
-
-				//Validate the room and socket
-				targetSocket.isAvailable = false;
-
-				int socketIndex = System.Array.IndexOf(ghostRoom.sockets, incomingSocket);
-				realRoom.sockets[socketIndex].isAvailable = false;
-
-				spawnedRoom.Add(realRoom);
-				openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
-
-				CheckForNaturalLoop(realRoom);
-
-				return true;
-			}
-
-			//return the state of our search, did we found a room to place or not
-			return false;
-		}
-
-		private void CheckForNaturalLoop(Room room)
-		{
-			foreach (Socket newSocket in room.sockets)
-			{
-				if (!newSocket.isAvailable) continue;
-
-				foreach (Socket existingSocket in openSocket)
-				{
-					if (!existingSocket.isAvailable || existingSocket == newSocket) continue;
-
-					if (existingSocket.socketType != newSocket.socketType) continue;
-
-					if (Vector3.Distance(newSocket.socket.transform.position, existingSocket.socket.transform.position) < .1f)
-					{
-						newSocket.isAvailable = false;
-						existingSocket.isAvailable = false;
-						Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
-						Debug.Log($"Natural loop created between {room.name} and {existingSocket.room.name}");
-					}
-				}
-			}
-		}
-
-		private bool TryPlaceLoop(Socket targetSocket)
-		{
-			if (loopLibrary == null || loopLibrary.Length == 0) return false;
-
-			//Shuffle library to avaoid always picking the same room
-			List<LoopData> loopsToTry = loopLibrary.OrderBy(x => Random.value).ToList();
-
-			foreach (LoopData loop in loopsToTry)
-			{
-				for (int i = 0; i < loop.roomLoop.Count; i++)
-				{
-					RoomData anchorData = loop.roomLoop[i];
-					Room anchorGhost = GetGhost(anchorData);
-
-					//Check every socket on this specific room in the loop
-					foreach (Socket incomingSocket in anchorGhost.sockets)
-					{
-						if (incomingSocket.socketType != targetSocket.socketType) continue;
-
-						//Calculate world pos for the anchor room based on target socket
-						AlignRooms(targetSocket, incomingSocket, anchorGhost.transform);
-
-						Vector3 worldAnchorPos = anchorGhost.transform.position;
-						Quaternion worldAnchorRot = anchorGhost.transform.rotation;
-						Vector3 localAnchorPos = loop.relativePoseLoop[i].position;
-						Quaternion localAnchorRot = loop.relativePoseLoop[i].rotation;
-
-						//Pre calculate world pose for entire loop and check overlaps
-						List<Pose> worldPoses = new List<Pose>();
-						bool anyOverlap = false;
-
-						for (int j = 0; j < loop.roomLoop.Count; j++)
-						{
-							//Calculate relative transform from anchor to current room in loop space
-							Quaternion relRot = Quaternion.Inverse(localAnchorRot) * loop.relativePoseLoop[j].rotation;
-							Vector3 relPos = Quaternion.Inverse(localAnchorRot) * (loop.relativePoseLoop[j].position - localAnchorPos);
-
-							//Map loop space coord to world space based on our anchor alignment
-							Vector3 worldPos = worldAnchorPos + (worldAnchorRot * relPos);
-							Quaternion worldRot = worldAnchorRot * relRot;
-							worldPoses.Add(new Pose(worldPos, worldRot));
-
-							//Use ghot to verify room doesn't hit the existing dungeon
-							Room checkGhost = GetGhost(loop.roomLoop[j]);
-							checkGhost.transform.position = worldPos;
-							checkGhost.transform.rotation = worldRot;
-
-							Room ignoreTarget = (j == i) ? targetSocket.room : null;
-
-							if (IsOverlapping(checkGhost, ignoreTarget))
-							{
-								anyOverlap = true;
-								checkGhost.gameObject.SetActive(false);
-								break;
-							}
-							checkGhost.gameObject.SetActive(false);
-						}
-
-						//Check if any overlap, skip to try a different anchor or loop
-						if (anyOverlap) continue;
-
-						//Entire loop fits ! Instantiate all rooms
-						for (int j = 0; j < loop.roomLoop.Count; j++)
-						{
-							GameObject realRoomObj = Instantiate(loop.roomLoop[j].roomPrefab, transform);
-							Room realRoom = realRoomObj.GetComponent<Room>();
-							realRoom.transform.position = worldPoses[j].position;
-							realRoom.transform.rotation = worldPoses[j].rotation;
-
-							//Connect room anchor to dungeon entry socket
-							if (j == i)
-							{
-								targetSocket.isAvailable = false;
-								int socketIndex = System.Array.IndexOf(anchorGhost.sockets, incomingSocket);
-								realRoom.sockets[socketIndex].isAvailable = false;
-							}
-
-							spawnedRoom.Add(realRoom);
-							openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
-
-							CheckForNaturalLoop(realRoom);
-						}
-
-						//Loop succesfully placed
-						anchorGhost.gameObject.SetActive(false);
-						Debug.Log("Loop succesfully generated");
-						return true;
-					}
-					anchorGhost.gameObject.SetActive(false);
-				}
-			}
-			return false;
-		}
-
-		private bool TryBridgeRoom(Socket socketA, Socket socketB)
-		{
-			SetupGhostPool(); //Ensure ghost pool is set
-
-			//Find all room having having at least 2 socket
-			List<RoomData> candidates = roomLibrary.Where(r => r.roomPrefab.GetComponent<Room>().sockets.Length >= 2).ToList();
-
-			//Test all candidates
-			foreach (var data in candidates)
-			{
-				//Spawn the room to test
-				Room ghostRoom = GetGhost(data);
-				var ghostSockets = ghostRoom.sockets;
-
-				for (int i = 0; i < ghostSockets.Length; i++)
-				{
-					//if the first socket of the room is not of the same type as the socket we're trying to connect, we skip
-					if (ghostSockets[i].socketType != socketA.socketType) continue;
-
-					//Align room to target door
-					AlignRooms(socketA, ghostSockets[i], ghostRoom.transform);
-
-					for (int j = 0; j < ghostSockets.Length; j++)
-					{
-						//if ghost room socket is the same as the one we already tested, or is not of the same type as the socket we're trying to connect, we skip
-						if (i == j) continue;
-						if (ghostSockets[j].socketType != socketB.socketType) continue;
-
-						float dist = Vector3.Distance(ghostSockets[j].transform.position, socketB.transform.position);
-						float angle = Quaternion.Angle(ghostSockets[j].transform.rotation, Quaternion.LookRotation(-socketB.transform.forward, socketB.transform.up));
-
-						//Check if the two socket are superposed
-						if(dist < .1f && angle < 1f)
-						{
-							//Check for room overlaping
-							if (!IsOverlapping(ghostRoom, socketA.room))
-							{
-								//Bridge is valid, validate the room and socket
-
-								GameObject realRoomObj = Instantiate(data.roomPrefab, transform);
-								Room realRoom = realRoomObj.GetComponent<Room>();
-
-								realRoom.transform.position = ghostRoom.transform.position;
-								realRoom.transform.rotation = ghostRoom.transform.rotation;
-
-								//Return ghost room to pool
-								ghostRoom.gameObject.SetActive(false);
-
-								socketA.isAvailable = false;
-								socketB.isAvailable = false;
-								realRoom.sockets[i].isAvailable = false;
-								realRoom.sockets[j].isAvailable = false;
-
-								spawnedRoom.Add(realRoom);
-								openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
-
-								Debug.Log($"<color=cyan>Loop Created!</color> {realRoom.name} connected {socketA.room.name} to {socketB.room.name}");
-								//Bridge found, return true
-								return true;
-							}
-						}
-					}
-				}
-
-				//Room can't bridge, return it to pool
-				ghostRoom.gameObject.SetActive(false);
-			}
-
-			//No bridge found, return false
-			return false;
-		}
-
-		private Socket CheckRoomValidityWithSocket(Socket targetSocket, Room room)
-		{
-			//Find all corresponding sockets in the room socket array
-			List<Socket> correspondingSockets = room.sockets.Where(sck => sck.socketType == targetSocket.socketType).ToList();
-
-			//Test all corresponding socket until one fits well with orientation
-			while (correspondingSockets.Count > 0)
-			{
-				//Get a random corresponding socket to test
-				int socketIndex = Random.Range(0, correspondingSockets.Count);
-				Socket incomingSocket = correspondingSockets[socketIndex];
-				correspondingSockets.RemoveAt(socketIndex);
-
-				//Align room to target door
-				AlignRooms(targetSocket, incomingSocket, room.transform);
-
-				//Check for room overlaping
-				if (IsOverlapping(room, targetSocket.room)) continue;
-
-				//If socket found return it
-				return incomingSocket;
-			}
-
-			//If no socket found, return null
-			return null;
-		}
-
-		private RoomData GetWeightedRandomRoom(List<RoomData> options)
-		{
-			//Calculate total sum of all weights in options list
-			int totalWeight = options.Sum(r => r.roomWeight);
-
-			//Pick random number between 0 and total weight
-			int randomValue = Random.Range(0, totalWeight);
-			int currentSum = 0;
-
-			//Check all options, adding their weight to a running total
-			foreach (var room in options)
-			{
-				currentSum += room.roomWeight;
-
-				//If random value is within current accumulated weight range, return this room
-				if (randomValue < currentSum)
-				{
-					return room;
-				}
-			}
-
-			//If no room found, by default, return the first one in the list
-			return options[0];
-		}
-
-		private void AlignRooms(Socket anchor, Socket incoming, Transform roomTransform)
-			=> DungeonGeometryUtils.AlignRooms(anchor, incoming, roomTransform);
-
-		private bool IsOverlapping(Room room, Room roomToIgnore)
-			=> DungeonGeometryUtils.IsOverlappingAny(room, spawnedRoom, roomToIgnore);
 
 		[ContextMenu("ClearDungeon")]
 		private void ClearDungeon()
@@ -476,7 +126,7 @@ namespace HuntingGame.ProceduralGeneration
 				if (!s.isAvailable) continue;
 
 				//Try placing a dead, if it worked, skip
-				if (TryPlaceEndRoom(s)) continue;
+				if (placer.TryPlaceEndRoom(s, spawnedRoom, openSocket)) continue;
 
 				//If couldn't place dead end, close the socket with a barricade
 				s.CloseSocket();
@@ -484,63 +134,6 @@ namespace HuntingGame.ProceduralGeneration
 
 			//Clear the List
 			openSocket.Clear();
-		}
-
-		private bool TryPlaceEndRoom(Socket targetSocket)
-		{
-			SetupGhostPool(); //Ensure ghost pool is set
-
-			//Find all room having corresponding socket that are dead ends
-			List<RoomData> correspondingRooms = roomLibrary.Where(obj => obj.socketTypes.Contains(targetSocket.socketType)
-													&& obj.roomPrefab.GetComponent<Room>().sockets.Length == 1).ToList();
-
-			//Test all corresponding room until one fits well with orientation
-			while (correspondingRooms.Count > 0)
-			{
-				//Get a random corresponding room to test by weight
-				RoomData selectedData = GetWeightedRandomRoom(correspondingRooms);
-				correspondingRooms.Remove(selectedData);
-
-				Room ghostRoom = GetGhost(selectedData);
-
-				//Find if room can be placed with one socket
-				Socket incomingSocket = CheckRoomValidityWithSocket(targetSocket, ghostRoom);
-
-				//Check if no good socket found on this room -> the room cannot be placed
-				if (incomingSocket == null)
-				{
-					//Return ghost room to pool
-					ghostRoom.gameObject.SetActive(false);
-					continue;
-				}
-
-				//If good socket found -> the room can be placed, stop search there
-				GameObject realRoomObj = Instantiate(selectedData.roomPrefab, transform);
-				Room realRoom = realRoomObj.GetComponent<Room>();
-
-				realRoom.transform.position = ghostRoom.transform.position;
-				realRoom.transform.rotation = ghostRoom.transform.rotation;
-
-				//Return ghost room to pool
-				ghostRoom.gameObject.SetActive(false);
-
-				//Validate the room and socket
-				targetSocket.isAvailable = false;
-
-				int socketIndex = System.Array.IndexOf(ghostRoom.sockets, incomingSocket);
-				realRoom.sockets[socketIndex].isAvailable = false;
-
-				spawnedRoom.Add(realRoom);
-				openSocket.AddRange(realRoom.sockets.Where(s => s.isAvailable));
-
-				Debug.DrawRay(targetSocket.transform.position, Vector3.up * 10, Color.white, 5);
-				return true;
-			}
-
-			Debug.DrawRay(targetSocket.transform.position, Vector3.up * 10, Color.yellow, 5);
-
-			//return the state of our search, did we found a room to place or not
-			return false;
 		}
 	}
 }

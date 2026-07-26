@@ -88,5 +88,33 @@ namespace HuntingGame.ProceduralGeneration
             }
             return world;
         }
+
+        /// <summary>
+        /// Closes off any pair of sockets on <paramref name="room"/> and in <paramref name="openSocket"/>
+        /// that ended up perfectly superposed by coincidence during placement (a "natural" loop, as
+        /// opposed to one placed deliberately via a pre-baked LoopData or an active bridge).
+        /// </summary>
+        public static void CheckForNaturalLoop(Room room, List<Socket> openSocket)
+        {
+            foreach (Socket newSocket in room.sockets)
+            {
+                if (!newSocket.isAvailable) continue;
+
+                foreach (Socket existingSocket in openSocket)
+                {
+                    if (!existingSocket.isAvailable || existingSocket == newSocket) continue;
+
+                    if (existingSocket.socketType != newSocket.socketType) continue;
+
+                    if (Vector3.Distance(newSocket.socket.transform.position, existingSocket.socket.transform.position) < .1f)
+                    {
+                        newSocket.isAvailable = false;
+                        existingSocket.isAvailable = false;
+                        Debug.DrawRay(newSocket.transform.position, Vector3.up * 20, Color.cyan, 5);
+                        Debug.Log($"Natural loop created between {room.name} and {existingSocket.room.name}");
+                    }
+                }
+            }
+        }
     }
 }
