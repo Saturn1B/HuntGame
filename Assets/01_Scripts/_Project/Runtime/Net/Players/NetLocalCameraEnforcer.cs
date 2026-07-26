@@ -37,6 +37,14 @@ namespace DungeonSteakhouse.Net.Players
 
         private float _enforceUntilTime;
 
+        /// <summary>
+        /// The local player's active camera, kept up to date by this component instead of relying
+        /// on Camera.main -- which is unreliable in additive multiplayer scenes right after a scene
+        /// load, before this enforcer has had a chance to (re)tag the owner's camera. Null if no
+        /// local player camera has been enforced yet (e.g. non-networked scenes).
+        /// </summary>
+        public static Camera LocalCamera { get; private set; }
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -61,6 +69,9 @@ namespace DungeonSteakhouse.Net.Players
             {
                 SceneManager.sceneLoaded -= OnSceneLoaded;
                 SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+
+                if (LocalCamera == ownerCamera)
+                    LocalCamera = null;
             }
 
             base.OnNetworkDespawn();
@@ -127,6 +138,7 @@ namespace DungeonSteakhouse.Net.Players
 
             // Ensure owner's rig is enabled
             ownerCamera.enabled = true;
+            LocalCamera = ownerCamera;
 
             if (ownerAudioListener != null)
                 ownerAudioListener.enabled = true;

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Sirenix.OdinInspector;
+using DungeonSteakhouse.Net.Players;
 
 namespace HuntingGame
 {
@@ -18,9 +19,16 @@ namespace HuntingGame
 
 		private void Update()
 		{
+			// Camera.main is unreliable in additive multiplayer scenes right after a scene load
+			// (stale/null until NetLocalCameraEnforcer re-tags the owner's camera); prefer the
+			// enforcer's known-good local camera when one is available (falls back to Camera.main
+			// for non-networked/singleplayer scenes).
+			Camera cam = NetLocalCameraEnforcer.LocalCamera != null ? NetLocalCameraEnforcer.LocalCamera : Camera.main;
+			if (cam == null) return;
+
 			Vector3 targetPoint;
 
-			Ray ray = Camera.main.ViewportPointToRay(new Vector3(.5f, .5f, 0));
+			Ray ray = cam.ViewportPointToRay(new Vector3(.5f, .5f, 0));
 			RaycastHit hit;
 
 			if (Physics.Raycast(ray, out hit, maxAimDistance))
@@ -30,7 +38,7 @@ namespace HuntingGame
 
 			Vector3 aimDirection = (targetPoint - transform.position).normalized;
 
-			Quaternion targetRotation = RotationUtils.GetCorrectedLookRotation(aimDirection, Camera.main.transform.up, orientation);
+			Quaternion targetRotation = RotationUtils.GetCorrectedLookRotation(aimDirection, cam.transform.up, orientation);
 
 			if (isFirstFrame)
 			{

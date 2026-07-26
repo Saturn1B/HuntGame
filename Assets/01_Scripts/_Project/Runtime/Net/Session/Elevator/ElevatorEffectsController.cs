@@ -1,4 +1,5 @@
 using System.Collections;
+using DungeonSteakhouse.Net.Players;
 using UnityEngine;
 
 namespace DungeonSteakhouse.Net.Session
@@ -61,7 +62,9 @@ namespace DungeonSteakhouse.Net.Session
 
         private IEnumerator CameraShakeRoutine()
         {
-            var cam = Camera.main;
+            // Camera.main is unreliable here: right after an additive scene load, it can return
+            // null or a stale camera until NetLocalCameraEnforcer has (re)tagged the owner's camera.
+            var cam = NetLocalCameraEnforcer.LocalCamera != null ? NetLocalCameraEnforcer.LocalCamera : Camera.main;
             if (cam == null) yield break;
 
             var originalLocalPos = cam.transform.localPosition;
