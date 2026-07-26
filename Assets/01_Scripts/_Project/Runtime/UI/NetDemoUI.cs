@@ -36,8 +36,20 @@ namespace DungeonSteakhouse.Net
 
         private void OnNetStateChanged(NetGameState state)
         {
-            if (menuRoot != null)
-                menuRoot.SetActive(state == NetGameState.Offline);
+            bool showMenu = state == NetGameState.Offline;
+
+            if (menuRoot == null)
+                return;
+
+            menuRoot.SetActive(showMenu);
+
+            // The menu's root Canvas (Screen Space - Overlay) renders on top of everything,
+            // including the 3D game view. Hiding only this panel left the Canvas' other children
+            // (background, logo) active and visible over Elevator/Taverne/Dungeon once connected.
+            // Disable the whole Canvas GameObject, not just this panel.
+            Transform canvasRoot = menuRoot.transform.root;
+            if (canvasRoot != null && canvasRoot != menuRoot.transform)
+                canvasRoot.gameObject.SetActive(showMenu);
         }
 
         private void Update()
