@@ -125,6 +125,11 @@ namespace DungeonSteakhouse.Net.Steam
             _ = JoinLobbyAsync(lobby.Id);
         }
 
+        public void JoinLobbyBySteamId(SteamId lobbyId)
+        {
+            _ = JoinLobbyAsync(lobbyId);
+        }
+
         private async Task JoinLobbyAsync(SteamId lobbyId)
         {
             if (!SteamBootstrap.Ready)

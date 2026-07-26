@@ -1742,6 +1742,7 @@ GameObject:
   - component: {fileID: 2011767857}
   - component: {fileID: 2011767862}
   - component: {fileID: 2011767863}
+  - component: {fileID: 2011767864}
   m_Layer: 0
   m_Name: NetWorkRoot
   m_TagString: Untagged
@@ -1928,6 +1929,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65ea64bc6ec1b034691c66e298473229, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Steam.SteamIdentityProvider
+--- !u!114 &2011767864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011767853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4962301c4ced023469d356b956d8ad48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonSteakhouse.Net.Steam.SteamInviteService
+  lobbyNetcode: {fileID: 2011767862}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

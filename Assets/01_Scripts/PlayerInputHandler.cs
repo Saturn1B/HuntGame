@@ -49,11 +49,10 @@ public class PlayerInputHandler : MonoBehaviour
 
 	public void OnJump(InputValue value) { movementController?.Jump(); }
 
-	public void OnInteract(InputValue value) { playerInteractor.TryInteract(value.isPressed);  }
+    public void OnInteract(InputValue value) { playerInteractor?.TryInteract(value.isPressed); }
+    public void OnUse(InputValue value) { playerInteractor?.TryUse(value.isPressed); }
 
-	public void OnUse(InputValue value) { playerInteractor.TryUse(value.isPressed);  }
-
-	public void OnScrollInventory(InputValue value)
+    public void OnScrollInventory(InputValue value)
 	{
 		float scroll = value.Get<float>();
 		playerInventory.ScrollSlot(Mathf.RoundToInt(scroll) * -1);
