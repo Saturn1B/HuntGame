@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using HuntGame.Interactions;
+using HuntGame.Player;
 
 namespace HuntingGame.AI
 {
@@ -138,10 +139,8 @@ namespace HuntingGame.AI
             isGrabbed = true;
             grabber = owner;
 
-            if (grabber.TryGetComponent(out CharacterMovement characterMovement))
-                characterMovement.SetSlowingWeight(true, ragdollWeight);
-            if (grabber.TryGetComponent(out FirstPersonCamera firstPersonCamera))
-                firstPersonCamera.SetSlowingWeight(true, ragdollWeight);
+            foreach (ISlowable slowable in grabber.GetComponents<ISlowable>())
+                slowable.SetSlowingWeight(true, ragdollWeight);
 
             joint = grabber.GetComponentInChildren<ConfigurableJoint>();
 
@@ -205,10 +204,8 @@ namespace HuntingGame.AI
 
             isGrabbed = false;
 
-            if (grabber.TryGetComponent(out CharacterMovement characterMovement))
-                characterMovement.SetSlowingWeight(false, 0);
-            if (grabber.TryGetComponent(out FirstPersonCamera firstPersonCamera))
-                firstPersonCamera.SetSlowingWeight(false, 0);
+            foreach (ISlowable slowable in grabber.GetComponents<ISlowable>())
+                slowable.SetSlowingWeight(false, 0);
 
             grabber = null;
 

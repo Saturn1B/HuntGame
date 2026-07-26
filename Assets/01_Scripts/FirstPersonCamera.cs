@@ -1,6 +1,7 @@
+using HuntGame.Player;
 using UnityEngine;
 
-public class FirstPersonCamera : MonoBehaviour
+public class FirstPersonCamera : MonoBehaviour, ISlowable
 {
     [Header("Look Settings")]
     [SerializeField] private float lookSensitivity = 2f;

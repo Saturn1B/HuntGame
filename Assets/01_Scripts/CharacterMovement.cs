@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class CharacterMovement : MonoBehaviour, IMovable, ILookable
+public class CharacterMovement : MonoBehaviour, IMovable, ILookable, ISlowable
 {
     [Header("Movement Speed")]
     [SerializeField] private float moveSpeed = 10f;
