@@ -28,10 +28,7 @@ namespace HuntingGame
 
             if (currentHealthPoint <= 0) return;
 
-            if (Mathf.Abs(value) >= currentHealthPoint)
-                currentHealthPoint = 0;
-            else
-                currentHealthPoint += value;
+            currentHealthPoint = Mathf.Clamp(currentHealthPoint + value, 0, healthPoint);
 
             _onChangeHealthValue?.Invoke(currentHealthPoint);
 
