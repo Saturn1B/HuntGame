@@ -1,7 +1,8 @@
-using HuntGame.Player;
 using System.Collections;
 using UnityEngine;
 
+namespace HuntGame.Player
+{
 [RequireComponent(typeof(CharacterController))]
 public class CharacterMovement : MonoBehaviour, IMovable, ILookable, ISlowable
 {
@@ -150,4 +151,5 @@ public class CharacterMovement : MonoBehaviour, IMovable, ILookable, ISlowable
     }
 
     public void SetCanMove(bool canMove) => this.canMove = canMove;
+}
 }

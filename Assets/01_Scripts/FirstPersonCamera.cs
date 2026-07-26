@@ -1,6 +1,7 @@
-using HuntGame.Player;
 using UnityEngine;
 
+namespace HuntGame.Player
+{
 public class FirstPersonCamera : MonoBehaviour, ISlowable
 {
     [Header("Look Settings")]
@@ -70,4 +71,5 @@ public class FirstPersonCamera : MonoBehaviour, ISlowable
 
         return targetSpeed;
     }
+}
 }

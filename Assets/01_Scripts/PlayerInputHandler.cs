@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using HuntingGame.Inventory;
 
+namespace HuntGame.Player
+{
 [RequireComponent(typeof(PlayerInput))]
 public class PlayerInputHandler : MonoBehaviour
 {
@@ -57,4 +59,5 @@ public class PlayerInputHandler : MonoBehaviour
 		float scroll = value.Get<float>();
 		playerInventory.ScrollSlot(Mathf.RoundToInt(scroll) * -1);
 	}
+}
 }

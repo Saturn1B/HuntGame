@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 using HuntingGame.Item;
+using HuntGame.Player;
 
 namespace HuntingGame.Inventory
 {

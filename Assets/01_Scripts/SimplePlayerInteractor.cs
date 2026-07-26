@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using HuntGame.Interactions;
 
+namespace HuntGame.Player
+{
 public class SimplePlayerInteractor : MonoBehaviour
 {
 	[Header("Raycast")]
@@ -71,4 +73,5 @@ public class SimplePlayerInteractor : MonoBehaviour
 	{
 		useable = use;
 	}
+}
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System;
 using System.Collections;
+using HuntGame.Player;
 
 namespace HuntingGame.AI
 {
